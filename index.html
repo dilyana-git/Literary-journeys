@@ -1,0 +1,1208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Literary Journeys</title>
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --parchment:    #f5f0e8;
+      --parchment-dk: #ede8dc;
+      --border:       #c4b89a;
+      --ink:          #2c2416;
+      --ink-mid:      #5a4a35;
+      --ink-light:    #8b7a5e;
+      --sidebar-w:    320px;
+    }
+
+    html, body {
+      height: 100%;
+      font-family: 'Crimson Text', Georgia, serif;
+      background: var(--parchment);
+      color: var(--ink);
+    }
+
+    /* ── layout ──────────────────────────────────────────── */
+    #app {
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ── sidebar ─────────────────────────────────────────── */
+    #sidebar {
+      width: var(--sidebar-w);
+      min-width: var(--sidebar-w);
+      background: var(--parchment-dk);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      z-index: 900;
+      box-shadow: 2px 0 14px rgba(44,36,22,0.09);
+    }
+
+    #sidebar-header {
+      padding: 22px 22px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    #sidebar-header h1 {
+      font-family: 'EB Garamond', Georgia, serif;
+      font-size: 1.65rem;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      color: var(--ink);
+      line-height: 1.15;
+    }
+
+    .header-rule {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 10px 0 8px;
+    }
+
+    #sidebar-header p {
+      font-style: italic;
+      color: var(--ink-light);
+      font-size: 0.88rem;
+    }
+
+    /* ── controls ────────────────────────────────────────── */
+    #controls {
+      display: flex;
+      gap: 8px;
+      padding: 10px 22px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .ctrl-btn {
+      flex: 1;
+      padding: 5px 8px;
+      font-family: 'Crimson Text', serif;
+      font-size: 0.85rem;
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--ink-mid);
+      cursor: pointer;
+      border-radius: 2px;
+      letter-spacing: 0.02em;
+      transition: background 0.15s, color 0.15s, border-color 0.15s;
+    }
+
+    .ctrl-btn:hover {
+      background: var(--parchment);
+      color: var(--ink);
+      border-color: var(--ink-light);
+    }
+
+    /* ── journey list ────────────────────────────────────── */
+    #journey-list {
+      flex: 1;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
+    }
+
+    #journey-list::-webkit-scrollbar { width: 5px; }
+    #journey-list::-webkit-scrollbar-track { background: transparent; }
+    #journey-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+    .journey-item {
+      border-bottom: 1px solid var(--border);
+    }
+
+    .journey-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 22px 4px;
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.1s;
+    }
+
+    .journey-header:hover { background: rgba(0,0,0,0.03); }
+    .journey-item.active > .journey-header { background: rgba(0,0,0,0.04); }
+
+    .color-swatch {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      border: 1.5px solid rgba(0,0,0,0.2);
+    }
+
+    .journey-title {
+      font-family: 'EB Garamond', serif;
+      font-size: 1.05rem;
+      font-weight: 600;
+      flex: 1;
+      line-height: 1.25;
+    }
+
+    .active-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--ink-mid);
+      flex-shrink: 0;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .journey-item.active .active-dot { opacity: 1; }
+
+    .journey-meta,
+    .journey-badge {
+      padding: 0 22px 0 43px;
+      font-size: 0.82rem;
+      color: var(--ink-light);
+      font-style: italic;
+      cursor: pointer;
+      transition: color 0.1s;
+    }
+
+    .journey-meta { padding-bottom: 2px; }
+    .journey-meta:hover, .journey-badge:hover { color: var(--ink-mid); }
+
+    .journey-badge {
+      font-size: 0.71rem;
+      font-style: normal;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      padding-bottom: 10px;
+    }
+
+    /* ── expanded body ───────────────────────────────────── */
+    .journey-body {
+      display: none;
+      border-top: 1px solid var(--border);
+      padding: 8px 0 12px;
+      background: rgba(0,0,0,0.02);
+    }
+
+    .journey-item.active .journey-body { display: block; }
+
+    .journey-blurb {
+      padding: 6px 22px 8px 43px;
+      font-size: 0.84rem;
+      color: var(--ink-mid);
+      font-style: italic;
+      line-height: 1.45;
+    }
+
+    .trace-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      margin: 2px 0 6px 43px;
+      padding: 3px 10px;
+      font-family: 'Crimson Text', serif;
+      font-size: 0.8rem;
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--ink-mid);
+      cursor: pointer;
+      border-radius: 2px;
+      transition: background 0.15s, color 0.15s, border-color 0.15s;
+    }
+
+    .trace-btn:hover { background: var(--parchment); color: var(--ink); border-color: var(--ink-light); }
+    .trace-btn.tracing { border-color: var(--ink-mid); color: var(--ink); background: var(--parchment); }
+
+    .stop-list { list-style: none; }
+
+    .stop-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 4px 22px 4px 43px;
+      font-size: 0.85rem;
+      color: var(--ink-mid);
+      cursor: pointer;
+      line-height: 1.3;
+      transition: background 0.1s, color 0.1s;
+    }
+
+    .stop-item:hover { color: var(--ink); background: rgba(0,0,0,0.03); }
+    .stop-item.lit    { background: rgba(0,0,0,0.055); color: var(--ink); }
+
+    .stop-num {
+      width: 17px;
+      height: 17px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: white;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .stop-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      border: 2px solid currentColor;
+      flex-shrink: 0;
+      margin-top: 4px;
+      opacity: 0.7;
+    }
+
+    /* ── legend ──────────────────────────────────────────── */
+    #legend {
+      padding: 10px 22px 13px;
+      border-top: 1px solid var(--border);
+      font-size: 0.78rem;
+      color: var(--ink-light);
+    }
+
+    .legend-title {
+      font-family: 'EB Garamond', serif;
+      font-size: 0.8rem;
+      font-weight: 400;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 7px;
+    }
+
+    .legend-row {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      margin-bottom: 4px;
+    }
+
+    .legend-icon { width: 22px; display: flex; align-items: center; justify-content: center; }
+
+    /* ── map ─────────────────────────────────────────────── */
+    #map { flex: 1; height: 100%; }
+
+    /* ── empty state ─────────────────────────────────────── */
+    #empty-state {
+      position: fixed;
+      top: 50%;
+      left: calc(var(--sidebar-w) + (100vw - var(--sidebar-w)) / 2);
+      transform: translate(-50%, -50%);
+      text-align: center;
+      pointer-events: none;
+      z-index: 400;
+      transition: opacity 0.4s;
+    }
+
+    #empty-state.hidden { opacity: 0; }
+
+    .empty-glyph {
+      font-size: 2.2rem;
+      color: var(--border);
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    #empty-state h2 {
+      font-family: 'EB Garamond', serif;
+      font-size: 1.2rem;
+      font-weight: 400;
+      font-style: italic;
+      color: var(--ink-light);
+    }
+
+    #empty-state p {
+      font-size: 0.85rem;
+      color: var(--ink-light);
+      margin-top: 5px;
+      opacity: 0.7;
+    }
+
+    /* ── Leaflet popup overrides ─────────────────────────── */
+    .leaflet-popup-content-wrapper {
+      background: var(--parchment) !important;
+      border: 1px solid var(--border) !important;
+      border-radius: 3px !important;
+      box-shadow: 0 4px 22px rgba(44,36,22,0.18) !important;
+      font-family: 'Crimson Text', serif !important;
+      color: var(--ink) !important;
+    }
+
+    .leaflet-popup-tip { background: var(--parchment) !important; }
+
+    .leaflet-popup-content {
+      margin: 14px 18px !important;
+      min-width: 200px;
+      max-width: 260px;
+      line-height: 1.5 !important;
+    }
+
+    .pop-name {
+      font-family: 'EB Garamond', serif;
+      font-size: 1.15rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      margin-bottom: 3px;
+    }
+
+    .pop-num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: white;
+      flex-shrink: 0;
+    }
+
+    .pop-place {
+      font-size: 0.82rem;
+      color: var(--ink-light);
+      font-style: italic;
+      margin-bottom: 9px;
+    }
+
+    .pop-inbook {
+      font-size: 0.9rem;
+      color: var(--ink-mid);
+      margin-bottom: 9px;
+      line-height: 1.45;
+    }
+
+    .pop-footer {
+      border-top: 1px solid var(--border);
+      padding-top: 7px;
+      font-size: 0.78rem;
+      color: var(--ink-light);
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 8px;
+    }
+
+    .pop-note {
+      font-size: 0.74rem;
+      color: var(--ink-light);
+      font-style: italic;
+      margin-top: 5px;
+    }
+
+    /* ── mobile ──────────────────────────────────────────── */
+    @media (max-width: 680px) {
+      #app { flex-direction: column; }
+
+      #sidebar {
+        width: 100%;
+        min-width: 0;
+        max-height: 44vh;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+      }
+
+      #map { flex: 1; min-height: 0; }
+
+      #empty-state {
+        top: 72vh;
+        left: 50%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div id="app">
+  <aside id="sidebar">
+    <div id="sidebar-header">
+      <h1>Literary Journeys</h1>
+      <hr class="header-rule" />
+      <p>Routes of the imagination</p>
+    </div>
+
+    <div id="controls">
+      <button class="ctrl-btn" id="btn-show-all">Show all</button>
+      <button class="ctrl-btn" id="btn-clear">Clear</button>
+    </div>
+
+    <div id="journey-list"></div>
+
+    <div id="legend">
+      <div class="legend-title">Map key</div>
+      <div class="legend-row">
+        <div class="legend-icon">
+          <div style="width:14px;height:14px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:var(--ink-light);border:2px solid rgba(255,255,255,0.65)"></div>
+        </div>
+        <span>Numbered stop &mdash; route</span>
+      </div>
+      <div class="legend-row">
+        <div class="legend-icon">
+          <div style="width:10px;height:10px;border-radius:50%;border:2px solid var(--ink-light);background:rgba(139,122,94,0.25)"></div>
+        </div>
+        <span>Dispersed place &mdash; constellation</span>
+      </div>
+      <div class="legend-row">
+        <div class="legend-icon">
+          <div style="width:22px;border-top:2px dashed var(--ink-light)"></div>
+        </div>
+        <span>Journey route</span>
+      </div>
+    </div>
+  </aside>
+
+  <div id="map"></div>
+</div>
+
+<div id="empty-state">
+  <span class="empty-glyph">✦</span>
+  <h2>Select a journey to begin</h2>
+  <p>Choose from the books in the sidebar</p>
+</div>
+
+<script>
+// ╔═══════════════════════════════════════════════════════════════╗
+// ║  JOURNEY DATA                                                ║
+// ║  To add a new book, copy any object below and fill in:       ║
+// ║    id        unique slug, e.g. "my-book"                     ║
+// ║    title     book title                                      ║
+// ║    author    author name                                     ║
+// ║    year      publication year / date                         ║
+// ║    type      "route"         ordered stops + connecting line  ║
+// ║              "constellation" unordered places, no line       ║
+// ║    color     hex colour for markers and line                 ║
+// ║    blurb     one-line description                            ║
+// ║    stops[]   array of stop objects, each with:               ║
+// ║      name        place name in the book                      ║
+// ║      realPlace   real-world location                         ║
+// ║      coords      [latitude, longitude]                       ║
+// ║      inBook      what happens here / role in narrative       ║
+// ║      reference   chapter / book / part reference             ║
+// ║      note        (optional) caveats about the location       ║
+// ╚═══════════════════════════════════════════════════════════════╝
+
+const JOURNEYS = [
+
+  // ─── 1. The Odyssey ────────────────────────────────────────────
+  {
+    id:     "odyssey",
+    title:  "The Odyssey",
+    author: "Homer",
+    year:   "c. 8th century BCE",
+    type:   "route",
+    color:  "#3a6b8c",
+    blurb:  "Odysseus's ten-year voyage home from Troy to Ithaca.",
+    stops: [
+      {
+        name:      "Troy",
+        realPlace: "Hisarlık, Turkey",
+        coords:    [39.957, 26.239],
+        inBook:    "The war ends; Odysseus sets sail for home.",
+        reference: "Book I"
+      },
+      {
+        name:      "Ismarus (the Cicones)",
+        realPlace: "Thracian coast, Greece",
+        coords:    [40.93, 25.55],
+        inBook:    "His men raid the Cicones and are driven off with losses.",
+        reference: "Book IX"
+      },
+      {
+        name:      "Land of the Lotus-Eaters",
+        realPlace: "Djerba, Tunisia",
+        coords:    [33.81, 10.85],
+        inBook:    "Men who eat the lotus lose all desire to go home.",
+        reference: "Book IX",
+        note:      "Approximate / conventional placement"
+      },
+      {
+        name:      "Island of the Cyclopes",
+        realPlace: "Sicily, Italy",
+        coords:    [37.75, 15.08],
+        inBook:    "Odysseus blinds Polyphemus to escape the cave.",
+        reference: "Book IX",
+        note:      "Traditional identification with Sicily"
+      },
+      {
+        name:      "Aeolia",
+        realPlace: "Aeolian Islands, Italy",
+        coords:    [38.79, 15.21],
+        inBook:    "Aeolus gives him a bag of captured winds.",
+        reference: "Book X"
+      },
+      {
+        name:      "Land of the Laestrygonians",
+        realPlace: "Sardinia (location disputed)",
+        coords:    [41.09, 9.16],
+        inBook:    "Cannibal giants destroy all but one of his ships.",
+        reference: "Book X",
+        note:      "Location disputed — Sardinia used here"
+      },
+      {
+        name:      "Aeaea (Circe's island)",
+        realPlace: "Cape Circeo, Italy",
+        coords:    [41.24, 13.09],
+        inBook:    "Circe turns his crew to swine, then becomes an ally.",
+        reference: "Book X"
+      },
+      {
+        name:      "The Underworld",
+        realPlace: "Lake Avernus, Italy (conventional entrance)",
+        coords:    [40.84, 14.07],
+        inBook:    "He consults the dead, including the prophet Tiresias.",
+        reference: "Book XI",
+        note:      "Entrance conventionally placed at Lake Avernus"
+      },
+      {
+        name:      "The Sirens",
+        realPlace: "Li Galli islands, near Positano",
+        coords:    [40.58, 14.43],
+        inBook:    "Bound to the mast, he hears the Sirens and survives.",
+        reference: "Book XII"
+      },
+      {
+        name:      "Scylla & Charybdis",
+        realPlace: "Strait of Messina, Italy",
+        coords:    [38.24, 15.63],
+        inBook:    "He loses six men threading the monster and the whirlpool.",
+        reference: "Book XII"
+      },
+      {
+        name:      "Thrinacia",
+        realPlace: "Sicily, Italy (island of Helios)",
+        coords:    [37.55, 14.27],
+        inBook:    "His crew slaughter the Sun God's cattle and are doomed.",
+        reference: "Book XII",
+        note:      "Traditional identification with Sicily"
+      },
+      {
+        name:      "Ogygia",
+        realPlace: "Gozo, Malta (often identified)",
+        coords:    [36.05, 14.25],
+        inBook:    "Calypso holds him for seven years.",
+        reference: "Books V, VII",
+        note:      "Conventional placement — island is mythical"
+      },
+      {
+        name:      "Scheria",
+        realPlace: "Corfu, Greece (traditional)",
+        coords:    [39.62, 19.92],
+        inBook:    "The Phaeacians hear his tale and give him passage home.",
+        reference: "Books VI–XIII",
+        note:      "Traditional identification with Corfu"
+      },
+      {
+        name:      "Ithaca",
+        realPlace: "Ithaca, Ionian Sea, Greece",
+        coords:    [38.40, 20.71],
+        inBook:    "Home at last; he reclaims his household.",
+        reference: "Books XIII–XXIV"
+      }
+    ]
+  },
+
+  // ─── 2. On the Road ────────────────────────────────────────────
+  {
+    id:     "on-the-road",
+    title:  "On the Road",
+    author: "Jack Kerouac",
+    year:   "1957",
+    type:   "route",
+    color:  "#c08a2e",
+    blurb:  "Sal Paradise's restless cross-country wanderings with Dean Moriarty.",
+    stops: [
+      {
+        name:      "New York City",
+        realPlace: "New York, USA",
+        coords:    [40.71, -74.01],
+        inBook:    "Sal sets out west for the first time.",
+        reference: "Part 1"
+      },
+      {
+        name:      "Chicago",
+        realPlace: "Chicago, Illinois",
+        coords:    [41.88, -87.63],
+        inBook:    "A jazz-soaked stop on the way west.",
+        reference: "Part 1"
+      },
+      {
+        name:      "Des Moines",
+        realPlace: "Des Moines, Iowa",
+        coords:    [41.59, -93.62],
+        inBook:    "Sal wakes not knowing who he is — the trip's still point.",
+        reference: "Part 1"
+      },
+      {
+        name:      "Denver",
+        realPlace: "Denver, Colorado",
+        coords:    [39.74, -104.99],
+        inBook:    "Reunions with Dean Moriarty and the Denver crowd.",
+        reference: "Parts 1–3"
+      },
+      {
+        name:      "Bakersfield / Central Valley",
+        realPlace: "Central Valley, California",
+        coords:    [35.37, -119.02],
+        inBook:    "Sal travels with Terry among migrant cotton-pickers.",
+        reference: "Part 1"
+      },
+      {
+        name:      "San Francisco",
+        realPlace: "San Francisco, California",
+        coords:    [37.77, -122.42],
+        inBook:    "The coast, the jazz clubs, and disillusion.",
+        reference: "Parts 1–3"
+      },
+      {
+        name:      "New Orleans (Algiers)",
+        realPlace: "Algiers, Louisiana",
+        coords:    [29.95, -90.07],
+        inBook:    "Visiting Old Bull Lee across the river.",
+        reference: "Part 2"
+      },
+      {
+        name:      "Detroit",
+        realPlace: "Detroit, Michigan",
+        coords:    [42.33, -83.05],
+        inBook:    "A skid-row night before pushing east.",
+        reference: "Part 3"
+      },
+      {
+        name:      "Mexico City",
+        realPlace: "Mexico City, Mexico",
+        coords:    [19.43, -99.13],
+        inBook:    "The final journey south; Sal falls ill and is left behind.",
+        reference: "Part 4"
+      }
+    ]
+  },
+
+  // ─── 3. Journey to the End of the Night ────────────────────────
+  {
+    id:     "journey-night",
+    title:  "Journey to the End of the Night",
+    author: "Louis-Ferdinand Céline",
+    year:   "1932",
+    type:   "route",
+    color:  "#7a2e2e",
+    blurb:  "Bardamu's bitter odyssey through war, colonies, America, and the Parisian night.",
+    stops: [
+      {
+        name:      "Paris",
+        realPlace: "Paris, France",
+        coords:    [48.86, 2.35],
+        inBook:    "Bardamu enlists almost on a whim, outside a café.",
+        reference: "Opening"
+      },
+      {
+        name:      "The Western Front",
+        realPlace: "Flanders, France / Belgium",
+        coords:    [50.85, 2.88],
+        inBook:    "The horror and absurdity of WWI trench warfare.",
+        reference: "Early chapters"
+      },
+      {
+        name:      "Bambola-Bragamance",
+        realPlace: "Fictional French colony (~Cameroon / Gabon)",
+        coords:    [3.87, 11.52],
+        inBook:    "A fever-ridden, corrupt colonial trading post.",
+        reference: "Africa chapters",
+        note:      "Fictional composite — placed in the Cameroon/Gabon region"
+      },
+      {
+        name:      "New York City",
+        realPlace: "New York, USA",
+        coords:    [40.71, -74.01],
+        inBook:    "Bardamu arrives broke and adrift in America.",
+        reference: "America chapters"
+      },
+      {
+        name:      "Detroit",
+        realPlace: "Detroit, Michigan",
+        coords:    [42.33, -83.05],
+        inBook:    "Grinding work on the Ford assembly line.",
+        reference: "America chapters"
+      },
+      {
+        name:      "Rancy",
+        realPlace: "Fictional working-class Paris suburb",
+        coords:    [48.92, 2.45],
+        inBook:    "Bardamu practises medicine among the poor.",
+        reference: "Later chapters",
+        note:      "Fictional suburb — coordinates approximate"
+      },
+      {
+        name:      "Toulouse",
+        realPlace: "Toulouse, France",
+        coords:    [43.60, 1.44],
+        inBook:    "A grim interlude — the Henrouille affair.",
+        reference: "Later chapters"
+      },
+      {
+        name:      "Vigny-sur-Seine",
+        realPlace: "Fictional Seine-side suburb (the asylum)",
+        coords:    [48.74, 2.41],
+        inBook:    "He ends up running an asylum — 'the end of the night.'",
+        reference: "Closing chapters",
+        note:      "Fictional location — coordinates approximate"
+      }
+    ]
+  },
+
+  // ─── 4. The Avignon Quintet ─────────────────────────────────────
+  {
+    id:     "avignon-quintet",
+    title:  "The Avignon Quintet",
+    author: "Lawrence Durrell",
+    year:   "1974–1985",
+    type:   "constellation",
+    color:  "#5f7a3a",
+    blurb:  "A dispersed cycle of five novels orbiting Avignon, Provence, and the Templar mystery.",
+    stops: [
+      {
+        name:      "Avignon",
+        realPlace: "Avignon, France",
+        coords:    [43.95, 4.81],
+        inBook:    "The brooding centre of the cycle — the city and its Templar history.",
+        reference: "All five novels"
+      },
+      {
+        name:      "Verfeuille / Tu Duc",
+        realPlace: "Fictional estate, Provençal countryside",
+        coords:    [43.92, 4.92],
+        inBook:    "The decaying chateau where much of the cast gathers.",
+        reference: "Monsieur; Livia",
+        note:      "Fictional estate — placed near Avignon"
+      },
+      {
+        name:      "Geneva",
+        realPlace: "Geneva, Switzerland",
+        coords:    [46.20, 6.14],
+        inBook:    "Wartime refuge and psychoanalytic milieu.",
+        reference: "Livia; Constance"
+      },
+      {
+        name:      "Venice",
+        realPlace: "Venice, Italy",
+        coords:    [45.44, 12.32],
+        inBook:    "A city of masks, decadence, and intrigue.",
+        reference: "Monsieur; Sebastian"
+      },
+      {
+        name:      "Alexandria",
+        realPlace: "Alexandria, Egypt",
+        coords:    [31.20, 29.92],
+        inBook:    "Egyptian threads of memory and the Templar mystery.",
+        reference: "Monsieur; Livia"
+      },
+      {
+        name:      "Cairo & the desert",
+        realPlace: "Cairo, Egypt",
+        coords:    [30.04, 31.24],
+        inBook:    "The desert expedition and the search for treasure.",
+        reference: "Constance; Sebastian"
+      },
+      {
+        name:      "Vienna",
+        realPlace: "Vienna, Austria",
+        coords:    [48.21, 16.37],
+        inBook:    "Pre-war psychoanalysis and the seeds of catastrophe.",
+        reference: "Livia; Constance"
+      }
+    ]
+  }
+
+]; // ── end JOURNEYS ─────────────────────────────────────────────────
+
+
+// ╔═══════════════════════════════════════════════════════════════╗
+// ║  STATE                                                       ║
+// ╚═══════════════════════════════════════════════════════════════╝
+
+const state = {
+  activeIds:   new Set(),
+  layers:      {},    // id -> { markers: [], polyline: null }
+  tracingId:   null,
+  traceTimer:  null,
+  traceStep:   0,
+  traceMarker: null,
+  tracePoly:   null,
+};
+
+const TRACE_DELAY    = 2200;  // ms between stops
+const TRACE_FLY_DUR  = 1.3;  // seconds for flyTo
+
+
+// ╔═══════════════════════════════════════════════════════════════╗
+// ║  MAP                                                         ║
+// ╚═══════════════════════════════════════════════════════════════╝
+
+const map = L.map('map', { center: [42, 12], zoom: 3 });
+
+L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+  subdomains:  'abcd',
+  maxZoom:     19
+}).addTo(map);
+
+
+// ╔═══════════════════════════════════════════════════════════════╗
+// ║  ICONS                                                       ║
+// ╚═══════════════════════════════════════════════════════════════╝
+
+function makeRouteIcon(color, num) {
+  return L.divIcon({
+    className: '',
+    html: `<div style="
+      width:28px;height:28px;
+      border-radius:50% 50% 50% 0;
+      transform:rotate(-45deg);
+      background:${color};
+      border:2px solid rgba(255,255,255,0.85);
+      box-shadow:0 2px 6px rgba(0,0,0,0.32);
+      display:flex;align-items:center;justify-content:center;
+    "><span style="
+      transform:rotate(45deg);
+      font-family:'Crimson Text',serif;
+      font-size:0.72rem;font-weight:700;
+      color:white;line-height:1;
+    ">${num}</span></div>`,
+    iconSize:    [28, 28],
+    iconAnchor:  [14, 28],
+    popupAnchor: [0, -32],
+  });
+}
+
+function makeConstellationIcon(color) {
+  return L.divIcon({
+    className: '',
+    html: `<div style="
+      width:13px;height:13px;border-radius:50%;
+      background:${color};opacity:0.82;
+      border:2px solid rgba(255,255,255,0.9);
+      box-shadow:0 1px 6px rgba(0,0,0,0.3);
+    "></div>`,
+    iconSize:    [13, 13],
+    iconAnchor:  [6, 6],
+    popupAnchor: [0, -12],
+  });
+}
+
+function makeTraceIcon(color) {
+  return L.divIcon({
+    className: '',
+    html: `<div style="
+      width:16px;height:16px;border-radius:50%;
+      background:${color};
+      border:2.5px solid white;
+      box-shadow:0 0 0 3px ${color}55,0 2px 10px rgba(0,0,0,0.4);
+    "></div>`,
+    iconSize:   [16, 16],
+    iconAnchor: [8, 8],
+  });
+}
+
+
+// ╔═══════════════════════════════════════════════════════════════╗
+// ║  POPUP CONTENT                                               ║
+// ╚═══════════════════════════════════════════════════════════════╝
+
+function buildPopup(stop, journey, idx) {
+  const badge = journey.type === 'route'
+    ? `<span class="pop-num" style="background:${journey.color}">${idx + 1}</span>` : '';
+  return `
+    <div class="pop-name">${badge}${stop.name}</div>
+    <div class="pop-place">${stop.realPlace}</div>
+    <div class="pop-inbook">${stop.inBook}</div>
+    <div class="pop-footer">
+      <em style="flex:1">${journey.title}</em>
+      <span>${stop.reference}</span>
+    </div>
+    ${stop.note ? `<div class="pop-note">⁎ ${stop.note}</div>` : ''}
+  `;
+}
+
+
+// ╔═══════════════════════════════════════════════════════════════╗
+// ║  DRAW / REMOVE                                               ║
+// ╚═══════════════════════════════════════════════════════════════╝
+
+function drawJourney(journey) {
+  const markers = journey.stops.map((stop, i) => {
+    const icon = journey.type === 'route'
+      ? makeRouteIcon(journey.color, i + 1)
+      : makeConstellationIcon(journey.color);
+    return L.marker(stop.coords, { icon })
+      .bindPopup(buildPopup(stop, journey, i), { maxWidth: 300 })
+      .addTo(map);
+  });
+
+  const polyline = journey.type === 'route'
+    ? L.polyline(journey.stops.map(s => s.coords), {
+        color: journey.color, weight: 2.5, opacity: 0.72, dashArray: '7,5'
+      }).addTo(map)
+    : null;
+
+  state.layers[journey.id] = { markers, polyline };
+}
+
+function removeJourney(journey) {
+  if (state.tracingId === journey.id) stopTrace();
+  const g = state.layers[journey.id];
+  if (!g) return;
+  g.markers.forEach(m => map.removeLayer(m));
+  if (g.polyline) map.removeLayer(g.polyline);
+  delete state.layers[journey.id];
+}
+
+function boundsOf(ids) {
+  const pts = [];
+  ids.forEach(id => {
+    const j = JOURNEYS.find(j => j.id === id);
+    if (j) j.stops.forEach(s => pts.push(s.coords));
+  });
+  return pts.length ? L.latLngBounds(pts) : null;
+}
+
+
+// ╔═══════════════════════════════════════════════════════════════╗
+// ║  TRACE ANIMATION                                             ║
+// ╚═══════════════════════════════════════════════════════════════╝
+
+function startTrace(journeyId) {
+  const journey = JOURNEYS.find(j => j.id === journeyId);
+  if (!journey || journey.type !== 'route') return;
+
+  stopTrace();
+  state.tracingId = journeyId;
+  state.traceStep = 0;
+
+  // Hide static polyline — rebuild it incrementally
+  const g = state.layers[journeyId];
+  if (g?.polyline) { map.removeLayer(g.polyline); g.polyline = null; }
+
+  state.tracePoly = L.polyline([journey.stops[0].coords], {
+    color: journey.color, weight: 2.5, opacity: 0.8, dashArray: '7,5'
+  }).addTo(map);
+
+  state.traceMarker = L.marker(journey.stops[0].coords, {
+    icon: makeTraceIcon(journey.color), zIndexOffset: 1000
+  }).addTo(map);
+
+  map.flyTo(journey.stops[0].coords, 5, { duration: TRACE_FLY_DUR });
+  setTraceBtn(journeyId, true);
+
+  function advance() {
+    state.traceStep++;
+    if (state.traceStep >= journey.stops.length) { finish(); return; }
+
+    const pts = journey.stops.slice(0, state.traceStep + 1).map(s => s.coords);
+    state.tracePoly?.setLatLngs(pts);
+    state.traceMarker?.setLatLng(journey.stops[state.traceStep].coords);
+    map.flyTo(journey.stops[state.traceStep].coords, map.getZoom(), { duration: TRACE_FLY_DUR });
+    state.traceTimer = setTimeout(advance, TRACE_DELAY);
+  }
+
+  function finish() {
+    if (state.traceMarker) { map.removeLayer(state.traceMarker); state.traceMarker = null; }
+    if (state.tracePoly)   { map.removeLayer(state.tracePoly);   state.tracePoly = null; }
+    restorePolyline(journeyId);
+    state.tracingId = null;
+    setTraceBtn(journeyId, false);
+  }
+
+  state.traceTimer = setTimeout(advance, TRACE_DELAY);
+}
+
+function stopTrace() {
+  if (state.traceTimer) { clearTimeout(state.traceTimer); state.traceTimer = null; }
+  if (state.traceMarker) { map.removeLayer(state.traceMarker); state.traceMarker = null; }
+  if (state.tracePoly)   { map.removeLayer(state.tracePoly);   state.tracePoly = null; }
+  const prev = state.tracingId;
+  state.tracingId = null;
+  if (prev) { restorePolyline(prev); setTraceBtn(prev, false); }
+}
+
+function restorePolyline(journeyId) {
+  const g = state.layers[journeyId];
+  if (!g || g.polyline) return;
+  const j = JOURNEYS.find(j => j.id === journeyId);
+  if (!j) return;
+  g.polyline = L.polyline(j.stops.map(s => s.coords), {
+    color: j.color, weight: 2.5, opacity: 0.72, dashArray: '7,5'
+  }).addTo(map);
+}
+
+function setTraceBtn(journeyId, active) {
+  const btn = document.querySelector(`[data-trace="${journeyId}"]`);
+  if (!btn) return;
+  btn.textContent = active ? '◼ Stop trace' : '▶ Trace journey';
+  btn.classList.toggle('tracing', active);
+}
+
+
+// ╔═══════════════════════════════════════════════════════════════╗
+// ║  SIDEBAR                                                     ║
+// ╚═══════════════════════════════════════════════════════════════╝
+
+function renderSidebar() {
+  const list = document.getElementById('journey-list');
+  list.innerHTML = '';
+
+  JOURNEYS.forEach(journey => {
+    const active = state.activeIds.has(journey.id);
+    const item   = document.createElement('div');
+    item.className = `journey-item${active ? ' active' : ''}`;
+
+    const stopItems = journey.stops.map((stop, i) => {
+      const badge = journey.type === 'route'
+        ? `<span class="stop-num" style="background:${journey.color}">${i + 1}</span>`
+        : `<span class="stop-dot" style="color:${journey.color}"></span>`;
+      return `<li class="stop-item" data-jid="${journey.id}" data-idx="${i}">${badge}${stop.name}</li>`;
+    }).join('');
+
+    const traceHtml = journey.type === 'route'
+      ? `<button class="trace-btn${state.tracingId === journey.id ? ' tracing' : ''}" data-trace="${journey.id}">
+           ${state.tracingId === journey.id ? '◼ Stop trace' : '▶ Trace journey'}
+         </button>`
+      : '';
+
+    item.innerHTML = `
+      <div class="journey-header">
+        <div class="color-swatch" style="background:${journey.color}"></div>
+        <div class="journey-title">${journey.title}</div>
+        <div class="active-dot"></div>
+      </div>
+      <div class="journey-meta">${journey.author} &middot; ${journey.year}</div>
+      <div class="journey-badge">${journey.type === 'route' ? `Route &middot; ${journey.stops.length} stops` : `Constellation &middot; ${journey.stops.length} places`}</div>
+      <div class="journey-body">
+        <div class="journey-blurb">${journey.blurb}</div>
+        ${traceHtml}
+        <ul class="stop-list">${stopItems}</ul>
+      </div>
+    `;
+
+    // Toggle journey on click of header / meta / badge
+    ['journey-header', 'journey-meta', 'journey-badge'].forEach(cls => {
+      item.querySelector('.' + cls).addEventListener('click', () => toggleJourney(journey.id));
+    });
+
+    // Trace button
+    const tb = item.querySelector('.trace-btn');
+    if (tb) {
+      tb.addEventListener('click', e => {
+        e.stopPropagation();
+        if (state.tracingId === journey.id) {
+          stopTrace();
+        } else {
+          if (!state.activeIds.has(journey.id)) toggleJourney(journey.id);
+          startTrace(journey.id);
+        }
+      });
+    }
+
+    // Stop list: click → fly + popup; hover → highlight marker
+    item.querySelectorAll('.stop-item').forEach(el => {
+      const idx = +el.dataset.idx;
+      const jid = el.dataset.jid;
+
+      el.addEventListener('click', e => {
+        e.stopPropagation();
+        const stop = journey.stops[idx];
+        map.flyTo(stop.coords, 7, { duration: 1.2 });
+        const g = state.layers[jid];
+        if (g?.markers[idx]) setTimeout(() => g.markers[idx].openPopup(), 1300);
+      });
+
+      el.addEventListener('mouseenter', () => litMarker(jid, idx, true));
+      el.addEventListener('mouseleave', () => litMarker(jid, idx, false));
+    });
+
+    list.appendChild(item);
+  });
+}
+
+function litMarker(jid, idx, on) {
+  // Sidebar highlight
+  document.querySelectorAll(`.stop-item[data-jid="${jid}"][data-idx="${idx}"]`)
+    .forEach(el => el.classList.toggle('lit', on));
+
+  // Map marker: use filter (safe — doesn't conflict with Leaflet's translate3d positioning)
+  const el = state.layers[jid]?.markers[idx]?.getElement();
+  if (el) {
+    el.style.filter    = on ? 'drop-shadow(0 0 5px rgba(0,0,0,0.55)) brightness(1.15)' : '';
+    el.style.zIndex    = on ? '9999' : '';
+  }
+}
+
+
+// ╔═══════════════════════════════════════════════════════════════╗
+// ║  TOGGLE / SHOW-ALL / CLEAR                                   ║
+// ╚═══════════════════════════════════════════════════════════════╝
+
+function toggleJourney(id) {
+  const j = JOURNEYS.find(j => j.id === id);
+  if (!j) return;
+
+  if (state.activeIds.has(id)) {
+    state.activeIds.delete(id);
+    removeJourney(j);
+  } else {
+    state.activeIds.add(id);
+    drawJourney(j);
+    const b = boundsOf([id]);
+    if (b) map.flyToBounds(b, { padding: [50, 50], duration: 1.2, maxZoom: 8 });
+  }
+
+  updateEmptyState();
+  renderSidebar();
+}
+
+function showAll() {
+  JOURNEYS.forEach(j => {
+    if (!state.activeIds.has(j.id)) { state.activeIds.add(j.id); drawJourney(j); }
+  });
+  const b = boundsOf([...state.activeIds]);
+  if (b) map.flyToBounds(b, { padding: [50, 50], duration: 1.5 });
+  updateEmptyState();
+  renderSidebar();
+}
+
+function clearAll() {
+  stopTrace();
+  [...state.activeIds].forEach(id => {
+    const j = JOURNEYS.find(j => j.id === id);
+    if (j) removeJourney(j);
+  });
+  state.activeIds.clear();
+  updateEmptyState();
+  renderSidebar();
+}
+
+function updateEmptyState() {
+  document.getElementById('empty-state').classList.toggle('hidden', state.activeIds.size > 0);
+}
+
+
+// ╔═══════════════════════════════════════════════════════════════╗
+// ║  CONTROLS & INIT                                             ║
+// ╚═══════════════════════════════════════════════════════════════╝
+
+document.getElementById('btn-show-all').addEventListener('click', showAll);
+document.getElementById('btn-clear').addEventListener('click', clearAll);
+
+renderSidebar();
+updateEmptyState();
+</script>
+</body>
+</html>
