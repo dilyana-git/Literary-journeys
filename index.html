@@ -1525,42 +1525,52 @@ function boundsOf(ids) {
 
 function startTrace(journeyId) {
   const journey = JOURNEYS.find(j => j.id === journeyId);
-  if (!journey || journey.type !== 'route') return;
+  if (!journey) return;
 
   stopTrace();
   state.tracingId = journeyId;
   state.traceStep = 0;
 
-  // Hide static polyline — rebuild it incrementally
-  const g = state.layers[journeyId];
-  if (g?.polyline) { map.removeLayer(g.polyline); g.polyline = null; }
+  const isRoute = journey.type === 'route';
 
-  state.tracePoly = L.polyline([journey.stops[0].coords], {
-    color: journey.color, weight: 2.5, opacity: 0.8, dashArray: '7,5'
-  }).addTo(map);
+  if (isRoute) {
+    // Hide static polyline — rebuild it incrementally
+    const g = state.layers[journeyId];
+    if (g?.polyline) { map.removeLayer(g.polyline); g.polyline = null; }
+
+    state.tracePoly = L.polyline([journey.stops[0].coords], {
+      color: journey.color, weight: 2.5, opacity: 0.8, dashArray: '7,5'
+    }).addTo(map);
+  }
 
   state.traceMarker = L.marker(journey.stops[0].coords, {
     icon: makeTraceIcon(journey.color), zIndexOffset: 1000
   }).addTo(map);
 
-  map.flyTo(journey.stops[0].coords, 5, { duration: TRACE_FLY_DUR });
+  litMarker(journeyId, 0, true);
+  map.flyTo(journey.stops[0].coords, isRoute ? 5 : 6, { duration: TRACE_FLY_DUR });
   setTraceBtn(journeyId, true);
 
   function advance() {
+    litMarker(journeyId, state.traceStep, false);
     state.traceStep++;
     if (state.traceStep >= journey.stops.length) { finish(); return; }
 
-    const pts = journey.stops.slice(0, state.traceStep + 1).map(s => s.coords);
-    state.tracePoly?.setLatLngs(pts);
-    state.traceMarker?.setLatLng(journey.stops[state.traceStep].coords);
-    map.flyTo(journey.stops[state.traceStep].coords, map.getZoom(), { duration: TRACE_FLY_DUR });
+    const stop = journey.stops[state.traceStep];
+    if (isRoute) {
+      const pts = journey.stops.slice(0, state.traceStep + 1).map(s => s.coords);
+      state.tracePoly?.setLatLngs(pts);
+    }
+    state.traceMarker?.setLatLng(stop.coords);
+    litMarker(journeyId, state.traceStep, true);
+    map.flyTo(stop.coords, map.getZoom(), { duration: TRACE_FLY_DUR });
     state.traceTimer = setTimeout(advance, TRACE_DELAY);
   }
 
   function finish() {
     if (state.traceMarker) { map.removeLayer(state.traceMarker); state.traceMarker = null; }
     if (state.tracePoly)   { map.removeLayer(state.tracePoly);   state.tracePoly = null; }
-    restorePolyline(journeyId);
+    if (isRoute) restorePolyline(journeyId);
     state.tracingId = null;
     setTraceBtn(journeyId, false);
   }
@@ -1573,8 +1583,13 @@ function stopTrace() {
   if (state.traceMarker) { map.removeLayer(state.traceMarker); state.traceMarker = null; }
   if (state.tracePoly)   { map.removeLayer(state.tracePoly);   state.tracePoly = null; }
   const prev = state.tracingId;
+  if (prev) {
+    litMarker(prev, state.traceStep, false);
+    const j = JOURNEYS.find(j => j.id === prev);
+    if (j?.type === 'route') restorePolyline(prev);
+    setTraceBtn(prev, false);
+  }
   state.tracingId = null;
-  if (prev) { restorePolyline(prev); setTraceBtn(prev, false); }
 }
 
 function restorePolyline(journeyId) {
@@ -1615,11 +1630,9 @@ function renderSidebar() {
       return `<li class="stop-item" data-jid="${journey.id}" data-idx="${i}">${badge}${stop.name}</li>`;
     }).join('');
 
-    const traceHtml = journey.type === 'route'
-      ? `<button class="trace-btn${state.tracingId === journey.id ? ' tracing' : ''}" data-trace="${journey.id}">
+    const traceHtml = `<button class="trace-btn${state.tracingId === journey.id ? ' tracing' : ''}" data-trace="${journey.id}">
            ${state.tracingId === journey.id ? '◼ Stop trace' : '▶ Trace journey'}
-         </button>`
-      : '';
+         </button>`;
 
     item.innerHTML = `
       <div class="journey-header">
