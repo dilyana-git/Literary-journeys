@@ -1069,7 +1069,193 @@ const JOURNEYS = [
     ]
   },
 
-  // ─── 10. The Avignon Quintet ────────────────────────────────────
+  // ─── 10. Heart of Darkness ──────────────────────────────────────
+  {
+    id:     "heart-of-darkness",
+    title:  "Heart of Darkness",
+    author: "Joseph Conrad",
+    year:   "1899",
+    type:   "route",
+    color:  "#4a3b2a",
+    blurb:  "Marlow's voyage up the Congo in search of the ivory agent Kurtz.",
+    stops: [
+      {
+        name:      "London",
+        realPlace: "London, England",
+        coords:    [51.51, -0.08],
+        inBook:    "Marlow tells his tale aboard the Nellie on the Thames estuary.",
+        reference: "Opening frame"
+      },
+      {
+        name:      "The Company's Station",
+        realPlace: "Matadi / Boma region, DR Congo",
+        coords:    [-5.82, 13.46],
+        inBook:    "Marlow arrives at the Outer Station amid wasteful colonial decay.",
+        reference: "Part 1",
+        note:      "Unnamed in the text — placed at the lower Congo trading posts"
+      },
+      {
+        name:      "The Central Station",
+        realPlace: "Kinshasa (Léopoldville), DR Congo",
+        coords:    [-4.32, 15.31],
+        inBook:    "He waits for rivets and meets the scheming manager.",
+        reference: "Part 1",
+        note:      "Conventional placement at Stanley Pool"
+      },
+      {
+        name:      "The Inner Station",
+        realPlace: "Kisangani (Stanley Falls) region, DR Congo",
+        coords:    [0.52, 25.20],
+        inBook:    "Marlow finds Kurtz at the end of the river — 'The horror! The horror!'",
+        reference: "Parts 2–3",
+        note:      "Unnamed — traditionally placed near Stanley Falls"
+      }
+    ]
+  },
+
+  // ─── 11. Dracula ────────────────────────────────────────────────
+  {
+    id:     "dracula",
+    title:  "Dracula",
+    author: "Bram Stoker",
+    year:   "1897",
+    type:   "route",
+    color:  "#6b2737",
+    blurb:  "The Count's passage from Transylvania to England, and the hunt back to his castle.",
+    stops: [
+      {
+        name:      "Bistritz",
+        realPlace: "Bistrița, Romania",
+        coords:    [47.13, 24.49],
+        inBook:    "Jonathan Harker's last town before the mountains.",
+        reference: "Chapter 1"
+      },
+      {
+        name:      "Borgo Pass",
+        realPlace: "Tihuța Pass, Romania",
+        coords:    [47.27, 25.05],
+        inBook:    "The Count's caleche carries Harker up to the castle.",
+        reference: "Chapters 1–4",
+        note:      "Castle is fictional — placed at the Borgo (Tihuța) Pass"
+      },
+      {
+        name:      "Whitby",
+        realPlace: "Whitby, England",
+        coords:    [54.49, -0.61],
+        inBook:    "The Demeter runs aground; Dracula comes ashore as a hound.",
+        reference: "Chapters 6–8"
+      },
+      {
+        name:      "London",
+        realPlace: "London, England",
+        coords:    [51.51, -0.13],
+        inBook:    "The Count stalks Lucy and Mina; the hunters gather against him.",
+        reference: "Chapters 9–23"
+      },
+      {
+        name:      "Castle Dracula",
+        realPlace: "Tihuța Pass, Romania",
+        coords:    [47.27, 25.05],
+        inBook:    "The chase ends as the Count is destroyed at his own gates.",
+        reference: "Chapters 24–27",
+        note:      "Fictional castle — return to the Borgo Pass"
+      }
+    ]
+  },
+
+  // ─── 12. Moby-Dick ──────────────────────────────────────────────
+  {
+    id:     "moby-dick",
+    title:  "Moby-Dick",
+    author: "Herman Melville",
+    year:   "1851",
+    type:   "route",
+    color:  "#27408b",
+    blurb:  "The Pequod's whaling voyage and Ahab's hunt for the white whale.",
+    stops: [
+      {
+        name:      "New Bedford",
+        realPlace: "New Bedford, Massachusetts",
+        coords:    [41.64, -70.93],
+        inBook:    "Ishmael lodges with Queequeg before shipping out.",
+        reference: "Chapters 1–13"
+      },
+      {
+        name:      "Nantucket",
+        realPlace: "Nantucket, Massachusetts",
+        coords:    [41.28, -70.10],
+        inBook:    "The Pequod sails on Christmas Day under Captain Ahab.",
+        reference: "Chapters 14–22"
+      },
+      {
+        name:      "Cape of Good Hope",
+        realPlace: "Cape of Good Hope, South Africa",
+        coords:    [-34.36, 18.47],
+        inBook:    "The ship rounds Africa into the Indian Ocean grounds.",
+        reference: "Mid-voyage"
+      },
+      {
+        name:      "Indian Ocean grounds",
+        realPlace: "Indian Ocean, off the Sunda Strait",
+        coords:    [-6.00, 105.00],
+        inBook:    "Whale hunts and gam encounters on the way east.",
+        reference: "Mid-voyage",
+        note:      "Open-ocean cruising ground — coordinates approximate"
+      },
+      {
+        name:      "The Pacific chase",
+        realPlace: "Equatorial Pacific, near the Galápagos",
+        coords:    [-0.50, -95.00],
+        inBook:    "The three-day chase ends as Moby Dick sinks the Pequod.",
+        reference: "Chapters 133–135",
+        note:      "Final grounds — coordinates approximate"
+      }
+    ]
+  },
+
+  // ─── 13. In Search of Lost Time ─────────────────────────────────
+  {
+    id:     "in-search-of-lost-time",
+    title:  "In Search of Lost Time",
+    author: "Marcel Proust",
+    year:   "1913–1927",
+    type:   "constellation",
+    color:  "#9a7bb5",
+    blurb:  "The dispersed places of memory across the narrator's life in France and Venice.",
+    stops: [
+      {
+        name:      "Paris",
+        realPlace: "Paris, France",
+        coords:    [48.86, 2.34],
+        inBook:    "The salons of the Faubourg Saint-Germain and the narrator's social world.",
+        reference: "Throughout"
+      },
+      {
+        name:      "Combray",
+        realPlace: "Illiers-Combray, France",
+        coords:    [48.30, 1.25],
+        inBook:    "Childhood summers, the madeleine, and the two 'ways' of walks.",
+        reference: "Swann's Way"
+      },
+      {
+        name:      "Balbec",
+        realPlace: "Cabourg, Normandy, France",
+        coords:    [49.29, -0.12],
+        inBook:    "Seaside holidays at the Grand Hotel and the 'little band' of girls.",
+        reference: "Within a Budding Grove",
+        note:      "Fictional resort modelled chiefly on Cabourg"
+      },
+      {
+        name:      "Venice",
+        realPlace: "Venice, Italy",
+        coords:    [45.44, 12.32],
+        inBook:    "The narrator's long-dreamed-of journey with his mother.",
+        reference: "The Fugitive"
+      }
+    ]
+  },
+
+  // ─── 14. The Avignon Quintet ────────────────────────────────────
   {
     id:     "avignon-quintet",
     title:  "The Avignon Quintet",
