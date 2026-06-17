@@ -3,471 +3,660 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Literary Journeys</title>
+  <title>Literary Journeys — An Atlas of Imagined Voyages</title>
 
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Cinzel+Decorative:wght@700;900&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet" />
 
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --parchment:    #f5f0e8;
-      --parchment-dk: #ede8dc;
-      --border:       #c4b89a;
-      --ink:          #2c2416;
-      --ink-mid:      #5a4a35;
-      --ink-light:    #8b7a5e;
-      --sidebar-w:    320px;
+      /* ── aged vellum palette ────────────────────────────── */
+      --vellum:     #e9dcbe;
+      --vellum-2:   #e3d4b0;
+      --vellum-3:   #d9c89e;
+      --vellum-4:   #cdb988;
+      --edge:       #b79a68;
+      --edge-soft:  #c9b288;
+      --ink:        #38291a;   /* dark sepia ink            */
+      --ink-2:      #5a4427;   /* mid ink                   */
+      --faded:      #8a7148;   /* faded ink / annotation    */
+      --rubric:     #8c3b2b;   /* red rubrication, borders  */
+      --rubric-dk:  #6c2b1f;
+      --gilt:       #a67c33;   /* gold leaf                 */
+      --ledger-w:   368px;
+
+      --font-title: 'Cinzel Decorative', serif;
+      --font-caps:  'Cinzel', serif;
+      --font-body:  'EB Garamond', Georgia, serif;
+      --font-old:   'IM Fell English', Georgia, serif;
     }
 
-    html, body {
-      height: 100%;
-      font-family: 'Crimson Text', Georgia, serif;
-      background: var(--parchment);
+    html, body { height: 100%; overflow: hidden; }
+
+    body {
+      font-family: var(--font-body);
       color: var(--ink);
+      background:
+        radial-gradient(120% 100% at 50% 0%, #efe3c8 0%, var(--vellum) 45%, var(--vellum-3) 100%);
     }
 
-    /* ── layout ──────────────────────────────────────────── */
-    #app {
-      display: flex;
-      height: 100vh;
-      overflow: hidden;
+    /* ── global paper grain (very subtle, multiplied) ─────── */
+    #grain {
+      position: fixed; inset: 0; z-index: 9000; pointer-events: none;
+      mix-blend-mode: multiply; opacity: 0.5;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.32'/%3E%3C/svg%3E");
     }
 
-    /* ── sidebar ─────────────────────────────────────────── */
-    #sidebar {
-      width: var(--sidebar-w);
-      min-width: var(--sidebar-w);
-      background: var(--parchment-dk);
-      border-right: 1px solid var(--border);
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      z-index: 900;
-      box-shadow: 2px 0 14px rgba(44,36,22,0.09);
+    /* ── neat-line border framing the whole atlas ─────────── */
+    #frame {
+      position: fixed; inset: 0; z-index: 8000; pointer-events: none;
+      padding: 9px;
+    }
+    #frame::before {
+      content: ""; position: absolute; inset: 9px;
+      border: 1px solid var(--rubric);
+      box-shadow:
+        inset 0 0 0 4px var(--vellum),
+        inset 0 0 0 5px var(--edge),
+        0 0 0 1px rgba(56,41,26,0.15);
+    }
+    .corner {
+      position: absolute; width: 46px; height: 46px;
+      color: var(--rubric); opacity: 0.9;
+    }
+    .corner.tl { top: 13px;    left: 13px; }
+    .corner.tr { top: 13px;    right: 13px;  transform: scaleX(-1); }
+    .corner.bl { bottom: 13px; left: 13px;   transform: scaleY(-1); }
+    .corner.br { bottom: 13px; right: 13px;  transform: scale(-1,-1); }
+
+    /* ── app layout ───────────────────────────────────────── */
+    #app { display: flex; height: 100vh; }
+
+    /* ════════════════ LEDGER (sidebar) ═══════════════════════ */
+    #ledger {
+      width: var(--ledger-w);
+      min-width: var(--ledger-w);
+      background:
+        linear-gradient(180deg, var(--vellum-2), var(--vellum-3));
+      border-right: 2px solid var(--edge);
+      box-shadow: 3px 0 22px rgba(56,41,26,0.18), inset -10px 0 24px -18px rgba(56,41,26,0.5);
+      display: flex; flex-direction: column;
+      position: relative; z-index: 900;
+    }
+    /* faint gutter rule, like a ruled ledger */
+    #ledger::after {
+      content: ""; position: absolute; top: 0; bottom: 0; right: 9px;
+      border-right: 1px solid rgba(140,59,43,0.22);
+      pointer-events: none;
     }
 
-    #sidebar-header {
-      padding: 22px 22px 16px;
-      border-bottom: 1px solid var(--border);
+    /* ── cartouche / masthead ─────────────────────────────── */
+    #masthead {
+      padding: 26px 26px 18px;
+      text-align: center;
+      border-bottom: 1px double var(--edge);
+      position: relative;
     }
-
-    #sidebar-header h1 {
-      font-family: 'EB Garamond', Georgia, serif;
-      font-size: 1.65rem;
-      font-weight: 600;
-      letter-spacing: 0.03em;
+    #masthead .flourish {
+      color: var(--rubric); height: 16px; margin: 0 auto 8px; display: block;
+    }
+    #masthead h1 {
+      font-family: var(--font-title);
+      font-weight: 700;
+      font-size: 1.62rem;
+      line-height: 1.12;
+      letter-spacing: 0.01em;
       color: var(--ink);
-      line-height: 1.15;
+      text-shadow: 0 1px 0 rgba(255,251,240,0.6);
     }
-
-    .header-rule {
-      border: none;
-      border-top: 1px solid var(--border);
-      margin: 10px 0 8px;
-    }
-
-    #sidebar-header p {
+    #masthead .sub {
+      font-family: var(--font-old);
       font-style: italic;
-      color: var(--ink-light);
-      font-size: 0.88rem;
-    }
-
-    /* ── controls ────────────────────────────────────────── */
-    #controls {
-      display: flex;
-      gap: 8px;
-      padding: 10px 22px;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .ctrl-btn {
-      flex: 1;
-      padding: 5px 8px;
-      font-family: 'Crimson Text', serif;
-      font-size: 0.85rem;
-      background: transparent;
-      border: 1px solid var(--border);
-      color: var(--ink-mid);
-      cursor: pointer;
-      border-radius: 2px;
+      font-size: 0.94rem;
+      color: var(--rubric);
+      margin-top: 7px;
       letter-spacing: 0.02em;
-      transition: background 0.15s, color 0.15s, border-color 0.15s;
+    }
+    #masthead .est {
+      font-family: var(--font-caps);
+      font-size: 0.6rem;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--faded);
+      margin-top: 9px;
     }
 
-    .ctrl-btn:hover {
-      background: var(--parchment);
-      color: var(--ink);
-      border-color: var(--ink-light);
+    /* ── gazetteer (search) ───────────────────────────────── */
+    #gazetteer { padding: 14px 22px 12px; border-bottom: 1px solid var(--edge); position: relative; }
+    .gaz-field {
+      display: flex; align-items: center; gap: 8px;
+      background: var(--vellum);
+      border: 1px solid var(--edge);
+      border-radius: 2px;
+      padding: 6px 10px;
+      box-shadow: inset 0 1px 3px rgba(56,41,26,0.16);
     }
-
-    /* ── journey list ────────────────────────────────────── */
-    #journey-list {
-      flex: 1;
-      overflow-y: auto;
-      scrollbar-width: thin;
-      scrollbar-color: var(--border) transparent;
+    .gaz-field svg { color: var(--faded); flex-shrink: 0; }
+    #gaz-input {
+      flex: 1; border: none; background: transparent; outline: none;
+      font-family: var(--font-old); font-size: 0.95rem; color: var(--ink);
     }
+    #gaz-input::placeholder { color: var(--faded); font-style: italic; opacity: 0.85; }
 
-    #journey-list::-webkit-scrollbar { width: 5px; }
-    #journey-list::-webkit-scrollbar-track { background: transparent; }
-    #journey-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-
-    .journey-item {
-      border-bottom: 1px solid var(--border);
+    #gaz-results {
+      display: none;
+      position: absolute; left: 22px; right: 22px; top: calc(100% - 6px);
+      background: var(--vellum);
+      border: 1px solid var(--edge);
+      box-shadow: 0 12px 28px rgba(56,41,26,0.28);
+      z-index: 1200; max-height: 320px; overflow-y: auto;
     }
-
-    .journey-header {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 14px 22px 4px;
-      cursor: pointer;
-      user-select: none;
+    #gaz-results.open { display: block; }
+    .gaz-group-label {
+      font-family: var(--font-caps); font-size: 0.6rem; letter-spacing: 0.18em;
+      text-transform: uppercase; color: var(--faded);
+      padding: 8px 12px 4px; border-bottom: 1px solid var(--edge-soft);
+    }
+    .gaz-row {
+      padding: 7px 12px; cursor: pointer; display: flex; align-items: baseline; gap: 8px;
+      border-bottom: 1px solid rgba(183,154,104,0.3);
       transition: background 0.1s;
     }
+    .gaz-row:hover { background: var(--vellum-2); }
+    .gaz-row .gr-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; align-self: center; }
+    .gaz-row .gr-name { font-family: var(--font-old); font-size: 0.92rem; color: var(--ink); }
+    .gaz-row .gr-meta { font-size: 0.78rem; color: var(--faded); font-style: italic; margin-left: auto; }
+    .gaz-empty { padding: 12px; font-style: italic; color: var(--faded); font-size: 0.86rem; text-align: center; }
 
-    .journey-header:hover { background: rgba(0,0,0,0.03); }
-    .journey-item.active > .journey-header { background: rgba(0,0,0,0.04); }
-
-    .color-swatch {
-      width: 11px;
-      height: 11px;
-      border-radius: 50%;
-      flex-shrink: 0;
-      border: 1.5px solid rgba(0,0,0,0.2);
-    }
-
-    .journey-title {
-      font-family: 'EB Garamond', serif;
-      font-size: 1.05rem;
-      font-weight: 600;
-      flex: 1;
-      line-height: 1.25;
-    }
-
-    .active-dot {
-      width: 5px;
-      height: 5px;
-      border-radius: 50%;
-      background: var(--ink-mid);
-      flex-shrink: 0;
-      opacity: 0;
-      transition: opacity 0.2s;
-    }
-
-    .journey-item.active .active-dot { opacity: 1; }
-
-    .journey-meta,
-    .journey-badge {
-      padding: 0 22px 0 43px;
-      font-size: 0.82rem;
-      color: var(--ink-light);
-      font-style: italic;
-      cursor: pointer;
-      transition: color 0.1s;
-    }
-
-    .journey-meta { padding-bottom: 2px; }
-    .journey-meta:hover, .journey-badge:hover { color: var(--ink-mid); }
-
-    .journey-badge {
-      font-size: 0.71rem;
-      font-style: normal;
+    /* ── controls ─────────────────────────────────────────── */
+    #controls { display: flex; gap: 7px; padding: 12px 22px; border-bottom: 1px solid var(--edge); }
+    .ctrl-btn {
+      flex: 1; padding: 6px 6px;
+      font-family: var(--font-caps); font-size: 0.66rem; letter-spacing: 0.1em;
       text-transform: uppercase;
-      letter-spacing: 0.07em;
-      padding-bottom: 10px;
+      background: var(--vellum);
+      border: 1px solid var(--edge);
+      color: var(--ink-2); cursor: pointer; border-radius: 2px;
+      transition: background 0.16s, color 0.16s, border-color 0.16s, box-shadow 0.16s;
+    }
+    .ctrl-btn:hover { background: var(--vellum-2); color: var(--ink); border-color: var(--faded); }
+    .ctrl-btn.active {
+      background: var(--rubric); color: #f5e9cf; border-color: var(--rubric-dk);
+      box-shadow: 0 1px 4px rgba(108,43,31,0.4);
     }
 
-    /* ── expanded body ───────────────────────────────────── */
-    .journey-body {
-      display: none;
-      border-top: 1px solid var(--border);
-      padding: 8px 0 12px;
-      background: rgba(0,0,0,0.02);
+    /* ── journey index list ───────────────────────────────── */
+    #journey-list {
+      flex: 1; overflow-y: auto;
+      scrollbar-width: thin; scrollbar-color: var(--edge) transparent;
     }
+    #journey-list::-webkit-scrollbar { width: 6px; }
+    #journey-list::-webkit-scrollbar-thumb { background: var(--edge); border-radius: 3px; }
 
+    .journey-item { border-bottom: 1px solid var(--edge); }
+    @keyframes riseIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+    .journey-item.rise { animation: riseIn 0.55s cubic-bezier(.2,.7,.3,1) both; }
+
+    .journey-header {
+      display: flex; align-items: center; gap: 11px;
+      padding: 15px 22px 4px; cursor: pointer; user-select: none;
+      transition: background 0.12s;
+    }
+    .journey-header:hover { background: rgba(140,59,43,0.05); }
+    .journey-item.active > .journey-header { background: rgba(140,59,43,0.07); }
+
+    .seal-swatch {
+      width: 17px; height: 17px; border-radius: 50%; flex-shrink: 0;
+      border: 1.5px solid rgba(56,41,26,0.5);
+      box-shadow: inset 0 0 0 2px rgba(255,250,235,0.4), 0 1px 2px rgba(0,0,0,0.25);
+    }
+    .journey-title {
+      font-family: var(--font-caps); font-weight: 600; font-size: 1.0rem;
+      flex: 1; line-height: 1.2; color: var(--ink);
+    }
+    .type-glyph { color: var(--faded); flex-shrink: 0; opacity: 0; transition: opacity 0.2s; }
+    .journey-item.active .type-glyph { opacity: 1; color: var(--rubric); }
+
+    .journey-meta {
+      padding: 0 22px 1px 50px; font-size: 0.86rem; color: var(--faded);
+      font-style: italic; cursor: pointer; font-family: var(--font-old);
+    }
+    .journey-badge {
+      padding: 4px 22px 13px 50px; font-size: 0.62rem; color: var(--faded);
+      text-transform: uppercase; letter-spacing: 0.13em; cursor: pointer;
+      font-family: var(--font-caps);
+    }
+    .journey-meta:hover, .journey-badge:hover { color: var(--ink-2); }
+
+    /* ── expanded body ────────────────────────────────────── */
+    .journey-body { display: none; padding: 4px 0 14px; background: rgba(140,59,43,0.035); border-top: 1px solid var(--edge-soft); }
     .journey-item.active .journey-body { display: block; }
 
     .journey-blurb {
-      padding: 6px 22px 8px 43px;
-      font-size: 0.84rem;
-      color: var(--ink-mid);
-      font-style: italic;
-      line-height: 1.45;
+      padding: 10px 24px 10px 50px; font-size: 0.92rem; color: var(--ink-2);
+      font-style: italic; line-height: 1.5; font-family: var(--font-old);
     }
 
-    .trace-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      margin: 2px 0 6px 43px;
-      padding: 3px 10px;
-      font-family: 'Crimson Text', serif;
-      font-size: 0.8rem;
-      background: transparent;
-      border: 1px solid var(--border);
-      color: var(--ink-mid);
-      cursor: pointer;
-      border-radius: 2px;
-      transition: background 0.15s, color 0.15s, border-color 0.15s;
+    /* ── ship's log ───────────────────────────────────────── */
+    .logbook {
+      margin: 2px 22px 12px 50px;
+      border: 1px solid var(--edge); background: rgba(233,220,190,0.55);
+      box-shadow: inset 0 0 14px rgba(56,41,26,0.07);
+    }
+    .logbook-title {
+      font-family: var(--font-caps); font-size: 0.6rem; letter-spacing: 0.2em;
+      text-transform: uppercase; color: var(--rubric);
+      text-align: center; padding: 6px 0 5px; border-bottom: 1px solid var(--edge-soft);
+    }
+    .log-row {
+      display: flex; justify-content: space-between; align-items: baseline; gap: 12px;
+      padding: 5px 13px; font-size: 0.85rem; border-bottom: 1px dotted var(--edge-soft);
+    }
+    .log-row:last-child { border-bottom: none; }
+    .log-key { color: var(--faded); font-family: var(--font-caps); font-size: 0.62rem; letter-spacing: 0.08em; text-transform: uppercase; }
+    .log-val { color: var(--ink); font-family: var(--font-old); text-align: right; }
+    .log-val em { color: var(--rubric); font-style: normal; }
+
+    /* ── voyage console (scrubber) ────────────────────────── */
+    .voyage { margin: 0 22px 12px 50px; }
+    .voyage-top { display: flex; align-items: center; gap: 10px; margin-bottom: 7px; }
+    .voy-play {
+      width: 30px; height: 30px; flex-shrink: 0; border-radius: 50%;
+      border: 1px solid var(--rubric-dk); background: var(--rubric); color: #f5e9cf;
+      cursor: pointer; font-size: 0.7rem; line-height: 1;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 2px 5px rgba(108,43,31,0.4); transition: transform 0.12s, background 0.16s;
+    }
+    .voy-play:hover { transform: scale(1.08); }
+    .voy-label { font-family: var(--font-old); font-size: 0.84rem; color: var(--ink-2); line-height: 1.2; }
+    .voy-label em { color: var(--ink); font-style: italic; }
+
+    .voy-slider { -webkit-appearance: none; appearance: none; width: 100%; height: 3px; background: var(--edge); border-radius: 2px; outline: none; cursor: pointer; }
+    .voy-slider::-webkit-slider-thumb {
+      -webkit-appearance: none; appearance: none; width: 15px; height: 15px; border-radius: 50%;
+      background: var(--vellum); border: 2px solid var(--rubric);
+      box-shadow: 0 1px 3px rgba(56,41,26,0.4); cursor: pointer; margin-top: -1px;
+    }
+    .voy-slider::-moz-range-thumb {
+      width: 15px; height: 15px; border-radius: 50%; background: var(--vellum);
+      border: 2px solid var(--rubric); box-shadow: 0 1px 3px rgba(56,41,26,0.4); cursor: pointer;
     }
 
-    .trace-btn:hover { background: var(--parchment); color: var(--ink); border-color: var(--ink-light); }
-    .trace-btn.tracing { border-color: var(--ink-mid); color: var(--ink); background: var(--parchment); }
-
-    .stop-list { list-style: none; }
-
+    /* ── stop list ────────────────────────────────────────── */
+    .stop-list { list-style: none; padding-top: 2px; }
     .stop-item {
-      display: flex;
-      align-items: flex-start;
-      gap: 8px;
-      padding: 4px 22px 4px 43px;
-      font-size: 0.85rem;
-      color: var(--ink-mid);
-      cursor: pointer;
-      line-height: 1.3;
+      display: flex; align-items: flex-start; gap: 9px;
+      padding: 5px 22px 5px 50px; font-size: 0.88rem; color: var(--ink-2);
+      cursor: pointer; line-height: 1.3; font-family: var(--font-old);
       transition: background 0.1s, color 0.1s;
     }
-
-    .stop-item:hover { color: var(--ink); background: rgba(0,0,0,0.03); }
-    .stop-item.lit    { background: rgba(0,0,0,0.055); color: var(--ink); }
-
+    .stop-item:hover { color: var(--ink); background: rgba(140,59,43,0.06); }
+    .stop-item.lit  { background: rgba(140,59,43,0.12); color: var(--ink); }
     .stop-num {
-      width: 17px;
-      height: 17px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.65rem;
-      font-weight: 700;
-      color: white;
-      flex-shrink: 0;
-      margin-top: 1px;
+      width: 18px; height: 18px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.62rem; font-weight: 600; font-family: var(--font-caps);
+      color: #fbf3e0; flex-shrink: 0; margin-top: 1px;
+      border: 1px solid rgba(56,41,26,0.35);
+      box-shadow: inset 0 0 0 1px rgba(255,250,235,0.3);
+    }
+    .stop-star { width: 13px; height: 13px; flex-shrink: 0; margin-top: 3px;
+      clip-path: polygon(50% 0,61% 39%,100% 50%,61% 61%,50% 100%,39% 61%,0 50%,39% 39%); }
+
+    /* ── crossings panel ──────────────────────────────────── */
+    #crossings-panel { display: none; padding: 12px 22px 14px; border-top: 1px solid var(--edge); border-bottom: 1px solid var(--edge); background: rgba(140,59,43,0.06); }
+    #crossings-panel.open { display: block; }
+    .cross-title { font-family: var(--font-caps); font-size: 0.62rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--rubric); margin-bottom: 8px; display: flex; align-items: center; gap: 7px; }
+    .cross-row { padding: 6px 0 6px 4px; border-bottom: 1px dotted var(--edge); cursor: pointer; }
+    .cross-row:last-child { border-bottom: none; }
+    .cross-place { font-family: var(--font-old); font-size: 0.95rem; color: var(--ink); font-style: italic; }
+    .cross-books { font-size: 0.78rem; color: var(--faded); margin-top: 1px; }
+    .cross-row:hover .cross-place { color: var(--rubric); }
+
+    /* ── legend (cartographer's key) ──────────────────────── */
+    #legend { padding: 13px 22px 16px; border-top: 1px solid var(--edge); font-size: 0.82rem; color: var(--faded); background: rgba(217,200,158,0.4); }
+    .legend-title { font-family: var(--font-caps); font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.18em; margin-bottom: 9px; color: var(--ink-2); }
+    .legend-row { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+    .legend-icon { width: 26px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .legend-row span { font-family: var(--font-old); }
+
+    /* ════════════════ MAP STAGE ══════════════════════════════ */
+    .map-stage { position: relative; flex: 1; min-width: 0; overflow: hidden; background: var(--vellum-3); }
+    #map { position: absolute; inset: 0; height: 100%; background: var(--vellum-3); }
+
+    /* age the tiles — scoped to the tile pane only */
+    .leaflet-tile-pane {
+      filter: sepia(0.5) saturate(1.35) brightness(0.98) contrast(0.9) hue-rotate(-8deg);
     }
 
-    .stop-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      border: 2px solid currentColor;
-      flex-shrink: 0;
-      margin-top: 4px;
-      opacity: 0.7;
+    /* vignette + parchment wash over the map */
+    .map-vignette {
+      position: absolute; inset: 0; pointer-events: none; z-index: 450;
+      box-shadow: inset 0 0 150px 30px rgba(56,41,26,0.34);
+      background: radial-gradient(120% 90% at 50% 45%, rgba(233,220,190,0) 55%, rgba(205,185,136,0.28) 100%);
+      mix-blend-mode: multiply;
     }
 
-    /* ── legend ──────────────────────────────────────────── */
-    #legend {
-      padding: 10px 22px 13px;
-      border-top: 1px solid var(--border);
-      font-size: 0.78rem;
-      color: var(--ink-light);
+    /* compass rose + rhumb lines, bottom-right */
+    .compass {
+      position: absolute; right: 26px; bottom: 26px; width: 184px; height: 184px;
+      z-index: 460; pointer-events: none; color: var(--ink);
+      filter: drop-shadow(0 2px 6px rgba(56,41,26,0.3));
+      opacity: 0; transform: rotate(-25deg) scale(0.9);
+      animation: compassIn 1.4s 0.3s cubic-bezier(.2,.7,.3,1) forwards;
+    }
+    @keyframes compassIn { to { opacity: 0.92; transform: rotate(0) scale(1); } }
+
+    /* sea-serpent marginalia, top-right */
+    .marginalia {
+      position: absolute; right: 30px; top: 22px; width: 240px;
+      z-index: 455; pointer-events: none; color: var(--ink-2);
+      opacity: 0; animation: fadeIn 1.6s 0.8s ease forwards;
+    }
+    @keyframes fadeIn { to { opacity: 0.7; } }
+    .marginalia .legend-words {
+      font-family: var(--font-old); font-style: italic; fill: var(--rubric);
     }
 
-    .legend-title {
-      font-family: 'EB Garamond', serif;
-      font-size: 0.8rem;
-      font-weight: 400;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      margin-bottom: 7px;
-    }
-
-    .legend-row {
-      display: flex;
-      align-items: center;
-      gap: 9px;
-      margin-bottom: 4px;
-    }
-
-    .legend-icon { width: 22px; display: flex; align-items: center; justify-content: center; }
-
-    /* ── map ─────────────────────────────────────────────── */
-    #map { flex: 1; height: 100%; }
-
-    /* ── empty state ─────────────────────────────────────── */
+    /* ── empty state ──────────────────────────────────────── */
     #empty-state {
-      position: fixed;
-      top: 50%;
-      left: calc(var(--sidebar-w) + (100vw - var(--sidebar-w)) / 2);
-      transform: translate(-50%, -50%);
-      text-align: center;
-      pointer-events: none;
-      z-index: 400;
-      transition: opacity 0.4s;
+      position: absolute; top: 46%; left: 50%; transform: translate(-50%,-50%);
+      text-align: center; pointer-events: none; z-index: 470;
+      transition: opacity 0.5s; max-width: 360px;
     }
-
     #empty-state.hidden { opacity: 0; }
-
-    .empty-glyph {
-      font-size: 2.2rem;
-      color: var(--border);
-      margin-bottom: 10px;
-      display: block;
-    }
-
+    #empty-state .glyph { color: var(--edge); margin-bottom: 14px; }
     #empty-state h2 {
-      font-family: 'EB Garamond', serif;
-      font-size: 1.2rem;
-      font-weight: 400;
-      font-style: italic;
-      color: var(--ink-light);
+      font-family: var(--font-old); font-style: italic; font-weight: 400;
+      font-size: 1.5rem; color: var(--ink-2);
     }
+    #empty-state p { font-family: var(--font-caps); font-size: 0.66rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--faded); margin-top: 10px; }
 
-    #empty-state p {
-      font-size: 0.85rem;
-      color: var(--ink-light);
-      margin-top: 5px;
-      opacity: 0.7;
+    /* ── leaflet div-icon resets ──────────────────────────── */
+    .leaflet-div-icon.mk { background: transparent; border: none; }
+
+    .mk-seal {
+      width: 30px; height: 30px; border-radius: 50%;
+      background:
+        radial-gradient(circle at 36% 30%,
+          color-mix(in srgb, var(--c) 72%, #fff 28%),
+          var(--c) 58%,
+          color-mix(in srgb, var(--c) 72%, #000 28%) 100%);
+      border: 2px solid rgba(56,41,26,0.55);
+      box-shadow: 0 2px 5px rgba(56,41,26,0.45), inset 0 0 0 2px rgba(255,250,235,0.32);
+      display: flex; align-items: center; justify-content: center;
     }
+    .mk-seal span {
+      font-family: var(--font-caps); font-weight: 600; font-size: 0.74rem;
+      color: #fbf3e0; line-height: 1; text-shadow: 0 1px 1px rgba(0,0,0,0.45);
+    }
+    .mk-star {
+      width: 17px; height: 17px; background: var(--c);
+      clip-path: polygon(50% 0,61% 39%,100% 50%,61% 61%,50% 100%,39% 61%,0 50%,39% 39%);
+      filter: drop-shadow(0 1px 2px rgba(56,41,26,0.5));
+    }
+    .mk-cross {
+      width: 26px; height: 26px; border-radius: 50%;
+      background: radial-gradient(circle at 50% 36%, #b65440, var(--rubric) 60%, var(--rubric-dk));
+      border: 2px solid #f3e6c8;
+      box-shadow: 0 0 0 2px var(--rubric), 0 2px 7px rgba(0,0,0,0.5);
+      display: flex; align-items: center; justify-content: center;
+      animation: crossPulse 2.4s ease-in-out infinite;
+    }
+    @keyframes crossPulse { 0%,100% { box-shadow: 0 0 0 2px var(--rubric), 0 2px 7px rgba(0,0,0,0.5); } 50% { box-shadow: 0 0 0 4px rgba(140,59,43,0.35), 0 2px 9px rgba(0,0,0,0.5); } }
+    .mk-cross span { color: #f7ecd2; font-size: 0.82rem; line-height: 1; }
+    .mk-ship { color: var(--ink); animation: bob 2.6s ease-in-out infinite; filter: drop-shadow(0 2px 3px rgba(56,41,26,0.5)); }
+    @keyframes bob { 0%,100% { transform: translateY(0) rotate(-2deg); } 50% { transform: translateY(-2px) rotate(2deg); } }
 
-    /* ── Leaflet popup overrides ─────────────────────────── */
+    /* ── leaflet popup, themed as a paper label ───────────── */
     .leaflet-popup-content-wrapper {
-      background: var(--parchment) !important;
-      border: 1px solid var(--border) !important;
-      border-radius: 3px !important;
-      box-shadow: 0 4px 22px rgba(44,36,22,0.18) !important;
-      font-family: 'Crimson Text', serif !important;
+      background: var(--vellum) !important;
+      border: 1px solid var(--edge) !important;
+      border-radius: 2px !important;
+      box-shadow: 0 6px 26px rgba(56,41,26,0.34) !important;
       color: var(--ink) !important;
     }
-
-    .leaflet-popup-tip { background: var(--parchment) !important; }
-
-    .leaflet-popup-content {
-      margin: 14px 18px !important;
-      min-width: 200px;
-      max-width: 260px;
-      line-height: 1.5 !important;
+    .leaflet-popup-content-wrapper::before {
+      content: ""; position: absolute; inset: 3px; border: 1px solid rgba(140,59,43,0.3);
+      pointer-events: none; border-radius: 1px;
     }
+    .leaflet-popup-tip { background: var(--vellum) !important; border: 1px solid var(--edge) !important; }
+    .leaflet-popup-content { margin: 15px 18px !important; min-width: 210px; max-width: 264px; line-height: 1.5 !important; }
+    .leaflet-popup-close-button { color: var(--faded) !important; }
 
-    .pop-name {
-      font-family: 'EB Garamond', serif;
-      font-size: 1.15rem;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 7px;
-      margin-bottom: 3px;
+    /* framed engraving plate at the head of a popup */
+    .pop-plate {
+      position: relative; width: 100%; aspect-ratio: 3 / 2;
+      margin: -3px 0 11px; overflow: hidden;
+      border: 1px solid var(--edge);
+      background: var(--vellum-2);
+      box-shadow: 0 1px 4px rgba(56,41,26,0.25);
     }
-
-    .pop-num {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 20px;
-      height: 20px;
-      border-radius: 50%;
-      font-size: 0.7rem;
-      font-weight: 700;
-      color: white;
-      flex-shrink: 0;
+    .pop-plate::after {
+      content: ""; position: absolute; inset: 0; pointer-events: none;
+      box-shadow: inset 0 0 0 3px rgba(233,220,190,0.92), inset 0 0 0 4px rgba(140,59,43,0.4);
     }
-
-    .pop-place {
-      font-size: 0.82rem;
-      color: var(--ink-light);
-      font-style: italic;
-      margin-bottom: 9px;
+    .pop-plate img {
+      position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+      opacity: 0; transition: opacity 0.45s ease;
+      filter: sepia(0.4) saturate(0.85) contrast(0.95) brightness(0.98);
     }
-
-    .pop-inbook {
-      font-size: 0.9rem;
-      color: var(--ink-mid);
-      margin-bottom: 9px;
-      line-height: 1.45;
+    .pop-plate.loaded img { opacity: 1; }
+    .pop-plate.missing img { display: none; }
+    .pop-plate-ph {
+      position: absolute; inset: 0; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 7px; color: var(--faded);
+      transition: opacity 0.45s ease;
+      background: repeating-linear-gradient(45deg, rgba(138,113,72,0.08) 0 6px, transparent 6px 12px);
     }
+    .pop-plate.loaded .pop-plate-ph { opacity: 0; }
+    .pop-plate-ph svg { opacity: 0.65; }
+    .pop-plate-ph span { font-family: var(--font-caps); font-size: 0.54rem; letter-spacing: 0.2em; text-transform: uppercase; }
 
-    .pop-footer {
-      border-top: 1px solid var(--border);
-      padding-top: 7px;
-      font-size: 0.78rem;
-      color: var(--ink-light);
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      gap: 8px;
+    .pop-name { font-family: var(--font-caps); font-size: 1.06rem; font-weight: 600; display: flex; align-items: center; gap: 8px; margin-bottom: 4px; color: var(--ink); }
+    .pop-num { display: inline-flex; align-items: center; justify-content: center; width: 21px; height: 21px; border-radius: 50%; font-size: 0.7rem; font-weight: 600; font-family: var(--font-caps); color: #fbf3e0; flex-shrink: 0; border: 1px solid rgba(56,41,26,0.4); }
+    .pop-place { font-family: var(--font-old); font-size: 0.86rem; color: var(--faded); font-style: italic; margin-bottom: 9px; }
+    .pop-inbook { font-size: 0.95rem; color: var(--ink-2); margin-bottom: 10px; line-height: 1.5; font-family: var(--font-old); }
+    .pop-footer { border-top: 1px solid var(--edge); padding-top: 8px; font-size: 0.8rem; color: var(--faded); display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+    .pop-footer em { flex: 1; font-family: var(--font-caps); font-style: normal; font-size: 0.72rem; letter-spacing: 0.04em; color: var(--ink-2); }
+    .pop-note { font-size: 0.78rem; color: var(--faded); font-style: italic; margin-top: 6px; font-family: var(--font-old); }
+    .pop-books { font-family: var(--font-old); font-size: 0.9rem; color: var(--ink-2); line-height: 1.6; }
+    .pop-books b { color: var(--ink); font-weight: 600; }
+
+    .leaflet-control-scale-line {
+      background: rgba(233,220,190,0.85) !important; border: 1px solid var(--ink-2) !important;
+      border-top: none !important; color: var(--ink) !important;
+      font-family: var(--font-caps) !important; font-size: 0.6rem !important; letter-spacing: 0.06em;
     }
-
-    .pop-note {
-      font-size: 0.74rem;
-      color: var(--ink-light);
-      font-style: italic;
-      margin-top: 5px;
+    .leaflet-control-attribution {
+      background: rgba(233,220,190,0.8) !important; color: var(--faded) !important;
+      font-family: var(--font-body) !important; font-size: 0.64rem !important;
     }
+    .leaflet-control-attribution a { color: var(--ink-2) !important; }
+    .leaflet-bar a { background: var(--vellum) !important; color: var(--ink) !important; border-bottom-color: var(--edge) !important; }
+    .leaflet-bar a:hover { background: var(--vellum-2) !important; }
 
-    /* ── mobile ──────────────────────────────────────────── */
-    @media (max-width: 680px) {
+    /* ── mobile ───────────────────────────────────────────── */
+    @media (max-width: 720px) {
       #app { flex-direction: column; }
-
-      #sidebar {
-        width: 100%;
-        min-width: 0;
-        max-height: 44vh;
-        border-right: none;
-        border-bottom: 1px solid var(--border);
-      }
-
-      #map { flex: 1; min-height: 0; }
-
-      #empty-state {
-        top: 72vh;
-        left: 50%;
-      }
+      #ledger { width: 100%; min-width: 0; max-height: 46vh; border-right: none; border-bottom: 2px solid var(--edge); }
+      #ledger::after { display: none; }
+      .map-stage { flex: 1; min-height: 0; }
+      .compass { width: 120px; height: 120px; right: 16px; bottom: 16px; }
+      .marginalia { display: none; }
+      #empty-state { top: 50%; }
     }
   </style>
 </head>
 <body>
 
+<div id="grain"></div>
+
+<div id="frame">
+  <!-- corner flourishes -->
+  <svg class="corner tl" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.3">
+    <path d="M2 24 C2 12 12 2 24 2" />
+    <path d="M2 16 C2 8 8 2 16 2" opacity="0.6" />
+    <circle cx="9" cy="9" r="2.4" fill="currentColor" stroke="none" />
+    <path d="M24 2 q6 0 10 4 M2 24 q0 6 4 10" opacity="0.5" />
+  </svg>
+  <svg class="corner tr" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.3">
+    <path d="M2 24 C2 12 12 2 24 2" />
+    <path d="M2 16 C2 8 8 2 16 2" opacity="0.6" />
+    <circle cx="9" cy="9" r="2.4" fill="currentColor" stroke="none" />
+    <path d="M24 2 q6 0 10 4 M2 24 q0 6 4 10" opacity="0.5" />
+  </svg>
+  <svg class="corner bl" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.3">
+    <path d="M2 24 C2 12 12 2 24 2" />
+    <path d="M2 16 C2 8 8 2 16 2" opacity="0.6" />
+    <circle cx="9" cy="9" r="2.4" fill="currentColor" stroke="none" />
+    <path d="M24 2 q6 0 10 4 M2 24 q0 6 4 10" opacity="0.5" />
+  </svg>
+  <svg class="corner br" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.3">
+    <path d="M2 24 C2 12 12 2 24 2" />
+    <path d="M2 16 C2 8 8 2 16 2" opacity="0.6" />
+    <circle cx="9" cy="9" r="2.4" fill="currentColor" stroke="none" />
+    <path d="M24 2 q6 0 10 4 M2 24 q0 6 4 10" opacity="0.5" />
+  </svg>
+</div>
+
 <div id="app">
-  <aside id="sidebar">
-    <div id="sidebar-header">
+  <aside id="ledger">
+
+    <div id="masthead">
+      <svg class="flourish" width="150" height="16" viewBox="0 0 150 16" fill="none" stroke="currentColor" stroke-width="1.2">
+        <path d="M2 8 H58 M92 8 H148" />
+        <path d="M58 8 q8 -6 17 0 q9 6 17 0" />
+        <circle cx="75" cy="8" r="2.6" fill="currentColor" stroke="none" />
+        <path d="M58 8 l-5 -4 M58 8 l-5 4 M92 8 l5 -4 M92 8 l5 4" opacity="0.7" />
+      </svg>
       <h1>Literary Journeys</h1>
-      <hr class="header-rule" />
-      <p>Routes of the imagination</p>
+      <div class="sub">An Atlas of Imagined Voyages</div>
+      <div class="est">Charted &middot; Mappa Mundi Libraria</div>
+    </div>
+
+    <div id="gazetteer">
+      <div class="gaz-field">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="10.5" cy="10.5" r="7" /><path d="M21 21l-5.4-5.4" />
+        </svg>
+        <input id="gaz-input" type="text" placeholder="Search the gazetteer…" autocomplete="off" spellcheck="false" />
+      </div>
+      <div id="gaz-results"></div>
     </div>
 
     <div id="controls">
-      <button class="ctrl-btn" id="btn-show-all">Show all</button>
+      <button class="ctrl-btn" id="btn-show-all">Chart all</button>
+      <button class="ctrl-btn" id="btn-crossings">Crossings</button>
       <button class="ctrl-btn" id="btn-clear">Clear</button>
     </div>
+
+    <div id="crossings-panel"></div>
 
     <div id="journey-list"></div>
 
     <div id="legend">
-      <div class="legend-title">Map key</div>
+      <div class="legend-title">The Map Key</div>
       <div class="legend-row">
-        <div class="legend-icon">
-          <div style="width:14px;height:14px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:var(--ink-light);border:2px solid rgba(255,255,255,0.65)"></div>
-        </div>
-        <span>Numbered stop &mdash; route</span>
+        <div class="legend-icon"><div class="mk-seal" style="--c:#8a7150;width:18px;height:18px;"><span style="font-size:0.5rem">3</span></div></div>
+        <span>Numbered port of call &mdash; a charted route</span>
       </div>
       <div class="legend-row">
-        <div class="legend-icon">
-          <div style="width:10px;height:10px;border-radius:50%;border:2px solid var(--ink-light);background:rgba(139,122,94,0.25)"></div>
-        </div>
-        <span>Dispersed place &mdash; constellation</span>
+        <div class="legend-icon"><div style="--c:#8a7150;" class="mk-star"></div></div>
+        <span>Scattered place &mdash; a constellation</span>
       </div>
       <div class="legend-row">
-        <div class="legend-icon">
-          <div style="width:22px;border-top:2px dashed var(--ink-light)"></div>
-        </div>
-        <span>Journey route</span>
+        <div class="legend-icon"><svg width="24" height="8"><line x1="1" y1="4" x2="23" y2="4" stroke="#8a7150" stroke-width="2" stroke-dasharray="5,4"/></svg></div>
+        <span>The course of a voyage</span>
+      </div>
+      <div class="legend-row">
+        <div class="legend-icon"><div class="mk-cross" style="width:18px;height:18px;animation:none;"><span style="font-size:0.55rem">✶</span></div></div>
+        <span>Where two voyages cross</span>
       </div>
     </div>
+
   </aside>
 
-  <div id="map"></div>
+  <div class="map-stage">
+    <div id="map"></div>
+    <div class="map-vignette"></div>
+
+    <!-- sea-serpent marginalia -->
+    <svg class="marginalia" viewBox="0 0 240 80" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+      <path d="M6 54 q12 -22 24 0 q12 22 24 0 q12 -22 24 0 q12 22 24 0 q10 -18 22 -8" />
+      <path d="M150 46 q10 -7 22 -3 q9 3 8 13 q-1 8 -10 9 q-9 1 -12 -7" />
+      <circle cx="166" cy="50" r="1.6" fill="currentColor" stroke="none" />
+      <path d="M174 56 q6 1 11 -3 M174 59 q7 2 13 -1" stroke-width="1.1" opacity="0.8" />
+      <path d="M30 60 q4 4 9 4 M78 60 q4 4 9 4" stroke-width="1" opacity="0.5" />
+      <text x="14" y="20" class="legend-words" font-size="15" stroke="none">Heere be Dragons</text>
+    </svg>
+
+    <!-- compass rose -->
+    <svg class="compass" viewBox="0 0 200 200" fill="none">
+      <defs>
+        <g id="card">
+          <polygon points="100,100 100,18 92,56" fill="currentColor" fill-opacity="0.92" />
+          <polygon points="100,100 100,18 108,56" fill="currentColor" fill-opacity="0.45" />
+        </g>
+        <g id="ord">
+          <polygon points="100,100 100,42 94,68" fill="currentColor" fill-opacity="0.7" />
+          <polygon points="100,100 100,42 106,68" fill="currentColor" fill-opacity="0.32" />
+        </g>
+      </defs>
+
+      <!-- rhumb lines -->
+      <g stroke="currentColor" stroke-width="0.5" opacity="0.28">
+        <line x1="100" y1="100" x2="100" y2="6"/><line x1="100" y1="100" x2="194" y2="100"/>
+        <line x1="100" y1="100" x2="100" y2="194"/><line x1="100" y1="100" x2="6" y2="100"/>
+        <line x1="100" y1="100" x2="167" y2="33"/><line x1="100" y1="100" x2="167" y2="167"/>
+        <line x1="100" y1="100" x2="33" y2="167"/><line x1="100" y1="100" x2="33" y2="33"/>
+        <line x1="100" y1="100" x2="136" y2="12"/><line x1="100" y1="100" x2="188" y2="64"/>
+        <line x1="100" y1="100" x2="188" y2="136"/><line x1="100" y1="100" x2="136" y2="188"/>
+        <line x1="100" y1="100" x2="64" y2="188"/><line x1="100" y1="100" x2="12" y2="136"/>
+        <line x1="100" y1="100" x2="12" y2="64"/><line x1="100" y1="100" x2="64" y2="12"/>
+      </g>
+
+      <circle cx="100" cy="100" r="84" stroke="currentColor" stroke-width="1" opacity="0.55"/>
+      <circle cx="100" cy="100" r="78" stroke="currentColor" stroke-width="0.5" opacity="0.4"/>
+
+      <!-- ordinal points -->
+      <use href="#ord" transform="rotate(45 100 100)"/>
+      <use href="#ord" transform="rotate(135 100 100)"/>
+      <use href="#ord" transform="rotate(225 100 100)"/>
+      <use href="#ord" transform="rotate(315 100 100)"/>
+      <!-- cardinal points -->
+      <use href="#card"/>
+      <use href="#card" transform="rotate(90 100 100)"/>
+      <use href="#card" transform="rotate(180 100 100)"/>
+      <use href="#card" transform="rotate(270 100 100)"/>
+
+      <circle cx="100" cy="100" r="6" fill="currentColor" fill-opacity="0.8"/>
+      <circle cx="100" cy="100" r="2.4" fill="#e9dcbe"/>
+
+      <g fill="currentColor" font-family="Cinzel, serif" font-weight="600" font-size="13" text-anchor="middle">
+        <text x="100" y="14" fill="#8c3b2b">N</text>
+        <text x="192" y="105">E</text>
+        <text x="100" y="200">S</text>
+        <text x="8"  y="105">W</text>
+      </g>
+    </svg>
+  </div>
 </div>
 
 <div id="empty-state">
-  <span class="empty-glyph">✦</span>
-  <h2>Select a journey to begin</h2>
-  <p>Choose from the books in the sidebar</p>
+  <svg class="glyph" width="46" height="46" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.4">
+    <circle cx="24" cy="24" r="20" />
+    <polygon points="24,8 28,24 24,40 20,24" fill="currentColor" stroke="none" opacity="0.85"/>
+    <polygon points="8,24 24,20 40,24 24,28" fill="currentColor" stroke="none" opacity="0.45"/>
+  </svg>
+  <h2>Choose a tale to chart its course</h2>
+  <p>Select from the volumes at left</p>
 </div>
 
 <script>
@@ -489,6 +678,7 @@
 // ║      inBook      what happens here / role in narrative       ║
 // ║      reference   chapter / book / part reference             ║
 // ║      note        (optional) caveats about the location       ║
+// ║      image       (optional) URL of a picture for the popup   ║
 // ╚═══════════════════════════════════════════════════════════════╝
 
 const JOURNEYS = [
@@ -1374,85 +1564,119 @@ const JOURNEYS = [
 // ╚═══════════════════════════════════════════════════════════════╝
 
 const state = {
-  activeIds:   new Set(),
-  layers:      {},    // id -> { markers: [], polyline: null }
-  tracingId:   null,
-  traceTimer:  null,
-  traceStep:   0,
-  traceMarker: null,
-  tracePoly:   null,
+  activeIds: new Set(),
+  layers:    {},          // id -> { markers: [], polyline: null }
 };
 
-const TRACE_DELAY    = 2200;  // ms between stops
-const TRACE_FLY_DUR  = 1.3;  // seconds for flyTo
+// the voyage console (one playing/scrubbed route at a time)
+const voyage = { id: null, step: 0, playing: false, timer: null, ship: null, poly: null };
+
+// the crossings overlay
+const crossings = { on: false, markers: [], data: [] };
+
+let firstRender = true;
+
+const STEP_MS = 2000;   // ms between stops while playing
+const FLY     = 1.2;    // seconds for a flyTo
+
+const byId = id => JOURNEYS.find(j => j.id === id);
+
+
+// ╔═══════════════════════════════════════════════════════════════╗
+// ║  GEOGRAPHY HELPERS                                           ║
+// ╚═══════════════════════════════════════════════════════════════╝
+
+const R_KM         = 6371;
+const KM_PER_NMI   = 1.852;
+const KM_PER_LEAGUE = 5.556;   // one nautical league ≈ 3 nmi
+
+function haversine(a, b) {
+  const toRad = d => d * Math.PI / 180;
+  const dLat = toRad(b[0] - a[0]);
+  const dLon = toRad(b[1] - a[1]);
+  const la1 = toRad(a[0]), la2 = toRad(b[0]);
+  const h = Math.sin(dLat / 2) ** 2 +
+            Math.cos(la1) * Math.cos(la2) * Math.sin(dLon / 2) ** 2;
+  return 2 * R_KM * Math.asin(Math.sqrt(h));
+}
+
+function routeDistanceKm(j) {
+  let d = 0;
+  for (let i = 1; i < j.stops.length; i++) d += haversine(j.stops[i - 1].coords, j.stops[i].coords);
+  return d;
+}
+
+function spanKm(j) {
+  const b = L.latLngBounds(j.stops.map(s => s.coords));
+  return haversine([b.getSouth(), b.getWest()], [b.getNorth(), b.getEast()]);
+}
+
+const fmt = n => Math.round(n).toLocaleString('en-US');
 
 
 // ╔═══════════════════════════════════════════════════════════════╗
 // ║  MAP                                                         ║
 // ╚═══════════════════════════════════════════════════════════════╝
 
-const map = L.map('map', { center: [42, 12], zoom: 3 });
+const map = L.map('map', { center: [42, 12], zoom: 3, zoomControl: true, worldCopyJump: true });
 
 L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
   subdomains:  'abcd',
   maxZoom:     19
 }).addTo(map);
+
+L.control.scale({ imperial: true, metric: true, position: 'bottomleft' }).addTo(map);
 
 
 // ╔═══════════════════════════════════════════════════════════════╗
 // ║  ICONS                                                       ║
 // ╚═══════════════════════════════════════════════════════════════╝
 
-function makeRouteIcon(color, num) {
+function sealIcon(color, num) {
   return L.divIcon({
-    className: '',
-    html: `<div style="
-      width:28px;height:28px;
-      border-radius:50% 50% 50% 0;
-      transform:rotate(-45deg);
-      background:${color};
-      border:2px solid rgba(255,255,255,0.85);
-      box-shadow:0 2px 6px rgba(0,0,0,0.32);
-      display:flex;align-items:center;justify-content:center;
-    "><span style="
-      transform:rotate(45deg);
-      font-family:'Crimson Text',serif;
-      font-size:0.72rem;font-weight:700;
-      color:white;line-height:1;
-    ">${num}</span></div>`,
-    iconSize:    [28, 28],
-    iconAnchor:  [14, 28],
-    popupAnchor: [0, -32],
+    className:   'mk',
+    html:        `<div class="mk-seal" style="--c:${color}"><span>${num}</span></div>`,
+    iconSize:    [30, 30],
+    iconAnchor:  [15, 15],
+    popupAnchor: [0, -16],
   });
 }
 
-function makeConstellationIcon(color) {
+function starIcon(color) {
   return L.divIcon({
-    className: '',
-    html: `<div style="
-      width:13px;height:13px;border-radius:50%;
-      background:${color};opacity:0.82;
-      border:2px solid rgba(255,255,255,0.9);
-      box-shadow:0 1px 6px rgba(0,0,0,0.3);
-    "></div>`,
-    iconSize:    [13, 13],
-    iconAnchor:  [6, 6],
-    popupAnchor: [0, -12],
+    className:   'mk',
+    html:        `<div class="mk-star" style="--c:${color}"></div>`,
+    iconSize:    [17, 17],
+    iconAnchor:  [8, 8],
+    popupAnchor: [0, -10],
   });
 }
 
-function makeTraceIcon(color) {
+function crossIcon() {
   return L.divIcon({
-    className: '',
-    html: `<div style="
-      width:16px;height:16px;border-radius:50%;
-      background:${color};
-      border:2.5px solid white;
-      box-shadow:0 0 0 3px ${color}55,0 2px 10px rgba(0,0,0,0.4);
-    "></div>`,
-    iconSize:   [16, 16],
-    iconAnchor: [8, 8],
+    className:   'mk',
+    html:        `<div class="mk-cross"><span>✶</span></div>`,
+    iconSize:    [26, 26],
+    iconAnchor:  [13, 13],
+    popupAnchor: [0, -14],
+  });
+}
+
+const SHIP_SVG = `<svg width="26" height="24" viewBox="0 0 26 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round">
+  <path d="M3 15 H23 L20 21 H6 Z" fill="#e9dcbe"/>
+  <line x1="13" y1="3" x2="13" y2="15"/>
+  <path d="M13 4 L6 14 H13 Z" fill="#f3e6c8"/>
+  <path d="M13 5 L20 14 H13 Z" fill="#f3e6c8"/>
+  <path d="M13 3 l5 2 l-5 2 z" fill="#8c3b2b" stroke="none"/>
+</svg>`;
+
+function shipIcon() {
+  return L.divIcon({
+    className:  'mk',
+    html:       `<div class="mk-ship">${SHIP_SVG}</div>`,
+    iconSize:   [26, 24],
+    iconAnchor: [13, 18],
   });
 }
 
@@ -1461,18 +1685,47 @@ function makeTraceIcon(color) {
 // ║  POPUP CONTENT                                               ║
 // ╚═══════════════════════════════════════════════════════════════╝
 
+// engraved landscape glyph shown while a plate is empty or loading
+const PLATE_GLYPH = `<svg width="30" height="30" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round">
+  <circle cx="22.5" cy="9.5" r="3"/>
+  <path d="M3 24 L11 14 L17 21 L21.5 16 L29 24 Z"/>
+  <path d="M3 27 H29" opacity="0.55"/>
+</svg>`;
+
+// Reserve a framed image slot. Shows the picture if `stop.image` loads;
+// otherwise falls back to the engraved "awaiting plate" placeholder.
+function buildPlate(stop) {
+  const ph = `<div class="pop-plate-ph">${PLATE_GLYPH}<span>Awaiting plate</span></div>`;
+  if (stop.image) {
+    return `<div class="pop-plate">
+      <img src="${stop.image}" alt="${stop.name}" loading="lazy"
+        onload="this.parentElement.classList.add('loaded')"
+        onerror="this.parentElement.classList.add('missing')">${ph}</div>`;
+  }
+  return `<div class="pop-plate missing">${ph}</div>`;
+}
+
 function buildPopup(stop, journey, idx) {
   const badge = journey.type === 'route'
     ? `<span class="pop-num" style="background:${journey.color}">${idx + 1}</span>` : '';
   return `
+    ${buildPlate(stop)}
     <div class="pop-name">${badge}${stop.name}</div>
     <div class="pop-place">${stop.realPlace}</div>
     <div class="pop-inbook">${stop.inBook}</div>
     <div class="pop-footer">
-      <em style="flex:1">${journey.title}</em>
+      <em>${journey.title}</em>
       <span>${stop.reference}</span>
     </div>
     ${stop.note ? `<div class="pop-note">⁎ ${stop.note}</div>` : ''}
+  `;
+}
+
+function crossingPopup(name, books) {
+  return `
+    <div class="pop-name"><span class="pop-num" style="background:var(--rubric)">✶</span>${name}</div>
+    <div class="pop-place">A meeting of voyages</div>
+    <div class="pop-books">${books.map(b => `<b>${b}</b>`).join('<br>')}</div>
   `;
 }
 
@@ -1484,8 +1737,8 @@ function buildPopup(stop, journey, idx) {
 function drawJourney(journey) {
   const markers = journey.stops.map((stop, i) => {
     const icon = journey.type === 'route'
-      ? makeRouteIcon(journey.color, i + 1)
-      : makeConstellationIcon(journey.color);
+      ? sealIcon(journey.color, i + 1)
+      : starIcon(journey.color);
     return L.marker(stop.coords, { icon })
       .bindPopup(buildPopup(stop, journey, i), { maxWidth: 300 })
       .addTo(map);
@@ -1493,7 +1746,7 @@ function drawJourney(journey) {
 
   const polyline = journey.type === 'route'
     ? L.polyline(journey.stops.map(s => s.coords), {
-        color: journey.color, weight: 2.5, opacity: 0.72, dashArray: '7,5'
+        color: journey.color, weight: 2.4, opacity: 0.7, dashArray: '6,6', lineCap: 'round'
       }).addTo(map)
     : null;
 
@@ -1501,7 +1754,7 @@ function drawJourney(journey) {
 }
 
 function removeJourney(journey) {
-  if (state.tracingId === journey.id) stopTrace();
+  if (voyage.id === journey.id) voyageTeardown();
   const g = state.layers[journey.id];
   if (!g) return;
   g.markers.forEach(m => map.removeLayer(m));
@@ -1512,167 +1765,296 @@ function removeJourney(journey) {
 function boundsOf(ids) {
   const pts = [];
   ids.forEach(id => {
-    const j = JOURNEYS.find(j => j.id === id);
+    const j = byId(id);
     if (j) j.stops.forEach(s => pts.push(s.coords));
   });
   return pts.length ? L.latLngBounds(pts) : null;
 }
 
+function ensureCharted(id) {
+  if (state.activeIds.has(id)) return false;
+  state.activeIds.add(id);
+  drawJourney(byId(id));
+  return true;
+}
+
 
 // ╔═══════════════════════════════════════════════════════════════╗
-// ║  TRACE ANIMATION                                             ║
+// ║  VOYAGE CONSOLE  (play / pause / scrub a route)             ║
 // ╚═══════════════════════════════════════════════════════════════╝
 
-function startTrace(journeyId) {
-  const journey = JOURNEYS.find(j => j.id === journeyId);
-  if (!journey) return;
+function voyageTeardown() {
+  if (voyage.timer) { clearTimeout(voyage.timer); voyage.timer = null; }
+  if (voyage.ship)  { map.removeLayer(voyage.ship); voyage.ship = null; }
+  if (voyage.poly)  { map.removeLayer(voyage.poly); voyage.poly = null; }
+  voyage.id = null; voyage.step = 0; voyage.playing = false;
+}
 
-  stopTrace();
-  state.tracingId = journeyId;
-  state.traceStep = 0;
-
-  const isRoute = journey.type === 'route';
-
-  if (isRoute) {
-    // Hide static polyline — rebuild it incrementally
-    const g = state.layers[journeyId];
-    if (g?.polyline) { map.removeLayer(g.polyline); g.polyline = null; }
-
-    state.tracePoly = L.polyline([journey.stops[0].coords], {
-      color: journey.color, weight: 2.5, opacity: 0.8, dashArray: '7,5'
-    }).addTo(map);
-  }
-
-  state.traceMarker = L.marker(journey.stops[0].coords, {
-    icon: makeTraceIcon(journey.color), zIndexOffset: 1000
+// Attach the ship + a bright "progress" overline to a route, preserving step
+function voyageEnsure(id) {
+  if (voyage.id === id) return;
+  voyageTeardown();
+  const j = byId(id);
+  voyage.id = id; voyage.step = 0; voyage.playing = false;
+  voyage.poly = L.polyline([j.stops[0].coords], {
+    color: j.color, weight: 3.8, opacity: 0.95, lineCap: 'round', lineJoin: 'round'
   }).addTo(map);
+  voyage.ship = L.marker(j.stops[0].coords, { icon: shipIcon(), zIndexOffset: 1500 }).addTo(map);
+}
 
-  litMarker(journeyId, 0, true);
-  map.flyTo(journey.stops[0].coords, isRoute ? 5 : 6, { duration: TRACE_FLY_DUR });
-  setTraceBtn(journeyId, true);
+function voyageSeek(id, step, fly = true) {
+  voyageEnsure(id);
+  const j = byId(id);
+  step = Math.max(0, Math.min(step, j.stops.length - 1));
+  voyage.step = step;
+  voyage.poly.setLatLngs(j.stops.slice(0, step + 1).map(s => s.coords));
+  voyage.ship.setLatLng(j.stops[step].coords);
+  if (fly) map.flyTo(j.stops[step].coords, Math.max(map.getZoom(), 5), { duration: FLY });
+  updateVoyageUI();
+}
 
-  function advance() {
-    litMarker(journeyId, state.traceStep, false);
-    state.traceStep++;
-    if (state.traceStep >= journey.stops.length) { finish(); return; }
+function voyagePlay(id) {
+  voyageEnsure(id);
+  const j = byId(id);
+  if (voyage.step >= j.stops.length - 1) voyage.step = 0;   // replay from the top
+  voyage.playing = true;
+  voyageSeek(id, voyage.step, true);
+  scheduleAdvance();
+}
 
-    const stop = journey.stops[state.traceStep];
-    if (isRoute) {
-      const pts = journey.stops.slice(0, state.traceStep + 1).map(s => s.coords);
-      state.tracePoly?.setLatLngs(pts);
+function scheduleAdvance() {
+  if (voyage.timer) clearTimeout(voyage.timer);
+  voyage.timer = setTimeout(() => {
+    if (!voyage.playing || !voyage.id) return;
+    const j = byId(voyage.id);
+    if (voyage.step >= j.stops.length - 1) { voyage.playing = false; updateVoyageUI(); return; }
+    voyageSeek(voyage.id, voyage.step + 1, true);
+    if (voyage.playing) scheduleAdvance();
+  }, STEP_MS);
+}
+
+function voyagePause() {
+  voyage.playing = false;
+  if (voyage.timer) { clearTimeout(voyage.timer); voyage.timer = null; }
+  updateVoyageUI();
+}
+
+// Reflect voyage state into whichever console DOM is currently mounted
+function updateVoyageUI() {
+  if (!voyage.id) return;
+  const j = byId(voyage.id);
+  const slider = document.querySelector(`[data-voy-slider="${voyage.id}"]`);
+  const label  = document.querySelector(`[data-voy-label="${voyage.id}"]`);
+  const play   = document.querySelector(`[data-voy-play="${voyage.id}"]`);
+  if (slider) slider.value = voyage.step;
+  if (label)  label.innerHTML = `Stop ${voyage.step + 1} of ${j.stops.length} &mdash; <em>${j.stops[voyage.step].name}</em>`;
+  if (play)   play.textContent = voyage.playing ? '❚❚' : (voyage.step >= j.stops.length - 1 ? '↻' : '▶');
+
+  document.querySelectorAll('.stop-item.lit').forEach(e => e.classList.remove('lit'));
+  const li = document.querySelector(`.stop-item[data-jid="${voyage.id}"][data-idx="${voyage.step}"]`);
+  if (li) li.classList.add('lit');
+}
+
+
+// ╔═══════════════════════════════════════════════════════════════╗
+// ║  CROSSINGS  (where voyages meet)                            ║
+// ║  Greedy proximity clustering: any stops within ~70 km that  ║
+// ║  belong to two or more different books form a "crossing".   ║
+// ╚═══════════════════════════════════════════════════════════════╝
+
+function computeCrossings() {
+  const pts = [];
+  JOURNEYS.forEach(j => j.stops.forEach(s =>
+    pts.push({ jid: j.id, title: j.title, color: j.color, name: s.name, coords: s.coords })));
+
+  const used = new Array(pts.length).fill(false);
+  const clusters = [];
+
+  for (let a = 0; a < pts.length; a++) {
+    if (used[a]) continue;
+    const group = [pts[a]];
+    for (let b = a + 1; b < pts.length; b++) {
+      if (used[b]) continue;
+      if (haversine(pts[a].coords, pts[b].coords) < 70) { group.push(pts[b]); used[b] = true; }
     }
-    state.traceMarker?.setLatLng(stop.coords);
-    litMarker(journeyId, state.traceStep, true);
-    map.flyTo(stop.coords, map.getZoom(), { duration: TRACE_FLY_DUR });
-    state.traceTimer = setTimeout(advance, TRACE_DELAY);
+    const books = new Set(group.map(g => g.jid));
+    if (books.size > 1) { used[a] = true; clusters.push(group); }
   }
-
-  function finish() {
-    if (state.traceMarker) { map.removeLayer(state.traceMarker); state.traceMarker = null; }
-    if (state.tracePoly)   { map.removeLayer(state.tracePoly);   state.tracePoly = null; }
-    if (isRoute) restorePolyline(journeyId);
-    state.tracingId = null;
-    setTraceBtn(journeyId, false);
-  }
-
-  state.traceTimer = setTimeout(advance, TRACE_DELAY);
+  return clusters;
 }
 
-function stopTrace() {
-  if (state.traceTimer) { clearTimeout(state.traceTimer); state.traceTimer = null; }
-  if (state.traceMarker) { map.removeLayer(state.traceMarker); state.traceMarker = null; }
-  if (state.tracePoly)   { map.removeLayer(state.tracePoly);   state.tracePoly = null; }
-  const prev = state.tracingId;
-  if (prev) {
-    litMarker(prev, state.traceStep, false);
-    const j = JOURNEYS.find(j => j.id === prev);
-    if (j?.type === 'route') restorePolyline(prev);
-    setTraceBtn(prev, false);
-  }
-  state.tracingId = null;
+function clearCrossings() {
+  crossings.markers.forEach(m => map.removeLayer(m));
+  crossings.markers = [];
+  crossings.data = [];
+  crossings.on = false;
+  document.getElementById('btn-crossings').classList.remove('active');
 }
 
-function restorePolyline(journeyId) {
-  const g = state.layers[journeyId];
-  if (!g || g.polyline) return;
-  const j = JOURNEYS.find(j => j.id === journeyId);
-  if (!j) return;
-  g.polyline = L.polyline(j.stops.map(s => s.coords), {
-    color: j.color, weight: 2.5, opacity: 0.72, dashArray: '7,5'
-  }).addTo(map);
+function toggleCrossings() {
+  if (crossings.on) { clearCrossings(); renderCrossingsPanel(); renderSidebar(); updateEmptyState(); return; }
+
+  crossings.data = computeCrossings();
+  if (!crossings.data.length) { renderCrossingsPanel(); return; }
+
+  const involved = new Set();
+  crossings.data.forEach(g => g.forEach(p => involved.add(p.jid)));
+  involved.forEach(ensureCharted);
+
+  crossings.markers = crossings.data.map(g => {
+    const lat = g.reduce((s, p) => s + p.coords[0], 0) / g.length;
+    const lng = g.reduce((s, p) => s + p.coords[1], 0) / g.length;
+    const books = [...new Set(g.map(p => p.title))];
+    return L.marker([lat, lng], { icon: crossIcon(), zIndexOffset: 2000 })
+      .bindPopup(crossingPopup(g[0].name, books))
+      .addTo(map);
+  });
+
+  crossings.on = true;
+  document.getElementById('btn-crossings').classList.add('active');
+
+  const b = boundsOf([...state.activeIds]);
+  if (b) map.flyToBounds(b, { padding: [60, 60], duration: 1.4 });
+
+  renderCrossingsPanel();
+  renderSidebar();
+  updateEmptyState();
 }
 
-function setTraceBtn(journeyId, active) {
-  const btn = document.querySelector(`[data-trace="${journeyId}"]`);
-  if (!btn) return;
-  btn.textContent = active ? '◼ Stop trace' : '▶ Trace journey';
-  btn.classList.toggle('tracing', active);
+function renderCrossingsPanel() {
+  const panel = document.getElementById('crossings-panel');
+  if (!crossings.on) { panel.classList.remove('open'); panel.innerHTML = ''; return; }
+
+  const rows = crossings.data.map((g, i) => {
+    const books = [...new Set(g.map(p => p.title))];
+    const lat = g.reduce((s, p) => s + p.coords[0], 0) / g.length;
+    const lng = g.reduce((s, p) => s + p.coords[1], 0) / g.length;
+    return `<div class="cross-row" data-cross="${i}" data-lat="${lat}" data-lng="${lng}">
+      <div class="cross-place">${g[0].name}</div>
+      <div class="cross-books">${books.join(' &times; ')}</div>
+    </div>`;
+  }).join('');
+
+  panel.innerHTML = `
+    <div class="cross-title">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 5l14 14M19 5L5 19"/></svg>
+      Where Voyages Meet
+    </div>
+    ${rows || '<div class="gaz-empty">No crossings found.</div>'}
+  `;
+  panel.classList.add('open');
+
+  panel.querySelectorAll('.cross-row').forEach(row => {
+    row.addEventListener('click', () => {
+      const i = +row.dataset.cross;
+      map.flyTo([+row.dataset.lat, +row.dataset.lng], 6, { duration: 1.2 });
+      setTimeout(() => crossings.markers[i]?.openPopup(), 1300);
+    });
+  });
 }
 
 
 // ╔═══════════════════════════════════════════════════════════════╗
-// ║  SIDEBAR                                                     ║
+// ║  SHIP'S LOG  +  SIDEBAR                                      ║
 // ╚═══════════════════════════════════════════════════════════════╝
+
+function renderLogbook(journey) {
+  let rows;
+  if (journey.type === 'route') {
+    const km = routeDistanceKm(journey);
+    rows = `
+      <div class="log-row"><span class="log-key">Ports of call</span><span class="log-val">${journey.stops.length}</span></div>
+      <div class="log-row"><span class="log-key">Course length</span><span class="log-val">${fmt(km)} km &middot; <em>${fmt(km / KM_PER_NMI)} nmi</em></span></div>
+      <div class="log-row"><span class="log-key">In old measure</span><span class="log-val">≈ ${fmt(km / KM_PER_LEAGUE)} leagues</span></div>
+      <div class="log-row"><span class="log-key">Landfall</span><span class="log-val">${journey.stops[0].name} → ${journey.stops[journey.stops.length - 1].name}</span></div>
+      <div class="log-row"><span class="log-key">Era</span><span class="log-val">${journey.year}</span></div>`;
+  } else {
+    const km = spanKm(journey);
+    rows = `
+      <div class="log-row"><span class="log-key">Places</span><span class="log-val">${journey.stops.length}</span></div>
+      <div class="log-row"><span class="log-key">Span of chart</span><span class="log-val">${fmt(km)} km across</span></div>
+      <div class="log-row"><span class="log-key">Form</span><span class="log-val"><em>Constellation</em></span></div>
+      <div class="log-row"><span class="log-key">Era</span><span class="log-val">${journey.year}</span></div>`;
+  }
+  return `<div class="logbook"><div class="logbook-title">Ship's Log</div>${rows}</div>`;
+}
+
+function renderVoyageConsole(journey) {
+  const n = journey.stops.length;
+  const isThis = voyage.id === journey.id;
+  const step = isThis ? voyage.step : 0;
+  const playGlyph = isThis ? (voyage.playing ? '❚❚' : (step >= n - 1 ? '↻' : '▶')) : '▶';
+  return `
+    <div class="voyage">
+      <div class="voyage-top">
+        <button class="voy-play" data-voy-play="${journey.id}" aria-label="Play voyage">${playGlyph}</button>
+        <div class="voy-label" data-voy-label="${journey.id}">Stop ${step + 1} of ${n} &mdash; <em>${journey.stops[step].name}</em></div>
+      </div>
+      <input class="voy-slider" type="range" min="0" max="${n - 1}" value="${step}" step="1" data-voy-slider="${journey.id}" aria-label="Voyage progress" />
+    </div>`;
+}
 
 function renderSidebar() {
   const list = document.getElementById('journey-list');
   list.innerHTML = '';
 
-  JOURNEYS.forEach(journey => {
+  JOURNEYS.forEach((journey, ji) => {
     const active = state.activeIds.has(journey.id);
-    const item   = document.createElement('div');
-    item.className = `journey-item${active ? ' active' : ''}`;
+    const item = document.createElement('div');
+    item.className = `journey-item${active ? ' active' : ''}${firstRender ? ' rise' : ''}`;
+    if (firstRender) item.style.animationDelay = (0.15 + ji * 0.08) + 's';
 
     const stopItems = journey.stops.map((stop, i) => {
       const badge = journey.type === 'route'
         ? `<span class="stop-num" style="background:${journey.color}">${i + 1}</span>`
-        : `<span class="stop-dot" style="color:${journey.color}"></span>`;
+        : `<span class="stop-star" style="background:${journey.color}"></span>`;
       return `<li class="stop-item" data-jid="${journey.id}" data-idx="${i}">${badge}${stop.name}</li>`;
     }).join('');
 
-    const traceHtml = `<button class="trace-btn${state.tracingId === journey.id ? ' tracing' : ''}" data-trace="${journey.id}">
-           ${state.tracingId === journey.id ? '◼ Stop trace' : '▶ Trace journey'}
-         </button>`;
+    const typeGlyph = journey.type === 'route'
+      ? `<svg class="type-glyph" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 18c4 0 4-12 8-12s4 12 8 12"/></svg>`
+      : `<svg class="type-glyph" width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><circle cx="6" cy="7" r="1.6"/><circle cx="17" cy="5" r="1.6"/><circle cx="12" cy="13" r="1.6"/><circle cx="19" cy="16" r="1.6"/><circle cx="7" cy="18" r="1.6"/></svg>`;
 
     item.innerHTML = `
       <div class="journey-header">
-        <div class="color-swatch" style="background:${journey.color}"></div>
+        <div class="seal-swatch" style="background:${journey.color}"></div>
         <div class="journey-title">${journey.title}</div>
-        <div class="active-dot"></div>
+        ${typeGlyph}
       </div>
       <div class="journey-meta">${journey.author} &middot; ${journey.year}</div>
-      <div class="journey-badge">${journey.type === 'route' ? `Route &middot; ${journey.stops.length} stops` : `Constellation &middot; ${journey.stops.length} places`}</div>
+      <div class="journey-badge">${journey.type === 'route' ? `Route &middot; ${journey.stops.length} ports` : `Constellation &middot; ${journey.stops.length} places`}</div>
       <div class="journey-body">
         <div class="journey-blurb">${journey.blurb}</div>
-        ${traceHtml}
+        ${renderLogbook(journey)}
+        ${journey.type === 'route' ? renderVoyageConsole(journey) : ''}
         <ul class="stop-list">${stopItems}</ul>
       </div>
     `;
 
-    // Toggle journey on click of header / meta / badge
     ['journey-header', 'journey-meta', 'journey-badge'].forEach(cls => {
       item.querySelector('.' + cls).addEventListener('click', () => toggleJourney(journey.id));
     });
 
-    // Trace button
-    const tb = item.querySelector('.trace-btn');
-    if (tb) {
-      tb.addEventListener('click', e => {
+    const playBtn = item.querySelector('.voy-play');
+    if (playBtn) {
+      playBtn.addEventListener('click', e => {
         e.stopPropagation();
-        if (state.tracingId === journey.id) {
-          stopTrace();
-        } else {
-          if (!state.activeIds.has(journey.id)) toggleJourney(journey.id);
-          startTrace(journey.id);
-        }
+        if (voyage.id === journey.id && voyage.playing) voyagePause();
+        else voyagePlay(journey.id);
       });
     }
+    const slider = item.querySelector('.voy-slider');
+    if (slider) {
+      slider.addEventListener('input', e => {
+        e.stopPropagation();
+        voyagePause();
+        voyageSeek(journey.id, +slider.value, true);
+      });
+      slider.addEventListener('click', e => e.stopPropagation());
+    }
 
-    // Stop list: click → fly + popup; hover → highlight marker
     item.querySelectorAll('.stop-item').forEach(el => {
-      const idx = +el.dataset.idx;
-      const jid = el.dataset.jid;
-
+      const idx = +el.dataset.idx, jid = el.dataset.jid;
       el.addEventListener('click', e => {
         e.stopPropagation();
         const stop = journey.stops[idx];
@@ -1680,35 +2062,114 @@ function renderSidebar() {
         const g = state.layers[jid];
         if (g?.markers[idx]) setTimeout(() => g.markers[idx].openPopup(), 1300);
       });
-
       el.addEventListener('mouseenter', () => litMarker(jid, idx, true));
       el.addEventListener('mouseleave', () => litMarker(jid, idx, false));
     });
 
     list.appendChild(item);
   });
+
+  updateVoyageUI();
+  firstRender = false;
 }
 
 function litMarker(jid, idx, on) {
-  // Sidebar highlight
   document.querySelectorAll(`.stop-item[data-jid="${jid}"][data-idx="${idx}"]`)
     .forEach(el => el.classList.toggle('lit', on));
-
-  // Map marker: use filter (safe — doesn't conflict with Leaflet's translate3d positioning)
   const el = state.layers[jid]?.markers[idx]?.getElement();
   if (el) {
-    el.style.filter    = on ? 'drop-shadow(0 0 5px rgba(0,0,0,0.55)) brightness(1.15)' : '';
-    el.style.zIndex    = on ? '9999' : '';
+    el.style.filter = on ? 'drop-shadow(0 0 6px rgba(140,59,43,0.7)) brightness(1.12)' : '';
+    el.style.zIndex = on ? '9999' : '';
   }
 }
 
 
 // ╔═══════════════════════════════════════════════════════════════╗
-// ║  TOGGLE / SHOW-ALL / CLEAR                                   ║
+// ║  GAZETTEER  (search)                                        ║
+// ╚═══════════════════════════════════════════════════════════════╝
+
+const gazInput   = document.getElementById('gaz-input');
+const gazResults = document.getElementById('gaz-results');
+
+function runGazetteer(q) {
+  q = q.trim().toLowerCase();
+  if (!q) { gazResults.classList.remove('open'); return; }
+
+  const books = JOURNEYS
+    .filter(j => j.title.toLowerCase().includes(q) || j.author.toLowerCase().includes(q))
+    .slice(0, 5);
+
+  const places = [];
+  JOURNEYS.forEach(j => j.stops.forEach((s, i) => {
+    if (s.name.toLowerCase().includes(q) || s.realPlace.toLowerCase().includes(q))
+      places.push({ j, s, i });
+  }));
+  const placesTop = places.slice(0, 8);
+
+  let html = '';
+  if (books.length) {
+    html += `<div class="gaz-group-label">Volumes</div>`;
+    html += books.map(j => `
+      <div class="gaz-row" data-kind="book" data-id="${j.id}">
+        <span class="gr-dot" style="background:${j.color}"></span>
+        <span class="gr-name">${j.title}</span>
+        <span class="gr-meta">${j.author}</span>
+      </div>`).join('');
+  }
+  if (placesTop.length) {
+    html += `<div class="gaz-group-label">Places</div>`;
+    html += placesTop.map(({ j, s, i }) => `
+      <div class="gaz-row" data-kind="place" data-id="${j.id}" data-idx="${i}">
+        <span class="gr-dot" style="background:${j.color}"></span>
+        <span class="gr-name">${s.name}</span>
+        <span class="gr-meta">${j.title}</span>
+      </div>`).join('');
+  }
+  if (!books.length && !placesTop.length) html = `<div class="gaz-empty">Nothing found in the index.</div>`;
+
+  gazResults.innerHTML = html;
+  gazResults.classList.add('open');
+
+  gazResults.querySelectorAll('.gaz-row').forEach(row => {
+    row.addEventListener('click', () => {
+      const id = row.dataset.id;
+      if (row.dataset.kind === 'book') {
+        if (!state.activeIds.has(id)) toggleJourney(id);
+        else {
+          const b = boundsOf([id]);
+          if (b) map.flyToBounds(b, { padding: [50, 50], duration: 1.2, maxZoom: 8 });
+        }
+      } else {
+        const idx = +row.dataset.idx;
+        ensureChartedAndRender(id);
+        const stop = byId(id).stops[idx];
+        map.flyTo(stop.coords, 7, { duration: 1.3 });
+        const g = state.layers[id];
+        if (g?.markers[idx]) setTimeout(() => g.markers[idx].openPopup(), 1400);
+      }
+      gazResults.classList.remove('open');
+      gazInput.value = '';
+    });
+  });
+}
+
+function ensureChartedAndRender(id) {
+  if (ensureCharted(id)) { updateEmptyState(); renderSidebar(); }
+}
+
+gazInput.addEventListener('input', () => runGazetteer(gazInput.value));
+gazInput.addEventListener('focus', () => { if (gazInput.value.trim()) runGazetteer(gazInput.value); });
+document.addEventListener('click', e => {
+  if (!e.target.closest('#gazetteer')) gazResults.classList.remove('open');
+});
+
+
+// ╔═══════════════════════════════════════════════════════════════╗
+// ║  TOGGLE / CHART-ALL / CLEAR                                  ║
 // ╚═══════════════════════════════════════════════════════════════╝
 
 function toggleJourney(id) {
-  const j = JOURNEYS.find(j => j.id === id);
+  const j = byId(id);
   if (!j) return;
 
   if (state.activeIds.has(id)) {
@@ -1718,30 +2179,26 @@ function toggleJourney(id) {
     state.activeIds.add(id);
     drawJourney(j);
     const b = boundsOf([id]);
-    if (b) map.flyToBounds(b, { padding: [50, 50], duration: 1.2, maxZoom: 8 });
+    if (b) map.flyToBounds(b, { padding: [60, 60], duration: 1.2, maxZoom: 8 });
   }
-
   updateEmptyState();
   renderSidebar();
 }
 
-function showAll() {
-  JOURNEYS.forEach(j => {
-    if (!state.activeIds.has(j.id)) { state.activeIds.add(j.id); drawJourney(j); }
-  });
+function chartAll() {
+  JOURNEYS.forEach(j => { if (!state.activeIds.has(j.id)) { state.activeIds.add(j.id); drawJourney(j); } });
   const b = boundsOf([...state.activeIds]);
-  if (b) map.flyToBounds(b, { padding: [50, 50], duration: 1.5 });
+  if (b) map.flyToBounds(b, { padding: [60, 60], duration: 1.5 });
   updateEmptyState();
   renderSidebar();
 }
 
 function clearAll() {
-  stopTrace();
-  [...state.activeIds].forEach(id => {
-    const j = JOURNEYS.find(j => j.id === id);
-    if (j) removeJourney(j);
-  });
+  voyageTeardown();
+  clearCrossings();
+  [...state.activeIds].forEach(id => removeJourney(byId(id)));
   state.activeIds.clear();
+  renderCrossingsPanel();
   updateEmptyState();
   renderSidebar();
 }
@@ -1752,11 +2209,12 @@ function updateEmptyState() {
 
 
 // ╔═══════════════════════════════════════════════════════════════╗
-// ║  CONTROLS & INIT                                             ║
+// ║  INIT                                                       ║
 // ╚═══════════════════════════════════════════════════════════════╝
 
-document.getElementById('btn-show-all').addEventListener('click', showAll);
+document.getElementById('btn-show-all').addEventListener('click', chartAll);
 document.getElementById('btn-clear').addEventListener('click', clearAll);
+document.getElementById('btn-crossings').addEventListener('click', toggleCrossings);
 
 renderSidebar();
 updateEmptyState();
