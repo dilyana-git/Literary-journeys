@@ -466,6 +466,8 @@
     .pop-footer { border-top: 1px solid var(--edge); padding-top: 8px; font-size: 0.8rem; color: var(--faded); display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
     .pop-footer em { flex: 1; font-family: var(--font-caps); font-style: normal; font-size: 0.72rem; letter-spacing: 0.04em; color: var(--ink-2); }
     .pop-note { font-size: 0.78rem; color: var(--faded); font-style: italic; margin-top: 6px; font-family: var(--font-old); }
+    .pop-prompt-btn { display: block; width: 100%; margin-top: 8px; padding: 4px 8px; font-family: var(--font); font-size: 0.76rem; background: var(--paper-dk); border: 1px solid var(--edge); color: var(--ink-2); cursor: pointer; border-radius: 2px; transition: background 0.15s, color 0.15s; text-align: center; }
+    .pop-prompt-btn:hover { background: var(--paper); color: var(--ink); border-color: var(--ink-2); }
     .pop-books { font-family: var(--font-old); font-size: 0.9rem; color: var(--ink-2); line-height: 1.6; }
     .pop-books b { color: var(--ink); font-weight: 600; }
 
@@ -682,8 +684,7 @@
 // ╚═══════════════════════════════════════════════════════════════╝
 
 const JOURNEYS = [
-
-  // ─── 1. The Odyssey ────────────────────────────────────────────
+  // ─── 1. The Odyssey ──────────────────────────────────────────────
   {
     id:     "odyssey",
     title:  "The Odyssey",
@@ -694,114 +695,128 @@ const JOURNEYS = [
     blurb:  "Odysseus's ten-year voyage home from Troy to Ithaca.",
     stops: [
       {
-        name:      "Troy",
-        realPlace: "Hisarlık, Turkey",
-        coords:    [39.957, 26.239],
-        inBook:    "The war ends; Odysseus sets sail for home.",
-        reference: "Book I"
+        name:        "Troy",
+        realPlace:   "Hisarlık, Turkey",
+        coords:      [39.957, 26.239],
+        inBook:      "The war ends; Odysseus sets sail for home.",
+        reference:   "Book I",
+        imagePrompt: "Greek warships departing from the smoking ruins of Troy at sunset, Odysseus at the prow gazing across the Aegean Sea, ancient Mediterranean coastline"
       },
       {
-        name:      "Ismarus (the Cicones)",
-        realPlace: "Thracian coast, Greece",
-        coords:    [40.93, 25.55],
-        inBook:    "His men raid the Cicones and are driven off with losses.",
-        reference: "Book IX"
+        name:        "Ismarus (the Cicones)",
+        realPlace:   "Thracian coast, Greece",
+        coords:      [40.93, 25.55],
+        inBook:      "His men raid the Cicones and are driven off with losses.",
+        reference:   "Book IX",
+        imagePrompt: "Greek warriors raiding a coastal Thracian village, ships beached on the shore, a fierce counter-attack by the Cicones at dusk"
       },
       {
-        name:      "Land of the Lotus-Eaters",
-        realPlace: "Djerba, Tunisia",
-        coords:    [33.81, 10.85],
-        inBook:    "Men who eat the lotus lose all desire to go home.",
-        reference: "Book IX",
-        note:      "Approximate / conventional placement"
+        name:        "Land of the Lotus-Eaters",
+        realPlace:   "Djerba, Tunisia",
+        coords:      [33.81, 10.85],
+        inBook:      "Men who eat the lotus lose all desire to go home.",
+        reference:   "Book IX",
+        note:        "Approximate / conventional placement",
+        imagePrompt: "Sailors lounging in a dreamlike haze on a lush North African island, eating lotus flowers, forgetting their homes, soft golden light"
       },
       {
-        name:      "Island of the Cyclopes",
-        realPlace: "Sicily, Italy",
-        coords:    [37.75, 15.08],
-        inBook:    "Odysseus blinds Polyphemus to escape the cave.",
-        reference: "Book IX",
-        note:      "Traditional identification with Sicily"
+        name:        "Island of the Cyclopes",
+        realPlace:   "Sicily, Italy",
+        coords:      [37.75, 15.08],
+        inBook:      "Odysseus blinds Polyphemus to escape the cave.",
+        reference:   "Book IX",
+        note:        "Traditional identification with Sicily",
+        imagePrompt: "Odysseus and his men trapped inside a massive cave lit by a single fire, facing the one-eyed giant Polyphemus, sheep penned in the background"
       },
       {
-        name:      "Aeolia",
-        realPlace: "Aeolian Islands, Italy",
-        coords:    [38.79, 15.21],
-        inBook:    "Aeolus gives him a bag of captured winds.",
-        reference: "Book X"
+        name:        "Aeolia",
+        realPlace:   "Aeolian Islands, Italy",
+        coords:      [38.79, 15.21],
+        inBook:      "Aeolus gives him a bag of captured winds.",
+        reference:   "Book X",
+        imagePrompt: "A floating island surrounded by bronze walls, Aeolus the wind god presenting a leather bag of winds to Odysseus, swirling clouds overhead"
       },
       {
-        name:      "Land of the Laestrygonians",
-        realPlace: "Sardinia (location disputed)",
-        coords:    [41.09, 9.16],
-        inBook:    "Cannibal giants destroy all but one of his ships.",
-        reference: "Book X",
-        note:      "Location disputed — Sardinia used here"
+        name:        "Land of the Laestrygonians",
+        realPlace:   "Sardinia (location disputed)",
+        coords:      [41.09, 9.16],
+        inBook:      "Cannibal giants destroy all but one of his ships.",
+        reference:   "Book X",
+        note:        "Location disputed — Sardinia used here",
+        imagePrompt: "Giant cannibals hurling boulders from high cliffs at a fleet of Greek ships trapped in a narrow harbor, ships shattering and sinking"
       },
       {
-        name:      "Aeaea (Circe's island)",
-        realPlace: "Cape Circeo, Italy",
-        coords:    [41.24, 13.09],
-        inBook:    "Circe turns his crew to swine, then becomes an ally.",
-        reference: "Book X"
+        name:        "Aeaea (Circe's island)",
+        realPlace:   "Cape Circeo, Italy",
+        coords:      [41.24, 13.09],
+        inBook:      "Circe turns his crew to swine, then becomes an ally.",
+        reference:   "Book X",
+        imagePrompt: "A sorceress in flowing robes standing before a stone palace, men transformed into swine at her feet, a wild forest surrounding the clearing"
       },
       {
-        name:      "The Underworld",
-        realPlace: "Lake Avernus, Italy (conventional entrance)",
-        coords:    [40.84, 14.07],
-        inBook:    "He consults the dead, including the prophet Tiresias.",
-        reference: "Book XI",
-        note:      "Entrance conventionally placed at Lake Avernus"
+        name:        "The Underworld",
+        realPlace:   "Lake Avernus, Italy (conventional entrance)",
+        coords:      [40.84, 14.07],
+        inBook:      "He consults the dead, including the prophet Tiresias.",
+        reference:   "Book XI",
+        note:        "Entrance conventionally placed at Lake Avernus",
+        imagePrompt: "Odysseus kneeling at the edge of a dark pit, pale ghosts rising from the mist, the blind prophet Tiresias standing before him, eerie underground cavern"
       },
       {
-        name:      "The Sirens",
-        realPlace: "Li Galli islands, near Positano",
-        coords:    [40.58, 14.43],
-        inBook:    "Bound to the mast, he hears the Sirens and survives.",
-        reference: "Book XII"
+        name:        "The Sirens",
+        realPlace:   "Li Galli islands, near Positano",
+        coords:      [40.58, 14.43],
+        inBook:      "Bound to the mast, he hears the Sirens and survives.",
+        reference:   "Book XII",
+        imagePrompt: "Odysseus bound to the mast of his ship, his crew rowing with wax in their ears, two beautiful sirens singing on rocky islets in a calm sea"
       },
       {
-        name:      "Scylla & Charybdis",
-        realPlace: "Strait of Messina, Italy",
-        coords:    [38.24, 15.63],
-        inBook:    "He loses six men threading the monster and the whirlpool.",
-        reference: "Book XII"
+        name:        "Scylla & Charybdis",
+        realPlace:   "Strait of Messina, Italy",
+        coords:      [38.24, 15.63],
+        inBook:      "He loses six men threading the monster and the whirlpool.",
+        reference:   "Book XII",
+        imagePrompt: "A six-headed sea monster snatching sailors from a ship while a massive whirlpool churns on the opposite side of a narrow strait"
       },
       {
-        name:      "Thrinacia",
-        realPlace: "Sicily, Italy (island of Helios)",
-        coords:    [37.55, 14.27],
-        inBook:    "His crew slaughter the Sun God's cattle and are doomed.",
-        reference: "Book XII",
-        note:      "Traditional identification with Sicily"
+        name:        "Thrinacia",
+        realPlace:   "Sicily, Italy (island of Helios)",
+        coords:      [37.55, 14.27],
+        inBook:      "His crew slaughter the Sun God's cattle and are doomed.",
+        reference:   "Book XII",
+        note:        "Traditional identification with Sicily",
+        imagePrompt: "Starving sailors slaughtering sacred golden cattle on a sun-drenched Mediterranean island, dark storm clouds gathering on the horizon"
       },
       {
-        name:      "Ogygia",
-        realPlace: "Gozo, Malta (often identified)",
-        coords:    [36.05, 14.25],
-        inBook:    "Calypso holds him for seven years.",
-        reference: "Books V, VII",
-        note:      "Conventional placement — island is mythical"
+        name:        "Ogygia",
+        realPlace:   "Gozo, Malta (often identified)",
+        coords:      [36.05, 14.25],
+        inBook:      "Calypso holds him for seven years.",
+        reference:   "Books V, VII",
+        note:        "Conventional placement — island is mythical",
+        imagePrompt: "A beautiful nymph and a melancholy bearded man sitting in a lush island grotto draped with vines, calm turquoise sea beyond"
       },
       {
-        name:      "Scheria",
-        realPlace: "Corfu, Greece (traditional)",
-        coords:    [39.62, 19.92],
-        inBook:    "The Phaeacians hear his tale and give him passage home.",
-        reference: "Books VI–XIII",
-        note:      "Traditional identification with Corfu"
+        name:        "Scheria",
+        realPlace:   "Corfu, Greece (traditional)",
+        coords:      [39.62, 19.92],
+        inBook:      "The Phaeacians hear his tale and give him passage home.",
+        reference:   "Books VI–XIII",
+        note:        "Traditional identification with Corfu",
+        imagePrompt: "A shipwrecked man crawling onto a sandy beach, a princess and her handmaidens by a river mouth, white-walled Phaeacian palace on the hill"
       },
       {
-        name:      "Ithaca",
-        realPlace: "Ithaca, Ionian Sea, Greece",
-        coords:    [38.40, 20.71],
-        inBook:    "Home at last; he reclaims his household.",
-        reference: "Books XIII–XXIV"
+        name:        "Ithaca",
+        realPlace:   "Ithaca, Ionian Sea, Greece",
+        coords:      [38.4, 20.71],
+        inBook:      "Home at last; he reclaims his household.",
+        reference:   "Books XIII–XXIV",
+        imagePrompt: "A disguised king drawing a great bow in a hall full of feasting suitors, arrows and overturned tables, his faithful dog at the threshold"
       }
     ]
   },
 
-  // ─── 2. On the Road ────────────────────────────────────────────
+  // ─── 2. On the Road ──────────────────────────────────────────────
   {
     id:     "on-the-road",
     title:  "On the Road",
@@ -812,72 +827,81 @@ const JOURNEYS = [
     blurb:  "Sal Paradise's restless cross-country wanderings with Dean Moriarty.",
     stops: [
       {
-        name:      "New York City",
-        realPlace: "New York, USA",
-        coords:    [40.71, -74.01],
-        inBook:    "Sal sets out west for the first time.",
-        reference: "Part 1"
+        name:        "New York City",
+        realPlace:   "New York, USA",
+        coords:      [40.71, -74.01],
+        inBook:      "Sal sets out west for the first time.",
+        reference:   "Part 1",
+        imagePrompt: "A young man with a rucksack standing at a bus station in 1940s Manhattan, looking west with excitement, yellow taxis and brownstones"
       },
       {
-        name:      "Chicago",
-        realPlace: "Chicago, Illinois",
-        coords:    [41.88, -87.63],
-        inBook:    "A jazz-soaked stop on the way west.",
-        reference: "Part 1"
+        name:        "Chicago",
+        realPlace:   "Chicago, Illinois",
+        coords:      [41.88, -87.63],
+        inBook:      "A jazz-soaked stop on the way west.",
+        reference:   "Part 1",
+        imagePrompt: "A smoky jazz club on the South Side of Chicago at night, musicians playing bebop, young beatniks listening in rapt attention, 1940s atmosphere"
       },
       {
-        name:      "Des Moines",
-        realPlace: "Des Moines, Iowa",
-        coords:    [41.59, -93.62],
-        inBook:    "Sal wakes not knowing who he is — the trip's still point.",
-        reference: "Part 1"
+        name:        "Des Moines",
+        realPlace:   "Des Moines, Iowa",
+        coords:      [41.59, -93.62],
+        inBook:      "Sal wakes not knowing who he is — the trip's still point.",
+        reference:   "Part 1",
+        imagePrompt: "A solitary traveler waking at dawn in a cheap Iowa motel room, flat prairie landscape visible through the window, existential stillness"
       },
       {
-        name:      "Denver",
-        realPlace: "Denver, Colorado",
-        coords:    [39.74, -104.99],
-        inBook:    "Reunions with Dean Moriarty and the Denver crowd.",
-        reference: "Parts 1–3"
+        name:        "Denver",
+        realPlace:   "Denver, Colorado",
+        coords:      [39.74, -104.99],
+        inBook:      "Reunions with Dean Moriarty and the Denver crowd.",
+        reference:   "Parts 1–3",
+        imagePrompt: "A wild house party in a 1940s Denver bungalow, Dean Moriarty dancing, friends crowded around, the Rocky Mountains visible through the window"
       },
       {
-        name:      "Bakersfield / Central Valley",
-        realPlace: "Central Valley, California",
-        coords:    [35.37, -119.02],
-        inBook:    "Sal travels with Terry among migrant cotton-pickers.",
-        reference: "Part 1"
+        name:        "Bakersfield / Central Valley",
+        realPlace:   "Central Valley, California",
+        coords:      [35.37, -119.02],
+        inBook:      "Sal travels with Terry among migrant cotton-pickers.",
+        reference:   "Part 1",
+        imagePrompt: "A young man picking cotton alongside Mexican migrant workers in the California Central Valley, dusty fields under a blazing sun"
       },
       {
-        name:      "San Francisco",
-        realPlace: "San Francisco, California",
-        coords:    [37.77, -122.42],
-        inBook:    "The coast, the jazz clubs, and disillusion.",
-        reference: "Parts 1–3"
+        name:        "San Francisco",
+        realPlace:   "San Francisco, California",
+        coords:      [37.77, -122.42],
+        inBook:      "The coast, the jazz clubs, and disillusion.",
+        reference:   "Parts 1–3",
+        imagePrompt: "Beatniks wandering the streets of North Beach San Francisco at night, neon signs, jazz clubs, fog rolling in from the bay, 1950s"
       },
       {
-        name:      "New Orleans (Algiers)",
-        realPlace: "Algiers, Louisiana",
-        coords:    [29.95, -90.07],
-        inBook:    "Visiting Old Bull Lee across the river.",
-        reference: "Part 2"
+        name:        "New Orleans (Algiers)",
+        realPlace:   "Algiers, Louisiana",
+        coords:      [29.95, -90.07],
+        inBook:      "Visiting Old Bull Lee across the river.",
+        reference:   "Part 2",
+        imagePrompt: "A ramshackle house across the Mississippi River in Algiers Louisiana, Old Bull Lee on the porch, Spanish moss hanging from the trees"
       },
       {
-        name:      "Detroit",
-        realPlace: "Detroit, Michigan",
-        coords:    [42.33, -83.05],
-        inBook:    "A skid-row night before pushing east.",
-        reference: "Part 3"
+        name:        "Detroit",
+        realPlace:   "Detroit, Michigan",
+        coords:      [42.33, -83.05],
+        inBook:      "A skid-row night before pushing east.",
+        reference:   "Part 3",
+        imagePrompt: "A lonely figure on a dark Detroit skid row street at night, industrial smokestacks in the background, rain-slicked pavement, 1950s"
       },
       {
-        name:      "Mexico City",
-        realPlace: "Mexico City, Mexico",
-        coords:    [19.43, -99.13],
-        inBook:    "The final journey south; Sal falls ill and is left behind.",
-        reference: "Part 4"
+        name:        "Mexico City",
+        realPlace:   "Mexico City, Mexico",
+        coords:      [19.43, -99.13],
+        inBook:      "The final journey south; Sal falls ill and is left behind.",
+        reference:   "Part 4",
+        imagePrompt: "Two travelers arriving in a vibrant Mexican city, Baroque churches and street markets, a fever-dream atmosphere of color and chaos"
       }
     ]
   },
 
-  // ─── 3. Journey to the End of the Night ────────────────────────
+  // ─── 3. Journey to the End of the Night ──────────────────────────
   {
     id:     "journey-night",
     title:  "Journey to the End of the Night",
@@ -888,68 +912,76 @@ const JOURNEYS = [
     blurb:  "Bardamu's bitter odyssey through war, colonies, America, and the Parisian night.",
     stops: [
       {
-        name:      "Paris",
-        realPlace: "Paris, France",
-        coords:    [48.86, 2.35],
-        inBook:    "Bardamu enlists almost on a whim, outside a café.",
-        reference: "Opening"
+        name:        "Paris",
+        realPlace:   "Paris, France",
+        coords:      [48.86, 2.35],
+        inBook:      "Bardamu enlists almost on a whim, outside a café.",
+        reference:   "Opening",
+        imagePrompt: "A young man being swept into a military parade on a Parisian boulevard, impulsively enlisting, cafe tables and chestnut trees, early 1914"
       },
       {
-        name:      "The Western Front",
-        realPlace: "Flanders, France / Belgium",
-        coords:    [50.85, 2.88],
-        inBook:    "The horror and absurdity of WWI trench warfare.",
-        reference: "Early chapters"
+        name:        "The Western Front",
+        realPlace:   "Flanders, France / Belgium",
+        coords:      [50.85, 2.88],
+        inBook:      "The horror and absurdity of WWI trench warfare.",
+        reference:   "Early chapters",
+        imagePrompt: "A lone soldier stumbling through a muddy shell-cratered landscape in Flanders, barbed wire and dead trees, rain and fog, World War I"
       },
       {
-        name:      "Bambola-Bragamance",
-        realPlace: "Fictional French colony (~Cameroon / Gabon)",
-        coords:    [3.87, 11.52],
-        inBook:    "A fever-ridden, corrupt colonial trading post.",
-        reference: "Africa chapters",
-        note:      "Fictional composite — placed in the Cameroon/Gabon region"
+        name:        "Bambola-Bragamance",
+        realPlace:   "Fictional French colony (~Cameroon / Gabon)",
+        coords:      [3.87, 11.52],
+        inBook:      "A fever-ridden, corrupt colonial trading post.",
+        reference:   "Africa chapters",
+        note:        "Fictional composite — placed in the Cameroon/Gabon region",
+        imagePrompt: "A fever-ridden colonial trading post in the African jungle, a decaying wooden building, oppressive heat, lush tropical vegetation"
       },
       {
-        name:      "New York City",
-        realPlace: "New York, USA",
-        coords:    [40.71, -74.01],
-        inBook:    "Bardamu arrives broke and adrift in America.",
-        reference: "America chapters"
+        name:        "New York City",
+        realPlace:   "New York, USA",
+        coords:      [40.71, -74.01],
+        inBook:      "Bardamu arrives broke and adrift in America.",
+        reference:   "America chapters",
+        imagePrompt: "A penniless immigrant staring up at the Manhattan skyline from the harbor, overwhelmed and alienated, towering buildings, 1920s"
       },
       {
-        name:      "Detroit",
-        realPlace: "Detroit, Michigan",
-        coords:    [42.33, -83.05],
-        inBook:    "Grinding work on the Ford assembly line.",
-        reference: "America chapters"
+        name:        "Detroit",
+        realPlace:   "Detroit, Michigan",
+        coords:      [42.33, -83.05],
+        inBook:      "Grinding work on the Ford assembly line.",
+        reference:   "America chapters",
+        imagePrompt: "Workers on a Ford assembly line in 1920s Detroit, repetitive mechanical labor, industrial factory interior, dehumanizing atmosphere"
       },
       {
-        name:      "Rancy",
-        realPlace: "Fictional working-class Paris suburb",
-        coords:    [48.92, 2.45],
-        inBook:    "Bardamu practises medicine among the poor.",
-        reference: "Later chapters",
-        note:      "Fictional suburb — coordinates approximate"
+        name:        "Rancy",
+        realPlace:   "Fictional working-class Paris suburb",
+        coords:      [48.92, 2.45],
+        inBook:      "Bardamu practises medicine among the poor.",
+        reference:   "Later chapters",
+        note:        "Fictional suburb — coordinates approximate",
+        imagePrompt: "A weary doctor making house calls in a grim working-class Parisian suburb at night, narrow streets, poverty, gas lamps"
       },
       {
-        name:      "Toulouse",
-        realPlace: "Toulouse, France",
-        coords:    [43.60, 1.44],
-        inBook:    "A grim interlude — the Henrouille affair.",
-        reference: "Later chapters"
+        name:        "Toulouse",
+        realPlace:   "Toulouse, France",
+        coords:      [43.6, 1.44],
+        inBook:      "A grim interlude — the Henrouille affair.",
+        reference:   "Later chapters",
+        imagePrompt: "A dark provincial French city, narrow medieval streets, an atmosphere of paranoia and conspiracy, nighttime"
       },
       {
-        name:      "Vigny-sur-Seine",
-        realPlace: "Fictional Seine-side suburb (the asylum)",
-        coords:    [48.74, 2.41],
-        inBook:    "He ends up running an asylum — 'the end of the night.'",
-        reference: "Closing chapters",
-        note:      "Fictional location — coordinates approximate"
+        name:        "Vigny-sur-Seine",
+        realPlace:   "Fictional Seine-side suburb (the asylum)",
+        coords:      [48.74, 2.41],
+        inBook:      "He ends up running an asylum — 'the end of the night.'",
+        reference:   "Closing chapters",
+        note:        "Fictional location — coordinates approximate",
+        imagePrompt: "A crumbling asylum on the banks of the Seine at night, a lone doctor standing at the gate, bare trees, moonlight on the water"
       }
     ]
   },
 
-  // ─── 4. The Travels of Marco Polo ──────────────────────────────
+  // ─── 4. The Travels of Marco Polo ────────────────────────────────
   {
     id:     "travels-of-marco-polo",
     title:  "The Travels of Marco Polo",
@@ -960,51 +992,57 @@ const JOURNEYS = [
     blurb:  "A Silk Road journey from Venice to the court of Kublai Khan.",
     stops: [
       {
-        name:      "Venice",
-        realPlace: "Venice, Italy",
-        coords:    [45.4408, 12.3155],
-        inBook:    "Departure point of the Polo family.",
-        reference: "Book I"
+        name:        "Venice",
+        realPlace:   "Venice, Italy",
+        coords:      [45.4408, 12.3155],
+        inBook:      "Departure point of the Polo family.",
+        reference:   "Book I",
+        imagePrompt: "A medieval Venetian merchant family departing from the Grand Canal on a trading galley, St Mark's Basilica in the background, 13th century"
       },
       {
-        name:      "Acre",
-        realPlace: "Acre, Israel",
-        coords:    [32.9236, 35.0818],
-        inBook:    "Levantine trade hub.",
-        reference: "Book I"
+        name:        "Acre",
+        realPlace:   "Acre, Israel",
+        coords:      [32.9236, 35.0818],
+        inBook:      "Levantine trade hub.",
+        reference:   "Book I",
+        imagePrompt: "A bustling Crusader-era port city on the Levantine coast, stone fortifications, merchant ships, diverse traders from East and West"
       },
       {
-        name:      "Hormuz",
-        realPlace: "Hormuz Island, Iran",
-        coords:    [27.0950, 56.4570],
-        inBook:    "Persian Gulf maritime trade node.",
-        reference: "Book I"
+        name:        "Hormuz",
+        realPlace:   "Hormuz Island, Iran",
+        coords:      [27.095, 56.457],
+        inBook:      "Persian Gulf maritime trade node.",
+        reference:   "Book I",
+        imagePrompt: "A Persian Gulf trading port, dhows and merchant vessels, desert heat, exotic goods piled on the docks, medieval Islamic architecture"
       },
       {
-        name:      "Samarkand",
-        realPlace: "Samarkand, Uzbekistan",
-        coords:    [39.6270, 66.9750],
-        inBook:    "Silk Road cultural center.",
-        reference: "Book I"
+        name:        "Samarkand",
+        realPlace:   "Samarkand, Uzbekistan",
+        coords:      [39.627, 66.975],
+        inBook:      "Silk Road cultural center.",
+        reference:   "Book I",
+        imagePrompt: "The great Silk Road city of Samarkand, turquoise-tiled madrasas, camel caravans arriving through the city gates, Central Asian merchants"
       },
       {
-        name:      "Kashgar",
-        realPlace: "Kashgar, China",
-        coords:    [39.4704, 75.9898],
-        inBook:    "Western Chinese frontier city.",
-        reference: "Book I"
+        name:        "Kashgar",
+        realPlace:   "Kashgar, China",
+        coords:      [39.4704, 75.9898],
+        inBook:      "Western Chinese frontier city.",
+        reference:   "Book I",
+        imagePrompt: "A frontier oasis city at the edge of the Taklamakan Desert, a Silk Road caravanserai, camels resting, distant snow-capped mountains"
       },
       {
-        name:      "Khanbaliq",
-        realPlace: "Beijing, China",
-        coords:    [39.9042, 116.4074],
-        inBook:    "Court of Kublai Khan.",
-        reference: "Book II"
+        name:        "Khanbaliq",
+        realPlace:   "Beijing, China",
+        coords:      [39.9042, 116.4074],
+        inBook:      "Court of Kublai Khan.",
+        reference:   "Book II",
+        imagePrompt: "Marco Polo kneeling before Kublai Khan in a magnificent Chinese palace, golden throne, silk banners, Mongol courtiers, 13th century Beijing"
       }
     ]
   },
 
-  // ─── 5. Don Quixote ─────────────────────────────────────────────
+  // ─── 5. Don Quixote ──────────────────────────────────────────────
   {
     id:     "don-quixote",
     title:  "Don Quixote",
@@ -1015,45 +1053,50 @@ const JOURNEYS = [
     blurb:  "A wandering knight roams the landscapes of Spain.",
     stops: [
       {
-        name:      "La Mancha",
-        realPlace: "Castilla-La Mancha, Spain",
-        coords:    [39.39, -3.21],
-        inBook:    "Home region of Don Quixote.",
-        reference: "Part I"
+        name:        "La Mancha",
+        realPlace:   "Castilla-La Mancha, Spain",
+        coords:      [39.39, -3.21],
+        inBook:      "Home region of Don Quixote.",
+        reference:   "Part I",
+        imagePrompt: "A gaunt old man in rusty armor mounting a thin horse in a dusty Spanish village, a loyal squire on a donkey beside him, windmills on the horizon"
       },
       {
-        name:      "Puerto Lápice",
-        realPlace: "Puerto Lápice, Spain",
-        coords:    [39.32, -3.48],
-        inBook:    "Inn mistaken for a castle.",
-        reference: "Part I"
+        name:        "Puerto Lápice",
+        realPlace:   "Puerto Lápice, Spain",
+        coords:      [39.32, -3.48],
+        inBook:      "Inn mistaken for a castle.",
+        reference:   "Part I",
+        imagePrompt: "A delusional knight being knighted by a bewildered innkeeper at a humble roadside inn in La Mancha, mistaken for a castle"
       },
       {
-        name:      "Campo de Criptana",
-        realPlace: "Campo de Criptana, Spain",
-        coords:    [39.40, -3.12],
-        inBook:    "Traditional location associated with the windmills.",
-        reference: "Part I",
-        note:      "Association is traditional rather than explicit"
+        name:        "Campo de Criptana",
+        realPlace:   "Campo de Criptana, Spain",
+        coords:      [39.4, -3.12],
+        inBook:      "Traditional location associated with the windmills.",
+        reference:   "Part I",
+        note:        "Association is traditional rather than explicit",
+        imagePrompt: "A knight on horseback charging at white windmills on a Spanish hilltop with his lance, believing them to be giants, golden wheat fields"
       },
       {
-        name:      "Sierra Morena",
-        realPlace: "Andalusia, Spain",
-        coords:    [38.30, -4.10],
-        inBook:    "Period of wandering and self-imposed exile.",
-        reference: "Part I"
+        name:        "Sierra Morena",
+        realPlace:   "Andalusia, Spain",
+        coords:      [38.3, -4.1],
+        inBook:      "Period of wandering and self-imposed exile.",
+        reference:   "Part I",
+        imagePrompt: "A hermit knight performing exaggerated acts of penance on a rocky mountainside in the Sierra Morena, wild landscape, dramatic gestures"
       },
       {
-        name:      "Barcelona",
-        realPlace: "Barcelona, Spain",
-        coords:    [41.39, 2.17],
-        inBook:    "Final major adventure.",
-        reference: "Part II"
+        name:        "Barcelona",
+        realPlace:   "Barcelona, Spain",
+        coords:      [41.39, 2.17],
+        inBook:      "Final major adventure.",
+        reference:   "Part II",
+        imagePrompt: "A melancholy knight on the beach at Barcelona after defeat, his armor laid down, the Mediterranean Sea behind him, sunset"
       }
     ]
   },
 
-  // ─── 6. Ulysses ─────────────────────────────────────────────────
+  // ─── 6. Ulysses ──────────────────────────────────────────────────
   {
     id:     "ulysses",
     title:  "Ulysses",
@@ -1064,44 +1107,49 @@ const JOURNEYS = [
     blurb:  "A single day in Dublin mapped almost street by street.",
     stops: [
       {
-        name:      "Martello Tower",
-        realPlace: "Sandycove, Dublin, Ireland",
-        coords:    [53.29, -6.12],
-        inBook:    "Stephen Dedalus begins the day.",
-        reference: "Telemachus"
+        name:        "Martello Tower",
+        realPlace:   "Sandycove, Dublin, Ireland",
+        coords:      [53.29, -6.12],
+        inBook:      "Stephen Dedalus begins the day.",
+        reference:   "Telemachus",
+        imagePrompt: "A young intellectual standing atop a round stone Martello tower at dawn, looking out over Dublin Bay, early 20th century Ireland"
       },
       {
-        name:      "Glasnevin Cemetery",
-        realPlace: "Dublin, Ireland",
-        coords:    [53.37, -6.28],
-        inBook:    "Funeral procession.",
-        reference: "Hades"
+        name:        "Glasnevin Cemetery",
+        realPlace:   "Dublin, Ireland",
+        coords:      [53.37, -6.28],
+        inBook:      "Funeral procession.",
+        reference:   "Hades",
+        imagePrompt: "A funeral procession of men in dark Edwardian suits walking through a rainy Dublin cemetery, Celtic crosses and headstones"
       },
       {
-        name:      "National Library",
-        realPlace: "Dublin, Ireland",
-        coords:    [53.34, -6.25],
-        inBook:    "Literary debates and theories.",
-        reference: "Scylla and Charybdis"
+        name:        "National Library",
+        realPlace:   "Dublin, Ireland",
+        coords:      [53.34, -6.25],
+        inBook:      "Literary debates and theories.",
+        reference:   "Scylla and Charybdis",
+        imagePrompt: "Earnest young men debating Shakespeare in the reading room of the National Library of Ireland, high ceilings, leather-bound books"
       },
       {
-        name:      "Ormond Hotel",
-        realPlace: "Dublin, Ireland",
-        coords:    [53.35, -6.26],
-        inBook:    "Music and social encounters.",
-        reference: "Sirens"
+        name:        "Ormond Hotel",
+        realPlace:   "Dublin, Ireland",
+        coords:      [53.35, -6.26],
+        inBook:      "Music and social encounters.",
+        reference:   "Sirens",
+        imagePrompt: "A Dublin hotel bar in 1904, a man listening to a barmaid sing while writing a letter, patrons drinking, warm amber light"
       },
       {
-        name:      "7 Eccles Street",
-        realPlace: "Former site in Dublin, Ireland",
-        coords:    [53.36, -6.27],
-        inBook:    "Bloom's home.",
-        reference: "Ithaca"
+        name:        "7 Eccles Street",
+        realPlace:   "Former site in Dublin, Ireland",
+        coords:      [53.36, -6.27],
+        inBook:      "Bloom's home.",
+        reference:   "Ithaca",
+        imagePrompt: "A man arriving home late at night to a Georgian townhouse on a quiet Dublin street, fumbling for his keys, lamplight, 1904"
       }
     ]
   },
 
-  // ─── 7. The Rings of Saturn ─────────────────────────────────────
+  // ─── 7. The Rings of Saturn ──────────────────────────────────────
   {
     id:     "rings-of-saturn",
     title:  "The Rings of Saturn",
@@ -1112,44 +1160,49 @@ const JOURNEYS = [
     blurb:  "A walking tour of Suffolk that spirals through history and memory.",
     stops: [
       {
-        name:      "Norwich",
-        realPlace: "Norwich, England",
-        coords:    [52.63, 1.30],
-        inBook:    "Starting point of the narrator's walk.",
-        reference: "Opening"
+        name:        "Norwich",
+        realPlace:   "Norwich, England",
+        coords:      [52.63, 1.3],
+        inBook:      "Starting point of the narrator's walk.",
+        reference:   "Opening",
+        imagePrompt: "A solitary walker setting out from the medieval streets of Norwich, the cathedral spire behind him, a flat English landscape ahead, overcast"
       },
       {
-        name:      "Southwold",
-        realPlace: "Southwold, England",
-        coords:    [52.33, 1.68],
-        inBook:    "Meditations on decline and memory.",
-        reference: "Middle chapters"
+        name:        "Southwold",
+        realPlace:   "Southwold, England",
+        coords:      [52.33, 1.68],
+        inBook:      "Meditations on decline and memory.",
+        reference:   "Middle chapters",
+        imagePrompt: "An empty English seaside town in autumn, a lone figure on the promenade, faded Victorian buildings, grey North Sea, melancholy"
       },
       {
-        name:      "Dunwich",
-        realPlace: "Dunwich, England",
-        coords:    [52.28, 1.63],
-        inBook:    "Lost city swallowed by the sea.",
-        reference: "Dunwich chapter"
+        name:        "Dunwich",
+        realPlace:   "Dunwich, England",
+        coords:      [52.28, 1.63],
+        inBook:      "Lost city swallowed by the sea.",
+        reference:   "Dunwich chapter",
+        imagePrompt: "Eroding sea cliffs where a medieval city once stood, a single ruined church on the cliff edge, waves consuming the shore, ghostly emptiness"
       },
       {
-        name:      "Orford",
-        realPlace: "Orford, England",
-        coords:    [52.09, 1.53],
-        inBook:    "Military history and coastal landscapes.",
-        reference: "Orford section"
+        name:        "Orford",
+        realPlace:   "Orford, England",
+        coords:      [52.09, 1.53],
+        inBook:      "Military history and coastal landscapes.",
+        reference:   "Orford section",
+        imagePrompt: "A desolate Suffolk marshland with a distant medieval castle keep, Orford Ness in the background, abandoned military structures, bleak beauty"
       },
       {
-        name:      "Lowestoft",
-        realPlace: "Lowestoft, England",
-        coords:    [52.48, 1.75],
-        inBook:    "Journey's endpoint.",
-        reference: "Conclusion"
+        name:        "Lowestoft",
+        realPlace:   "Lowestoft, England",
+        coords:      [52.48, 1.75],
+        inBook:      "Journey's endpoint.",
+        reference:   "Conclusion",
+        imagePrompt: "The empty seafront of a declining English seaside town, shuttered amusement arcades, a grey beach, the most easterly point of Britain"
       }
     ]
   },
 
-  // ─── 8. A Time of Gifts ─────────────────────────────────────────
+  // ─── 8. A Time of Gifts ──────────────────────────────────────────
   {
     id:     "a-time-of-gifts",
     title:  "A Time of Gifts",
@@ -1160,44 +1213,49 @@ const JOURNEYS = [
     blurb:  "A young man walks across Europe from the North Sea to Constantinople.",
     stops: [
       {
-        name:      "Hook of Holland",
-        realPlace: "Hoek van Holland, Netherlands",
-        coords:    [51.98, 4.13],
-        inBook:    "Beginning of the journey across Europe.",
-        reference: "Opening chapters"
+        name:        "Hook of Holland",
+        realPlace:   "Hoek van Holland, Netherlands",
+        coords:      [51.98, 4.13],
+        inBook:      "Beginning of the journey across Europe.",
+        reference:   "Opening chapters",
+        imagePrompt: "An eighteen-year-old with a rucksack and walking stick stepping off a ferry onto the Dutch coast, grey North Sea, winter 1933"
       },
       {
-        name:      "Cologne",
-        realPlace: "Cologne, Germany",
-        coords:    [50.94, 6.96],
-        inBook:    "Encounters with German culture before WWII.",
-        reference: "Germany section"
+        name:        "Cologne",
+        realPlace:   "Cologne, Germany",
+        coords:      [50.94, 6.96],
+        inBook:      "Encounters with German culture before WWII.",
+        reference:   "Germany section",
+        imagePrompt: "A young English walker gazing up at Cologne Cathedral on a cold Rhineland evening, the river behind him, pre-war German atmosphere"
       },
       {
-        name:      "Vienna",
-        realPlace: "Vienna, Austria",
-        coords:    [48.21, 16.37],
-        inBook:    "Major stop on the Danube route.",
-        reference: "Austria section"
+        name:        "Vienna",
+        realPlace:   "Vienna, Austria",
+        coords:      [48.21, 16.37],
+        inBook:      "Major stop on the Danube route.",
+        reference:   "Austria section",
+        imagePrompt: "A young traveler in a grand Viennese cafe, chandeliers and marble, elderly intellectuals reading newspapers, old Habsburg atmosphere"
       },
       {
-        name:      "Budapest",
-        realPlace: "Budapest, Hungary",
-        coords:    [47.50, 19.04],
-        inBook:    "Aristocratic Hungary and Danube culture.",
-        reference: "Hungary section"
+        name:        "Budapest",
+        realPlace:   "Budapest, Hungary",
+        coords:      [47.5, 19.04],
+        inBook:      "Aristocratic Hungary and Danube culture.",
+        reference:   "Hungary section",
+        imagePrompt: "A young man crossing the Chain Bridge over the Danube at sunset, the Hungarian Parliament and Buda Castle lit up, 1930s Budapest"
       },
       {
-        name:      "Constantinople",
-        realPlace: "Istanbul, Turkey",
-        coords:    [41.01, 28.97],
-        inBook:    "Destination of the walk.",
-        reference: "Journey conclusion"
+        name:        "Constantinople",
+        realPlace:   "Istanbul, Turkey",
+        coords:      [41.01, 28.97],
+        inBook:      "Destination of the walk.",
+        reference:   "Journey conclusion",
+        imagePrompt: "A lone walker arriving at the Golden Horn, minarets and domes of Istanbul in silhouette against a glowing sunset, end of a long walk"
       }
     ]
   },
 
-  // ─── 9. Around the World in Eighty Days ────────────────────────
+  // ─── 9. Around the World in Eighty Days ──────────────────────────
   {
     id:     "around-the-world-in-80-days",
     title:  "Around the World in Eighty Days",
@@ -1208,58 +1266,65 @@ const JOURNEYS = [
     blurb:  "A global race following railways, steamships, and colonial-era routes.",
     stops: [
       {
-        name:      "London",
-        realPlace: "London, United Kingdom",
-        coords:    [51.5072, -0.1276],
-        inBook:    "Departure from Reform Club.",
-        reference: "Chapter 1"
+        name:        "London",
+        realPlace:   "London, United Kingdom",
+        coords:      [51.5072, -0.1276],
+        inBook:      "Departure from Reform Club.",
+        reference:   "Chapter 1",
+        imagePrompt: "A Victorian gentleman in a top hat departing from the Reform Club on Pall Mall, hailing a hansom cab, foggy London, 1872"
       },
       {
-        name:      "Suez",
-        realPlace: "Suez, Egypt",
-        coords:    [29.9668, 32.5498],
-        inBook:    "Transit through Suez Canal region.",
-        reference: "Early voyage"
+        name:        "Suez",
+        realPlace:   "Suez, Egypt",
+        coords:      [29.9668, 32.5498],
+        inBook:      "Transit through Suez Canal region.",
+        reference:   "Early voyage",
+        imagePrompt: "A steamship passing through the newly-opened Suez Canal, desert on both sides, Victorian-era travelers on deck, colonial atmosphere"
       },
       {
-        name:      "Mumbai",
-        realPlace: "Mumbai, India",
-        coords:    [19.0760, 72.8777],
-        inBook:    "Indian railway journey.",
-        reference: "India segment"
+        name:        "Mumbai",
+        realPlace:   "Mumbai, India",
+        coords:      [19.076, 72.8777],
+        inBook:      "Indian railway journey.",
+        reference:   "India segment",
+        imagePrompt: "A Victorian gentleman riding an elephant through the Indian countryside, ancient temples in the background, a railway under construction"
       },
       {
-        name:      "Hong Kong",
-        realPlace: "Hong Kong",
-        coords:    [22.3193, 114.1694],
-        inBook:    "Steamship transfer point.",
-        reference: "Asia segment"
+        name:        "Hong Kong",
+        realPlace:   "Hong Kong",
+        coords:      [22.3193, 114.1694],
+        inBook:      "Steamship transfer point.",
+        reference:   "Asia segment",
+        imagePrompt: "A bustling 1870s Hong Kong harbor, junks and steamships, the Peak rising behind, Victorian colonial waterfront"
       },
       {
-        name:      "Yokohama",
-        realPlace: "Yokohama, Japan",
-        coords:    [35.4437, 139.6380],
-        inBook:    "East Asian stopover.",
-        reference: "Pacific segment"
+        name:        "Yokohama",
+        realPlace:   "Yokohama, Japan",
+        coords:      [35.4437, 139.638],
+        inBook:      "East Asian stopover.",
+        reference:   "Pacific segment",
+        imagePrompt: "A Western gentleman disembarking at a Japanese port town, Meiji-era architecture, Mount Fuji in the distance, 1870s"
       },
       {
-        name:      "San Francisco",
-        realPlace: "San Francisco, USA",
-        coords:    [37.7749, -122.4194],
-        inBook:    "Transcontinental railway crossing.",
-        reference: "America segment"
+        name:        "San Francisco",
+        realPlace:   "San Francisco, USA",
+        coords:      [37.7749, -122.4194],
+        inBook:      "Transcontinental railway crossing.",
+        reference:   "America segment",
+        imagePrompt: "A transcontinental railroad train steaming across the American West, vast prairies, bison, passengers looking out the windows, 1870s"
       },
       {
-        name:      "New York",
-        realPlace: "New York City, USA",
-        coords:    [40.7128, -74.0060],
-        inBook:    "Final Atlantic crossing.",
-        reference: "Final chapters"
+        name:        "New York",
+        realPlace:   "New York City, USA",
+        coords:      [40.7128, -74.006],
+        inBook:      "Final Atlantic crossing.",
+        reference:   "Final chapters",
+        imagePrompt: "A frantic man rushing to board the last transatlantic steamship from New York harbor, 1870s waterfront bustle"
       }
     ]
   },
 
-  // ─── 10. Heart of Darkness ──────────────────────────────────────
+  // ─── 10. Heart of Darkness ───────────────────────────────────────
   {
     id:     "heart-of-darkness",
     title:  "Heart of Darkness",
@@ -1270,40 +1335,44 @@ const JOURNEYS = [
     blurb:  "Marlow's voyage up the Congo in search of the ivory agent Kurtz.",
     stops: [
       {
-        name:      "London",
-        realPlace: "London, England",
-        coords:    [51.51, -0.08],
-        inBook:    "Marlow tells his tale aboard the Nellie on the Thames estuary.",
-        reference: "Opening frame"
+        name:        "London",
+        realPlace:   "London, England",
+        coords:      [51.51, -0.08],
+        inBook:      "Marlow tells his tale aboard the Nellie on the Thames estuary.",
+        reference:   "Opening frame",
+        imagePrompt: "Men sitting on the deck of a yacht at sunset on the Thames estuary, one beginning to tell a dark story, London lights in the distance"
       },
       {
-        name:      "The Company's Station",
-        realPlace: "Matadi / Boma region, DR Congo",
-        coords:    [-5.82, 13.46],
-        inBook:    "Marlow arrives at the Outer Station amid wasteful colonial decay.",
-        reference: "Part 1",
-        note:      "Unnamed in the text — placed at the lower Congo trading posts"
+        name:        "The Company's Station",
+        realPlace:   "Matadi / Boma region, DR Congo",
+        coords:      [-5.82, 13.46],
+        inBook:      "Marlow arrives at the Outer Station amid wasteful colonial decay.",
+        reference:   "Part 1",
+        note:        "Unnamed in the text — placed at the lower Congo trading posts",
+        imagePrompt: "A crumbling colonial outpost on the Congo River, abandoned equipment rusting, emaciated African laborers, a European clerk in pristine white"
       },
       {
-        name:      "The Central Station",
-        realPlace: "Kinshasa (Léopoldville), DR Congo",
-        coords:    [-4.32, 15.31],
-        inBook:    "He waits for rivets and meets the scheming manager.",
-        reference: "Part 1",
-        note:      "Conventional placement at Stanley Pool"
+        name:        "The Central Station",
+        realPlace:   "Kinshasa (Léopoldville), DR Congo",
+        coords:      [-4.32, 15.31],
+        inBook:      "He waits for rivets and meets the scheming manager.",
+        reference:   "Part 1",
+        note:        "Conventional placement at Stanley Pool",
+        imagePrompt: "A riverside trading station deep in the Congo jungle, a steamship under repair on the muddy bank, scheming colonial agents, oppressive heat"
       },
       {
-        name:      "The Inner Station",
-        realPlace: "Kisangani (Stanley Falls) region, DR Congo",
-        coords:    [0.52, 25.20],
-        inBook:    "Marlow finds Kurtz at the end of the river — 'The horror! The horror!'",
-        reference: "Parts 2–3",
-        note:      "Unnamed — traditionally placed near Stanley Falls"
+        name:        "The Inner Station",
+        realPlace:   "Kisangani (Stanley Falls) region, DR Congo",
+        coords:      [0.52, 25.2],
+        inBook:      "Marlow finds Kurtz at the end of the river — 'The horror! The horror!'",
+        reference:   "Parts 2–3",
+        note:        "Unnamed — traditionally placed near Stanley Falls",
+        imagePrompt: "A lone ivory station at the end of a dark jungle river, human skulls on fence posts, a gaunt prophet-like figure emerging from the wilderness"
       }
     ]
   },
 
-  // ─── 11. Dracula ────────────────────────────────────────────────
+  // ─── 11. Dracula ─────────────────────────────────────────────────
   {
     id:     "dracula",
     title:  "Dracula",
@@ -1314,46 +1383,51 @@ const JOURNEYS = [
     blurb:  "The Count's passage from Transylvania to England, and the hunt back to his castle.",
     stops: [
       {
-        name:      "Bistritz",
-        realPlace: "Bistrița, Romania",
-        coords:    [47.13, 24.49],
-        inBook:    "Jonathan Harker's last town before the mountains.",
-        reference: "Chapter 1"
+        name:        "Bistritz",
+        realPlace:   "Bistrița, Romania",
+        coords:      [47.13, 24.49],
+        inBook:      "Jonathan Harker's last town before the mountains.",
+        reference:   "Chapter 1",
+        imagePrompt: "A nervous Victorian solicitor eating dinner at a Transylvanian inn, concerned locals pressing a crucifix into his hands, approaching storm"
       },
       {
-        name:      "Borgo Pass",
-        realPlace: "Tihuța Pass, Romania",
-        coords:    [47.27, 25.05],
-        inBook:    "The Count's caleche carries Harker up to the castle.",
-        reference: "Chapters 1–4",
-        note:      "Castle is fictional — placed at the Borgo (Tihuța) Pass"
+        name:        "Borgo Pass",
+        realPlace:   "Tihuța Pass, Romania",
+        coords:      [47.27, 25.05],
+        inBook:      "The Count's caleche carries Harker up to the castle.",
+        reference:   "Chapters 1–4",
+        note:        "Castle is fictional — placed at the Borgo (Tihuța) Pass",
+        imagePrompt: "A dark carriage climbing a moonlit mountain pass in Transylvania, wolves howling, a sinister castle silhouetted on the crag above"
       },
       {
-        name:      "Whitby",
-        realPlace: "Whitby, England",
-        coords:    [54.49, -0.61],
-        inBook:    "The Demeter runs aground; Dracula comes ashore as a hound.",
-        reference: "Chapters 6–8"
+        name:        "Whitby",
+        realPlace:   "Whitby, England",
+        coords:      [54.49, -0.61],
+        inBook:      "The Demeter runs aground; Dracula comes ashore as a hound.",
+        reference:   "Chapters 6–8",
+        imagePrompt: "A derelict ship running aground in a storm at Whitby harbor, a giant black hound leaping ashore, the abbey ruins on the cliff above"
       },
       {
-        name:      "London",
-        realPlace: "London, England",
-        coords:    [51.51, -0.13],
-        inBook:    "The Count stalks Lucy and Mina; the hunters gather against him.",
-        reference: "Chapters 9–23"
+        name:        "London",
+        realPlace:   "London, England",
+        coords:      [51.51, -0.13],
+        inBook:      "The Count stalks Lucy and Mina; the hunters gather against him.",
+        reference:   "Chapters 9–23",
+        imagePrompt: "A pale woman sleepwalking through a foggy Victorian London churchyard at night, a dark cloaked figure watching from the shadows"
       },
       {
-        name:      "Castle Dracula",
-        realPlace: "Tihuța Pass, Romania",
-        coords:    [47.27, 25.05],
-        inBook:    "The chase ends as the Count is destroyed at his own gates.",
-        reference: "Chapters 24–27",
-        note:      "Fictional castle — return to the Borgo Pass"
+        name:        "Castle Dracula",
+        realPlace:   "Tihuța Pass, Romania",
+        coords:      [47.27, 25.05],
+        inBook:      "The chase ends as the Count is destroyed at his own gates.",
+        reference:   "Chapters 24–27",
+        note:        "Fictional castle — return to the Borgo Pass",
+        imagePrompt: "Armed men racing on horseback toward a Transylvanian castle at sunset, a gypsy wagon carrying a coffin ahead of them, snow on the mountains"
       }
     ]
   },
 
-  // ─── 12. Moby-Dick ──────────────────────────────────────────────
+  // ─── 12. Moby-Dick ───────────────────────────────────────────────
   {
     id:     "moby-dick",
     title:  "Moby-Dick",
@@ -1364,46 +1438,51 @@ const JOURNEYS = [
     blurb:  "The Pequod's whaling voyage and Ahab's hunt for the white whale.",
     stops: [
       {
-        name:      "New Bedford",
-        realPlace: "New Bedford, Massachusetts",
-        coords:    [41.64, -70.93],
-        inBook:    "Ishmael lodges with Queequeg before shipping out.",
-        reference: "Chapters 1–13"
+        name:        "New Bedford",
+        realPlace:   "New Bedford, Massachusetts",
+        coords:      [41.64, -70.93],
+        inBook:      "Ishmael lodges with Queequeg before shipping out.",
+        reference:   "Chapters 1–13",
+        imagePrompt: "Two strangers sharing a bed at a crowded whaling inn on a stormy New England night, harpoons on the wall, a tattooed cannibal, candlelight"
       },
       {
-        name:      "Nantucket",
-        realPlace: "Nantucket, Massachusetts",
-        coords:    [41.28, -70.10],
-        inBook:    "The Pequod sails on Christmas Day under Captain Ahab.",
-        reference: "Chapters 14–22"
+        name:        "Nantucket",
+        realPlace:   "Nantucket, Massachusetts",
+        coords:      [41.28, -70.1],
+        inBook:      "The Pequod sails on Christmas Day under Captain Ahab.",
+        reference:   "Chapters 14–22",
+        imagePrompt: "A whaling ship departing from Nantucket harbor on a cold Christmas morning, crew climbing the rigging, grey Atlantic seas"
       },
       {
-        name:      "Cape of Good Hope",
-        realPlace: "Cape of Good Hope, South Africa",
-        coords:    [-34.36, 18.47],
-        inBook:    "The ship rounds Africa into the Indian Ocean grounds.",
-        reference: "Mid-voyage"
+        name:        "Cape of Good Hope",
+        realPlace:   "Cape of Good Hope, South Africa",
+        coords:      [-34.36, 18.47],
+        inBook:      "The ship rounds Africa into the Indian Ocean grounds.",
+        reference:   "Mid-voyage",
+        imagePrompt: "A whaling ship rounding the stormy Cape of Good Hope, massive waves, wind-torn sails, albatrosses wheeling overhead"
       },
       {
-        name:      "Indian Ocean grounds",
-        realPlace: "Indian Ocean, off the Sunda Strait",
-        coords:    [-6.00, 105.00],
-        inBook:    "Whale hunts and gam encounters on the way east.",
-        reference: "Mid-voyage",
-        note:      "Open-ocean cruising ground — coordinates approximate"
+        name:        "Indian Ocean grounds",
+        realPlace:   "Indian Ocean, off the Sunda Strait",
+        coords:      [-6, 105],
+        inBook:      "Whale hunts and gam encounters on the way east.",
+        reference:   "Mid-voyage",
+        note:        "Open-ocean cruising ground — coordinates approximate",
+        imagePrompt: "Whaleboats pursuing a sperm whale in tropical waters near the Sunda Strait, harpooner standing at the bow, volcanic islands in the distance"
       },
       {
-        name:      "The Pacific chase",
-        realPlace: "Equatorial Pacific, near the Galápagos",
-        coords:    [-0.50, -95.00],
-        inBook:    "The three-day chase ends as Moby Dick sinks the Pequod.",
-        reference: "Chapters 133–135",
-        note:      "Final grounds — coordinates approximate"
+        name:        "The Pacific chase",
+        realPlace:   "Equatorial Pacific, near the Galápagos",
+        coords:      [-0.5, -95],
+        inBook:      "The three-day chase ends as Moby Dick sinks the Pequod.",
+        reference:   "Chapters 133–135",
+        note:        "Final grounds — coordinates approximate",
+        imagePrompt: "A massive white whale breaching beside a sinking ship in the open Pacific, men clinging to wreckage, a captain lashed to the whale"
       }
     ]
   },
 
-  // ─── 13. In Search of Lost Time ─────────────────────────────────
+  // ─── 13. In Search of Lost Time ──────────────────────────────────
   {
     id:     "in-search-of-lost-time",
     title:  "In Search of Lost Time",
@@ -1414,38 +1493,42 @@ const JOURNEYS = [
     blurb:  "The dispersed places of memory across the narrator's life in France and Venice.",
     stops: [
       {
-        name:      "Paris",
-        realPlace: "Paris, France",
-        coords:    [48.86, 2.34],
-        inBook:    "The salons of the Faubourg Saint-Germain and the narrator's social world.",
-        reference: "Throughout"
+        name:        "Paris",
+        realPlace:   "Paris, France",
+        coords:      [48.86, 2.34],
+        inBook:      "The salons of the Faubourg Saint-Germain and the narrator's social world.",
+        reference:   "Throughout",
+        imagePrompt: "An elegant Parisian salon in the Belle Epoque, a young writer observing aristocrats and intellectuals, chandeliers, gilt furniture, evening dress"
       },
       {
-        name:      "Combray",
-        realPlace: "Illiers-Combray, France",
-        coords:    [48.30, 1.25],
-        inBook:    "Childhood summers, the madeleine, and the two 'ways' of walks.",
-        reference: "Swann's Way"
+        name:        "Combray",
+        realPlace:   "Illiers-Combray, France",
+        coords:      [48.3, 1.25],
+        inBook:      "Childhood summers, the madeleine, and the two 'ways' of walks.",
+        reference:   "Swann's Way",
+        imagePrompt: "A boy dipping a madeleine into a cup of lime-blossom tea in a French country kitchen, a garden of hawthorn visible through the window"
       },
       {
-        name:      "Balbec",
-        realPlace: "Cabourg, Normandy, France",
-        coords:    [49.29, -0.12],
-        inBook:    "Seaside holidays at the Grand Hotel and the 'little band' of girls.",
-        reference: "Within a Budding Grove",
-        note:      "Fictional resort modelled chiefly on Cabourg"
+        name:        "Balbec",
+        realPlace:   "Cabourg, Normandy, France",
+        coords:      [49.29, -0.12],
+        inBook:      "Seaside holidays at the Grand Hotel and the 'little band' of girls.",
+        reference:   "Within a Budding Grove",
+        note:        "Fictional resort modelled chiefly on Cabourg",
+        imagePrompt: "A grand seaside hotel on the Normandy coast, a young man watching a group of girls on the beach below, parasols, summer light"
       },
       {
-        name:      "Venice",
-        realPlace: "Venice, Italy",
-        coords:    [45.44, 12.32],
-        inBook:    "The narrator's long-dreamed-of journey with his mother.",
-        reference: "The Fugitive"
+        name:        "Venice",
+        realPlace:   "Venice, Italy",
+        coords:      [45.44, 12.32],
+        inBook:      "The narrator's long-dreamed-of journey with his mother.",
+        reference:   "The Fugitive",
+        imagePrompt: "A mother and son in a gondola on a Venetian canal, Byzantine facades reflected in the water, afternoon golden light"
       }
     ]
   },
 
-  // ─── 14. The Count of Monte Cristo ──────────────────────────────
+  // ─── 14. The Count of Monte Cristo ───────────────────────────────
   {
     id:     "count-of-monte-cristo",
     title:  "The Count of Monte Cristo",
@@ -1456,44 +1539,49 @@ const JOURNEYS = [
     blurb:  "Edmond Dantès's wrongful imprisonment, hidden treasure, and meticulous revenge.",
     stops: [
       {
-        name:      "Marseille",
-        realPlace: "Marseille, France",
-        coords:    [43.296, 5.370],
-        inBook:    "On the eve of his wedding, Dantès is denounced and arrested.",
-        reference: "Chapters 1–2"
+        name:        "Marseille",
+        realPlace:   "Marseille, France",
+        coords:      [43.296, 5.37],
+        inBook:      "On the eve of his wedding, Dantès is denounced and arrested.",
+        reference:   "Chapters 1–2",
+        imagePrompt: "A young sailor being arrested by soldiers on the docks of Marseille on the eve of his wedding, his fiancee reaching for him, Napoleonic era"
       },
       {
-        name:      "Château d'If",
-        realPlace: "Château d'If, Marseille, France",
-        coords:    [43.280, 5.325],
-        inBook:    "Fourteen years of imprisonment; he meets the Abbé Faria and escapes.",
-        reference: "Chapters 8–21"
+        name:        "Château d'If",
+        realPlace:   "Château d'If, Marseille, France",
+        coords:      [43.28, 5.325],
+        inBook:      "Fourteen years of imprisonment; he meets the Abbé Faria and escapes.",
+        reference:   "Chapters 8–21",
+        imagePrompt: "A gaunt prisoner in a dark stone cell on a fortress island, digging a tunnel by candlelight, the Mediterranean Sea through a barred window"
       },
       {
-        name:      "Island of Monte Cristo",
-        realPlace: "Isola di Montecristo, Italy",
-        coords:    [42.349, 10.321],
-        inBook:    "Dantès recovers Faria's hidden fortune and takes his new name.",
-        reference: "Chapters 24–25"
+        name:        "Island of Monte Cristo",
+        realPlace:   "Isola di Montecristo, Italy",
+        coords:      [42.349, 10.321],
+        inBook:      "Dantès recovers Faria's hidden fortune and takes his new name.",
+        reference:   "Chapters 24–25",
+        imagePrompt: "A man emerging from an underwater cave onto a rocky Mediterranean island, discovering a chest of gold and jewels hidden in a grotto"
       },
       {
-        name:      "Rome",
-        realPlace: "Rome, Italy",
-        coords:    [41.903, 12.496],
-        inBook:    "Carnival season — the Count engineers Albert de Morcerf's kidnapping.",
-        reference: "Chapters 33–37"
+        name:        "Rome",
+        realPlace:   "Rome, Italy",
+        coords:      [41.903, 12.496],
+        inBook:      "Carnival season — the Count engineers Albert de Morcerf's kidnapping.",
+        reference:   "Chapters 33–37",
+        imagePrompt: "A mysterious wealthy Count watching the Roman Carnival from a palace window, masked revellers below, moonlit Colosseum in the distance"
       },
       {
-        name:      "Paris",
-        realPlace: "Paris, France",
-        coords:    [48.857, 2.352],
-        inBook:    "The Count enters society and methodically settles his accounts.",
-        reference: "Chapters 40–117"
+        name:        "Paris",
+        realPlace:   "Paris, France",
+        coords:      [48.857, 2.352],
+        inBook:      "The Count enters society and methodically settles his accounts.",
+        reference:   "Chapters 40–117",
+        imagePrompt: "An enigmatic Count hosting a lavish dinner in a Parisian mansion, guests in evening dress, an atmosphere of hidden menace and calculated revenge"
       }
     ]
   },
 
-  // ─── 15. The Avignon Quintet ────────────────────────────────────
+  // ─── 15. The Avignon Quintet ─────────────────────────────────────
   {
     id:     "avignon-quintet",
     title:  "The Avignon Quintet",
@@ -1504,58 +1592,64 @@ const JOURNEYS = [
     blurb:  "A dispersed cycle of five novels orbiting Avignon, Provence, and the Templar mystery.",
     stops: [
       {
-        name:      "Avignon",
-        realPlace: "Avignon, France",
-        coords:    [43.95, 4.81],
-        inBook:    "The brooding centre of the cycle — the city and its Templar history.",
-        reference: "All five novels"
+        name:        "Avignon",
+        realPlace:   "Avignon, France",
+        coords:      [43.95, 4.81],
+        inBook:      "The brooding centre of the cycle — the city and its Templar history.",
+        reference:   "All five novels",
+        imagePrompt: "The medieval walled city of Avignon seen from across the Rhone, the Palace of the Popes brooding on the hill, Templar mystery, twilight"
       },
       {
-        name:      "Verfeuille / Tu Duc",
-        realPlace: "Fictional estate, Provençal countryside",
-        coords:    [43.92, 4.92],
-        inBook:    "The decaying chateau where much of the cast gathers.",
-        reference: "Monsieur; Livia",
-        note:      "Fictional estate — placed near Avignon"
+        name:        "Verfeuille / Tu Duc",
+        realPlace:   "Fictional estate, Provençal countryside",
+        coords:      [43.92, 4.92],
+        inBook:      "The decaying chateau where much of the cast gathers.",
+        reference:   "Monsieur; Livia",
+        note:        "Fictional estate — placed near Avignon",
+        imagePrompt: "A decaying Provencal country estate, overgrown gardens, shuttered windows, artists and intellectuals on a terrace, golden afternoon"
       },
       {
-        name:      "Geneva",
-        realPlace: "Geneva, Switzerland",
-        coords:    [46.20, 6.14],
-        inBook:    "Wartime refuge and psychoanalytic milieu.",
-        reference: "Livia; Constance"
+        name:        "Geneva",
+        realPlace:   "Geneva, Switzerland",
+        coords:      [46.2, 6.14],
+        inBook:      "Wartime refuge and psychoanalytic milieu.",
+        reference:   "Livia; Constance",
+        imagePrompt: "A lakeside Swiss city in wartime, neutral and tense, a psychoanalyst's study overlooking Lake Geneva, winter light, mountains"
       },
       {
-        name:      "Venice",
-        realPlace: "Venice, Italy",
-        coords:    [45.44, 12.32],
-        inBook:    "A city of masks, decadence, and intrigue.",
-        reference: "Monsieur; Sebastian"
+        name:        "Venice",
+        realPlace:   "Venice, Italy",
+        coords:      [45.44, 12.32],
+        inBook:      "A city of masks, decadence, and intrigue.",
+        reference:   "Monsieur; Sebastian",
+        imagePrompt: "A masked figure crossing a bridge over a dark Venetian canal at night, carnival atmosphere, decadence and intrigue, reflections"
       },
       {
-        name:      "Alexandria",
-        realPlace: "Alexandria, Egypt",
-        coords:    [31.20, 29.92],
-        inBook:    "Egyptian threads of memory and the Templar mystery.",
-        reference: "Monsieur; Livia"
+        name:        "Alexandria",
+        realPlace:   "Alexandria, Egypt",
+        coords:      [31.2, 29.92],
+        inBook:      "Egyptian threads of memory and the Templar mystery.",
+        reference:   "Monsieur; Livia",
+        imagePrompt: "The seafront of 1930s Alexandria, colonial architecture, palm trees, fading Empire and hidden Templar secrets, Mediterranean light"
       },
       {
-        name:      "Cairo & the desert",
-        realPlace: "Cairo, Egypt",
-        coords:    [30.04, 31.24],
-        inBook:    "The desert expedition and the search for treasure.",
-        reference: "Constance; Sebastian"
+        name:        "Cairo & the desert",
+        realPlace:   "Cairo, Egypt",
+        coords:      [30.04, 31.24],
+        inBook:      "The desert expedition and the search for treasure.",
+        reference:   "Constance; Sebastian",
+        imagePrompt: "An expedition on camels in the Egyptian desert near the pyramids, searching for buried treasure, harsh sunlight, vast empty sands"
       },
       {
-        name:      "Vienna",
-        realPlace: "Vienna, Austria",
-        coords:    [48.21, 16.37],
-        inBook:    "Pre-war psychoanalysis and the seeds of catastrophe.",
-        reference: "Livia; Constance"
+        name:        "Vienna",
+        realPlace:   "Vienna, Austria",
+        coords:      [48.21, 16.37],
+        inBook:      "Pre-war psychoanalysis and the seeds of catastrophe.",
+        reference:   "Livia; Constance",
+        imagePrompt: "A pre-war Viennese consulting room, a psychoanalyst in a leather chair, books and art on the walls, a civilization about to collapse"
       }
     ]
   }
-
 ]; // ── end JOURNEYS ─────────────────────────────────────────────────
 
 
@@ -1731,6 +1825,7 @@ function buildPopup(stop, journey, idx) {
       <span>${stop.reference}</span>
     </div>
     ${stop.note ? `<div class="pop-note">⁎ ${stop.note}</div>` : ''}
+    ${stop.imagePrompt ? `<button class="pop-prompt-btn" onclick="navigator.clipboard.writeText(this.dataset.p).then(()=>{this.textContent='Copied!';setTimeout(()=>this.textContent='📋 Copy image prompt',1500)})" data-p="${stop.imagePrompt.replace(/"/g, '&quot;')}">📋 Copy image prompt</button>` : ''}
   `;
 }
 
