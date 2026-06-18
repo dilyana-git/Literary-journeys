@@ -1581,6 +1581,19 @@ const FLY     = 1.2;    // seconds for a flyTo
 
 const byId = id => JOURNEYS.find(j => j.id === id);
 
+function stopZoomFor(id) {
+  const j = byId(id);
+  if (!j || j.stops.length < 2) return 14;
+  const lats = j.stops.map(s => s.coords[0]);
+  const lngs = j.stops.map(s => s.coords[1]);
+  const span = Math.max(Math.max(...lats) - Math.min(...lats), Math.max(...lngs) - Math.min(...lngs));
+  if (span < 0.3) return 14;
+  if (span < 1)   return 11;
+  if (span < 5)   return 8;
+  if (span < 20)  return 6;
+  return 4;
+}
+
 
 // ╔═══════════════════════════════════════════════════════════════╗
 // ║  GEOGRAPHY HELPERS                                           ║
@@ -1809,7 +1822,7 @@ function voyageSeek(id, step, fly = true) {
   voyage.step = step;
   voyage.poly.setLatLngs(j.stops.slice(0, step + 1).map(s => s.coords));
   voyage.ship.setLatLng(j.stops[step].coords);
-  if (fly) map.flyTo(j.stops[step].coords, Math.max(map.getZoom(), 5), { duration: FLY });
+  if (fly) map.flyTo(j.stops[step].coords, stopZoomFor(id), { duration: FLY });
   updateVoyageUI();
 }
 
@@ -2058,7 +2071,7 @@ function renderSidebar() {
       el.addEventListener('click', e => {
         e.stopPropagation();
         const stop = journey.stops[idx];
-        map.flyTo(stop.coords, 7, { duration: 1.2 });
+        map.flyTo(stop.coords, stopZoomFor(journey.id), { duration: 1.2 });
         const g = state.layers[jid];
         if (g?.markers[idx]) setTimeout(() => g.markers[idx].openPopup(), 1300);
       });
@@ -2137,13 +2150,13 @@ function runGazetteer(q) {
         if (!state.activeIds.has(id)) toggleJourney(id);
         else {
           const b = boundsOf([id]);
-          if (b) map.flyToBounds(b, { padding: [50, 50], duration: 1.2, maxZoom: 8 });
+          if (b) map.flyToBounds(b, { padding: [50, 50], duration: 1.2, maxZoom: 16 });
         }
       } else {
         const idx = +row.dataset.idx;
         ensureChartedAndRender(id);
         const stop = byId(id).stops[idx];
-        map.flyTo(stop.coords, 7, { duration: 1.3 });
+        map.flyTo(stop.coords, stopZoomFor(id), { duration: 1.3 });
         const g = state.layers[id];
         if (g?.markers[idx]) setTimeout(() => g.markers[idx].openPopup(), 1400);
       }
@@ -2179,7 +2192,7 @@ function toggleJourney(id) {
     state.activeIds.add(id);
     drawJourney(j);
     const b = boundsOf([id]);
-    if (b) map.flyToBounds(b, { padding: [60, 60], duration: 1.2, maxZoom: 8 });
+    if (b) map.flyToBounds(b, { padding: [60, 60], duration: 1.2, maxZoom: 16 });
   }
   updateEmptyState();
   renderSidebar();
