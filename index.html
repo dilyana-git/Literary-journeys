@@ -16,20 +16,28 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      /* ── aged vellum palette ────────────────────────────── */
-      --vellum:     #e9dcbe;
-      --vellum-2:   #e3d4b0;
-      --vellum-3:   #d9c89e;
-      --vellum-4:   #cdb988;
-      --edge:       #b79a68;
-      --edge-soft:  #c9b288;
-      --ink:        #38291a;   /* dark sepia ink            */
-      --ink-2:      #5a4427;   /* mid ink                   */
-      --faded:      #8a7148;   /* faded ink / annotation    */
-      --rubric:     #8c3b2b;   /* red rubrication, borders  */
-      --rubric-dk:  #6c2b1f;
-      --gilt:       #a67c33;   /* gold leaf                 */
+      /* Victorian Broadsheet / Steampunk Atlas */
+      --vellum:     #e8dcc4;
+      --vellum-2:   #ddd0b4;
+      --vellum-3:   #cfc09e;
+      --vellum-4:   #bfac84;
+      --edge:       #9e8a62;
+      --edge-soft:  #b8a47a;
+      --ink:        #2a1f10;
+      --ink-2:      #4a3620;
+      --faded:      #8a7450;
+      --rubric:     #6b3018;
+      --rubric-dk:  #4e2210;
+      --gilt:       #b8962e;
       --ledger-w:   368px;
+
+      --bg-top:     #ece3cc;
+      --map-bg:     var(--vellum-3);
+      --ledger-top: var(--vellum);
+      --ledger-bot: var(--vellum-3);
+      --wash:       rgba(42,28,12,0.38);
+      --tile-base-filter: sepia(0.65) saturate(0.9) hue-rotate(10deg) brightness(0.95) contrast(0.92);
+      --tile-zoom-filter: contrast(1) brightness(1) saturate(1);
 
       --font-title: 'Cinzel Decorative', serif;
       --font-caps:  'Cinzel', serif;
@@ -43,105 +51,125 @@
       font-family: var(--font-body);
       color: var(--ink);
       background:
-        radial-gradient(120% 100% at 50% 0%, #efe3c8 0%, var(--vellum) 45%, var(--vellum-3) 100%);
+        radial-gradient(ellipse 60% 40% at 15% 85%, rgba(160,120,60,0.1), transparent),
+        radial-gradient(ellipse 50% 35% at 80% 20%, rgba(140,100,40,0.08), transparent),
+        radial-gradient(120% 100% at 50% 0%, var(--bg-top) 0%, var(--vellum) 45%, var(--vellum-3) 100%);
     }
 
-    /* ── global paper grain (very subtle, multiplied) ─────── */
     #grain {
       position: fixed; inset: 0; z-index: 9000; pointer-events: none;
-      mix-blend-mode: multiply; opacity: 0.5;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.32'/%3E%3C/svg%3E");
+      mix-blend-mode: multiply; opacity: 0.42;
+      background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.36'/%3E%3C/svg%3E"),
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='6' height='6'%3E%3Cpath d='M0 6L6 0' stroke='%23382810' stroke-width='0.4' opacity='0.18'/%3E%3C/svg%3E"),
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='6' height='6'%3E%3Cpath d='M0 0L6 6' stroke='%23382810' stroke-width='0.4' opacity='0.12'/%3E%3C/svg%3E");
     }
 
-    /* ── neat-line border framing the whole atlas ─────────── */
     #frame {
       position: fixed; inset: 0; z-index: 8000; pointer-events: none;
       padding: 9px;
     }
     #frame::before {
       content: ""; position: absolute; inset: 9px;
-      border: 1px solid var(--rubric);
+      border: 2px solid var(--rubric);
       box-shadow:
         inset 0 0 0 4px var(--vellum),
-        inset 0 0 0 5px var(--edge),
-        0 0 0 1px rgba(56,41,26,0.15);
+        inset 0 0 0 5.5px var(--gilt),
+        inset 0 0 0 7px var(--vellum),
+        inset 0 0 0 8px color-mix(in srgb, var(--rubric) 45%, transparent),
+        0 0 0 1px rgba(56,41,26,0.2);
     }
     .corner {
-      position: absolute; width: 46px; height: 46px;
-      color: var(--rubric); opacity: 0.9;
+      position: absolute; width: 54px; height: 54px;
+      color: var(--gilt); opacity: 0.95;
     }
-    .corner.tl { top: 13px;    left: 13px; }
-    .corner.tr { top: 13px;    right: 13px;  transform: scaleX(-1); }
-    .corner.bl { bottom: 13px; left: 13px;   transform: scaleY(-1); }
-    .corner.br { bottom: 13px; right: 13px;  transform: scale(-1,-1); }
+    .corner.tl { top: 9px;    left: 9px; }
+    .corner.tr { top: 9px;    right: 9px;  transform: scaleX(-1); }
+    .corner.bl { bottom: 9px; left: 9px;   transform: scaleY(-1); }
+    .corner.br { bottom: 9px; right: 9px;  transform: scale(-1,-1); }
 
-    /* ── app layout ───────────────────────────────────────── */
     #app { display: flex; height: 100vh; }
 
-    /* ════════════════ LEDGER (sidebar) ═══════════════════════ */
+    /* ═══ LEDGER (sidebar) ═══ */
     #ledger {
       width: var(--ledger-w);
       min-width: var(--ledger-w);
       background:
-        linear-gradient(180deg, var(--vellum-2), var(--vellum-3));
-      border-right: 2px solid var(--edge);
-      box-shadow: 3px 0 22px rgba(56,41,26,0.18), inset -10px 0 24px -18px rgba(56,41,26,0.5);
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='6' height='6'%3E%3Cpath d='M0 6L6 0' stroke='%23382810' stroke-width='0.3' opacity='0.06'/%3E%3C/svg%3E"),
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='6' height='6'%3E%3Cpath d='M0 0L6 6' stroke='%23382810' stroke-width='0.3' opacity='0.04'/%3E%3C/svg%3E"),
+        linear-gradient(180deg, var(--ledger-top), var(--ledger-bot));
+      border-right: 3px solid var(--gilt);
+      box-shadow: 4px 0 22px rgba(42,28,12,0.22), inset -10px 0 28px -18px rgba(42,28,12,0.5);
       display: flex; flex-direction: column;
       position: relative; z-index: 900;
     }
-    /* faint gutter rule, like a ruled ledger */
     #ledger::after {
-      content: ""; position: absolute; top: 0; bottom: 0; right: 9px;
-      border-right: 1px solid rgba(140,59,43,0.22);
+      content: ""; position: absolute; top: 0; bottom: 0; right: 10px;
+      border-right: 1px solid color-mix(in srgb, var(--rubric) 26%, transparent);
       pointer-events: none;
     }
+    #ledger::before {
+      content: ""; position: absolute; top: 0; bottom: 0; right: 0; width: 3px;
+      background: linear-gradient(180deg, var(--gilt), var(--edge), var(--gilt));
+      pointer-events: none; z-index: 1;
+    }
 
-    /* ── cartouche / masthead ─────────────────────────────── */
+    #sheet-handle { display: none; }
+
+    /* ── cartouche / masthead ── */
     #masthead {
-      padding: 26px 26px 18px;
+      padding: 28px 22px 20px;
       text-align: center;
-      border-bottom: 1px double var(--edge);
+      border-bottom: 3px double var(--gilt);
       position: relative;
+      background:
+        radial-gradient(ellipse 100% 100% at 50% 100%, color-mix(in srgb, var(--gilt) 10%, transparent), transparent 70%);
     }
     #masthead .flourish {
-      color: var(--rubric); height: 16px; margin: 0 auto 8px; display: block;
+      color: var(--gilt); height: 16px; margin: 0 auto 10px; display: block;
     }
     #masthead h1 {
       font-family: var(--font-title);
       font-weight: 700;
-      font-size: 1.62rem;
-      line-height: 1.12;
-      letter-spacing: 0.01em;
+      font-size: 1.72rem;
+      line-height: 1.1;
+      letter-spacing: 0.02em;
       color: var(--ink);
-      text-shadow: 0 1px 0 rgba(255,251,240,0.6);
+      text-shadow: 0 1px 0 rgba(255,248,220,0.7), 0 2px 4px rgba(42,28,12,0.12);
     }
     #masthead .sub {
       font-family: var(--font-old);
       font-style: italic;
-      font-size: 0.94rem;
+      font-size: 0.95rem;
       color: var(--rubric);
-      margin-top: 7px;
-      letter-spacing: 0.02em;
+      margin-top: 8px;
+      letter-spacing: 0.03em;
     }
     #masthead .est {
       font-family: var(--font-caps);
-      font-size: 0.6rem;
-      letter-spacing: 0.28em;
+      font-size: 0.58rem;
+      letter-spacing: 0.3em;
       text-transform: uppercase;
-      color: var(--faded);
-      margin-top: 9px;
+      color: var(--gilt);
+      margin-top: 10px;
     }
 
-    /* ── gazetteer (search) ───────────────────────────────── */
+    /* ── gazetteer (search) ── */
     #gazetteer { padding: 14px 22px 12px; border-bottom: 1px solid var(--edge); position: relative; }
     .gaz-field {
       display: flex; align-items: center; gap: 8px;
-      background: var(--vellum);
-      border: 1px solid var(--edge);
+      background: color-mix(in srgb, var(--vellum) 85%, #fff);
+      border: 1.5px solid var(--edge);
       border-radius: 2px;
       padding: 6px 10px;
-      box-shadow: inset 0 1px 3px rgba(56,41,26,0.16);
+      box-shadow: inset 0 2px 4px rgba(42,28,12,0.14), 0 1px 0 rgba(255,248,220,0.5);
+      transition: border-color 0.16s, box-shadow 0.16s;
     }
+    .gaz-field:focus-within {
+      border-color: var(--gilt);
+      box-shadow: inset 0 2px 4px rgba(42,28,12,0.14), 0 0 0 2px color-mix(in srgb, var(--gilt) 25%, transparent);
+    }
+    .gaz-field:focus-within svg { color: var(--rubric); }
     .gaz-field svg { color: var(--faded); flex-shrink: 0; }
     #gaz-input {
       flex: 1; border: none; background: transparent; outline: none;
@@ -174,24 +202,25 @@
     .gaz-row .gr-meta { font-size: 0.78rem; color: var(--faded); font-style: italic; margin-left: auto; }
     .gaz-empty { padding: 12px; font-style: italic; color: var(--faded); font-size: 0.86rem; text-align: center; }
 
-    /* ── controls ─────────────────────────────────────────── */
+    /* ── controls ── */
     #controls { display: flex; gap: 7px; padding: 12px 22px; border-bottom: 1px solid var(--edge); }
     .ctrl-btn {
-      flex: 1; padding: 6px 6px;
+      flex: 1; padding: 7px 6px;
       font-family: var(--font-caps); font-size: 0.66rem; letter-spacing: 0.1em;
       text-transform: uppercase;
-      background: var(--vellum);
-      border: 1px solid var(--edge);
+      background: linear-gradient(180deg, var(--vellum), var(--vellum-2));
+      border: 1.5px solid var(--edge);
       color: var(--ink-2); cursor: pointer; border-radius: 2px;
+      box-shadow: 0 1px 2px rgba(42,28,12,0.1), inset 0 1px 0 rgba(255,248,220,0.4);
       transition: background 0.16s, color 0.16s, border-color 0.16s, box-shadow 0.16s;
     }
-    .ctrl-btn:hover { background: var(--vellum-2); color: var(--ink); border-color: var(--faded); }
+    .ctrl-btn:hover { background: linear-gradient(180deg, var(--vellum-2), var(--vellum-3)); color: var(--ink); border-color: var(--gilt); }
     .ctrl-btn.active {
-      background: var(--rubric); color: #f5e9cf; border-color: var(--rubric-dk);
-      box-shadow: 0 1px 4px rgba(108,43,31,0.4);
+      background: linear-gradient(180deg, var(--rubric), var(--rubric-dk)); color: #f5e4c0; border-color: var(--rubric-dk);
+      box-shadow: 0 2px 6px rgba(75,34,16,0.5), inset 0 1px 0 rgba(255,248,220,0.15);
     }
 
-    /* ── journey index list ───────────────────────────────── */
+    /* ── journey index list ── */
     #journey-list {
       flex: 1; overflow-y: auto;
       scrollbar-width: thin; scrollbar-color: var(--edge) transparent;
@@ -199,7 +228,8 @@
     #journey-list::-webkit-scrollbar { width: 6px; }
     #journey-list::-webkit-scrollbar-thumb { background: var(--edge); border-radius: 3px; }
 
-    .journey-item { border-bottom: 1px solid var(--edge); }
+    .journey-item { border-bottom: 1px solid var(--edge); position: relative; }
+    .journey-item.active { box-shadow: inset 3px 0 0 0 var(--jc, var(--rubric)); }
     @keyframes riseIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
     .journey-item.rise { animation: riseIn 0.55s cubic-bezier(.2,.7,.3,1) both; }
 
@@ -208,17 +238,18 @@
       padding: 15px 22px 4px; cursor: pointer; user-select: none;
       transition: background 0.12s;
     }
-    .journey-header:hover { background: rgba(140,59,43,0.05); }
-    .journey-item.active > .journey-header { background: rgba(140,59,43,0.07); }
+    .journey-header:hover { background: color-mix(in srgb, var(--rubric) 6%, transparent); }
+    .journey-item.active > .journey-header { background: color-mix(in srgb, var(--rubric) 8%, transparent); }
 
     .seal-swatch {
-      width: 17px; height: 17px; border-radius: 50%; flex-shrink: 0;
-      border: 1.5px solid rgba(56,41,26,0.5);
-      box-shadow: inset 0 0 0 2px rgba(255,250,235,0.4), 0 1px 2px rgba(0,0,0,0.25);
+      width: 19px; height: 19px; border-radius: 50%; flex-shrink: 0;
+      border: 2px solid rgba(42,28,12,0.5);
+      box-shadow: inset 0 0 0 2px rgba(255,248,220,0.4), 0 1px 3px rgba(0,0,0,0.3);
     }
     .journey-title {
-      font-family: var(--font-caps); font-weight: 600; font-size: 1.0rem;
+      font-family: var(--font-caps); font-weight: 600; font-size: 1.02rem;
       flex: 1; line-height: 1.2; color: var(--ink);
+      text-shadow: 0 1px 0 rgba(255,248,220,0.5);
     }
     .type-glyph { color: var(--faded); flex-shrink: 0; opacity: 0; transition: opacity 0.2s; }
     .journey-item.active .type-glyph { opacity: 1; color: var(--rubric); }
@@ -234,8 +265,7 @@
     }
     .journey-meta:hover, .journey-badge:hover { color: var(--ink-2); }
 
-    /* ── expanded body ────────────────────────────────────── */
-    .journey-body { display: none; padding: 4px 0 14px; background: rgba(140,59,43,0.035); border-top: 1px solid var(--edge-soft); }
+    .journey-body { display: none; padding: 4px 0 14px; background: color-mix(in srgb, var(--rubric) 4%, transparent); border-top: 1px solid var(--edge-soft); }
     .journey-item.active .journey-body { display: block; }
 
     .journey-blurb {
@@ -243,35 +273,16 @@
       font-style: italic; line-height: 1.5; font-family: var(--font-old);
     }
 
-    /* ── ship's log ───────────────────────────────────────── */
-    .logbook {
-      margin: 2px 22px 12px 50px;
-      border: 1px solid var(--edge); background: rgba(233,220,190,0.55);
-      box-shadow: inset 0 0 14px rgba(56,41,26,0.07);
-    }
-    .logbook-title {
-      font-family: var(--font-caps); font-size: 0.6rem; letter-spacing: 0.2em;
-      text-transform: uppercase; color: var(--rubric);
-      text-align: center; padding: 6px 0 5px; border-bottom: 1px solid var(--edge-soft);
-    }
-    .log-row {
-      display: flex; justify-content: space-between; align-items: baseline; gap: 12px;
-      padding: 5px 13px; font-size: 0.85rem; border-bottom: 1px dotted var(--edge-soft);
-    }
-    .log-row:last-child { border-bottom: none; }
-    .log-key { color: var(--faded); font-family: var(--font-caps); font-size: 0.62rem; letter-spacing: 0.08em; text-transform: uppercase; }
-    .log-val { color: var(--ink); font-family: var(--font-old); text-align: right; }
-    .log-val em { color: var(--rubric); font-style: normal; }
 
-    /* ── voyage console (scrubber) ────────────────────────── */
+    /* ── voyage console (scrubber) ── */
     .voyage { margin: 0 22px 12px 50px; }
     .voyage-top { display: flex; align-items: center; gap: 10px; margin-bottom: 7px; }
     .voy-play {
       width: 30px; height: 30px; flex-shrink: 0; border-radius: 50%;
-      border: 1px solid var(--rubric-dk); background: var(--rubric); color: #f5e9cf;
+      border: 1.5px solid var(--rubric-dk); background: linear-gradient(160deg, var(--rubric), var(--rubric-dk)); color: #f5e4c0;
       cursor: pointer; font-size: 0.7rem; line-height: 1;
       display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 2px 5px rgba(108,43,31,0.4); transition: transform 0.12s, background 0.16s;
+      box-shadow: 0 2px 6px rgba(75,34,16,0.5), inset 0 1px 0 rgba(255,248,220,0.2); transition: transform 0.12s, background 0.16s;
     }
     .voy-play:hover { transform: scale(1.08); }
     .voy-label { font-family: var(--font-old); font-size: 0.84rem; color: var(--ink-2); line-height: 1.2; }
@@ -288,7 +299,7 @@
       border: 2px solid var(--rubric); box-shadow: 0 1px 3px rgba(56,41,26,0.4); cursor: pointer;
     }
 
-    /* ── stop list ────────────────────────────────────────── */
+    /* ── stop list ── */
     .stop-list { list-style: none; padding-top: 2px; }
     .stop-item {
       display: flex; align-items: flex-start; gap: 9px;
@@ -296,8 +307,8 @@
       cursor: pointer; line-height: 1.3; font-family: var(--font-old);
       transition: background 0.1s, color 0.1s;
     }
-    .stop-item:hover { color: var(--ink); background: rgba(140,59,43,0.06); }
-    .stop-item.lit  { background: rgba(140,59,43,0.12); color: var(--ink); }
+    .stop-item:hover { color: var(--ink); background: color-mix(in srgb, var(--rubric) 7%, transparent); }
+    .stop-item.lit  { background: color-mix(in srgb, var(--rubric) 14%, transparent); color: var(--ink); }
     .stop-num {
       width: 18px; height: 18px; border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
@@ -309,41 +320,65 @@
     .stop-star { width: 13px; height: 13px; flex-shrink: 0; margin-top: 3px;
       clip-path: polygon(50% 0,61% 39%,100% 50%,61% 61%,50% 100%,39% 61%,0 50%,39% 39%); }
 
-    /* ── crossings panel ──────────────────────────────────── */
-    #crossings-panel { display: none; padding: 12px 22px 14px; border-top: 1px solid var(--edge); border-bottom: 1px solid var(--edge); background: rgba(140,59,43,0.06); }
+    /* ── crossings panel ── */
+    #crossings-panel { display: none; padding: 12px 22px 14px; border-top: 1px solid var(--edge); border-bottom: 1px solid var(--edge); background: color-mix(in srgb, var(--rubric) 7%, transparent); }
     #crossings-panel.open { display: block; }
-    .cross-title { font-family: var(--font-caps); font-size: 0.62rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--rubric); margin-bottom: 8px; display: flex; align-items: center; gap: 7px; }
+    .cross-title { font-family: var(--font-caps); font-size: 0.62rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gilt); margin-bottom: 8px; display: flex; align-items: center; gap: 7px; }
     .cross-row { padding: 6px 0 6px 4px; border-bottom: 1px dotted var(--edge); cursor: pointer; }
     .cross-row:last-child { border-bottom: none; }
     .cross-place { font-family: var(--font-old); font-size: 0.95rem; color: var(--ink); font-style: italic; }
     .cross-books { font-size: 0.78rem; color: var(--faded); margin-top: 1px; }
     .cross-row:hover .cross-place { color: var(--rubric); }
 
-    /* ── legend (cartographer's key) ──────────────────────── */
-    #legend { padding: 13px 22px 16px; border-top: 1px solid var(--edge); font-size: 0.82rem; color: var(--faded); background: rgba(217,200,158,0.4); }
-    .legend-title { font-family: var(--font-caps); font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.18em; margin-bottom: 9px; color: var(--ink-2); }
-    .legend-row { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
-    .legend-icon { width: 26px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-    .legend-row span { font-family: var(--font-old); }
+    /* ── legend (cartographer's key) ── */
+    #legend { padding: 14px 22px 16px; border-top: 2px solid var(--edge); font-size: 0.82rem; color: var(--faded); background: color-mix(in srgb, var(--vellum-4) 48%, transparent); }
+    .legend-title { font-family: var(--font-caps); font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.22em; margin-bottom: 11px; color: var(--gilt); }
+    .legend-row { display: flex; align-items: center; gap: 11px; margin-bottom: 9px; }
+    .legend-row:last-child { margin-bottom: 0; }
+    .legend-icon { width: 26px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: var(--faded); }
+    .legend-row span { font-family: var(--font-old); line-height: 1.3; color: var(--ink-2); }
 
-    /* ════════════════ MAP STAGE ══════════════════════════════ */
-    .map-stage { position: relative; flex: 1; min-width: 0; overflow: hidden; background: var(--vellum-3); }
-    #map { position: absolute; inset: 0; height: 100%; background: var(--vellum-3); }
-
-    /* age the tiles — scoped to the tile pane only */
-    .leaflet-tile-pane {
-      filter: sepia(0.5) saturate(1.35) brightness(0.98) contrast(0.9) hue-rotate(-8deg);
+    /* ── timeline ── */
+    #timeline { padding: 14px 22px 16px; border-top: 2px solid var(--edge); background: color-mix(in srgb, var(--vellum-4) 36%, transparent); }
+    .tl-title { font-family: var(--font-caps); font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.22em; margin-bottom: 10px; color: var(--gilt); }
+    .tl-track { position: relative; height: 28px; margin: 0 4px; }
+    .tl-axis { position: absolute; top: 13px; left: 0; right: 0; height: 1px; background: var(--edge); }
+    .tl-mark {
+      position: absolute; top: 4px; width: 10px; height: 10px;
+      border-radius: 50%; border: 2px solid var(--vellum);
+      cursor: pointer; transform: translateX(-50%);
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     }
+    .tl-mark:hover { transform: translateX(-50%) scale(1.35); z-index: 2; }
+    .tl-mark.active { box-shadow: 0 0 0 3px color-mix(in srgb, var(--rubric) 40%, transparent), 0 1px 3px rgba(0,0,0,0.3); }
+    .tl-mark .tl-tip {
+      display: none; position: absolute; bottom: 18px; left: 50%; transform: translateX(-50%);
+      white-space: nowrap; font-family: var(--font-old); font-size: 0.72rem;
+      background: var(--vellum); color: var(--ink); border: 1px solid var(--edge);
+      padding: 3px 7px; border-radius: 3px; pointer-events: none;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    }
+    .tl-mark:hover .tl-tip { display: block; }
+    .tl-labels { display: flex; justify-content: space-between; margin-top: 4px; font-family: var(--font-caps); font-size: 0.55rem; letter-spacing: 0.1em; color: var(--faded); text-transform: uppercase; }
 
-    /* vignette + parchment wash over the map */
+    /* ═══ MAP STAGE ═══ */
+    .map-stage { position: relative; flex: 1; min-width: 0; overflow: hidden; background: var(--map-bg); }
+    #map { position: absolute; inset: 0; height: 100%; background: var(--map-bg); }
+
+    .leaflet-tile-pane {
+      filter: var(--tile-base-filter) var(--tile-zoom-filter);
+      transition: filter 0.6s ease;
+    }
+    body, #ledger, .map-vignette { transition: background 0.6s ease, box-shadow 0.6s ease; }
+
     .map-vignette {
       position: absolute; inset: 0; pointer-events: none; z-index: 450;
-      box-shadow: inset 0 0 150px 30px rgba(56,41,26,0.34);
-      background: radial-gradient(120% 90% at 50% 45%, rgba(233,220,190,0) 55%, rgba(205,185,136,0.28) 100%);
+      box-shadow: inset 0 0 180px 40px var(--wash);
+      background: radial-gradient(110% 85% at 50% 45%, rgba(232,220,196,0) 50%, rgba(180,150,90,0.32) 100%);
       mix-blend-mode: multiply;
     }
 
-    /* compass rose + rhumb lines, bottom-right */
     .compass {
       position: absolute; right: 26px; bottom: 26px; width: 184px; height: 184px;
       z-index: 460; pointer-events: none; color: var(--ink);
@@ -353,7 +388,6 @@
     }
     @keyframes compassIn { to { opacity: 0.92; transform: rotate(0) scale(1); } }
 
-    /* sea-serpent marginalia, top-right */
     .marginalia {
       position: absolute; right: 30px; top: 22px; width: 240px;
       z-index: 455; pointer-events: none; color: var(--ink-2);
@@ -364,42 +398,85 @@
       font-family: var(--font-old); font-style: italic; fill: var(--rubric);
     }
 
-    /* ── empty state ──────────────────────────────────────── */
+    /* ── empty state ── */
     #empty-state {
-      position: absolute; top: 46%; left: 50%; transform: translate(-50%,-50%);
+      position: absolute; top: 46%; left: calc(50% + var(--ledger-w) / 2); transform: translate(-50%,-50%);
       text-align: center; pointer-events: none; z-index: 470;
       transition: opacity 0.5s; max-width: 360px;
     }
     #empty-state.hidden { opacity: 0; }
-    #empty-state .glyph { color: var(--edge); margin-bottom: 14px; }
+    #empty-state .glyph { color: var(--edge); margin-bottom: 16px; }
     #empty-state h2 {
       font-family: var(--font-old); font-style: italic; font-weight: 400;
-      font-size: 1.5rem; color: var(--ink-2);
+      font-size: 1.5rem; line-height: 1.3; color: var(--ink-2); text-wrap: balance;
     }
-    #empty-state p { font-family: var(--font-caps); font-size: 0.66rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--faded); margin-top: 10px; }
+    #empty-state p { font-family: var(--font-caps); font-size: 0.66rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--faded); margin-top: 14px; }
 
-    /* ── leaflet div-icon resets ──────────────────────────── */
+    /* ── leaflet div-icon resets ── */
     .leaflet-div-icon.mk { background: transparent; border: none; }
 
-    .mk-seal {
-      width: 30px; height: 30px; border-radius: 50%;
+    .mk-pin {
+      width: 28px; height: 28px;
+      border-radius: 50% 50% 50% 0;
+      transform: rotate(-45deg);
       background:
-        radial-gradient(circle at 36% 30%,
+        radial-gradient(circle at 70% 28%,
           color-mix(in srgb, var(--c) 72%, #fff 28%),
           var(--c) 58%,
           color-mix(in srgb, var(--c) 72%, #000 28%) 100%);
       border: 2px solid rgba(56,41,26,0.55);
-      box-shadow: 0 2px 5px rgba(56,41,26,0.45), inset 0 0 0 2px rgba(255,250,235,0.32);
+      box-shadow: 0 3px 5px rgba(56,41,26,0.4), inset 0 0 0 2px rgba(255,250,235,0.30);
       display: flex; align-items: center; justify-content: center;
     }
-    .mk-seal span {
-      font-family: var(--font-caps); font-weight: 600; font-size: 0.74rem;
+    .mk-pin span {
+      transform: rotate(45deg);
+      font-family: var(--font-caps); font-weight: 600; font-size: 0.72rem;
       color: #fbf3e0; line-height: 1; text-shadow: 0 1px 1px rgba(0,0,0,0.45);
+    }
+    .mk-pin.drop-in, .mk-star.drop-in {
+      animation: dropIn 0.45s cubic-bezier(.22,1,.36,1) both;
+    }
+    @keyframes dropIn {
+      0%   { opacity: 0; transform: rotate(-45deg) scale(0.3) translateY(-18px); }
+      100% { opacity: 1; transform: rotate(-45deg) scale(1) translateY(0); }
+    }
+    .mk-star.drop-in {
+      animation-name: starDropIn;
+    }
+    @keyframes starDropIn {
+      0%   { opacity: 0; transform: scale(0.3) translateY(-14px); }
+      100% { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .mk-trail.trail-draw {
+      animation: trailFadeIn 0.25s ease-out both;
+    }
+    @keyframes trailFadeIn {
+      0%   { opacity: 0; transform: rotate(-45deg) scale(0); }
+      100% { opacity: var(--trail-op, 0.55); transform: rotate(-45deg) scale(1); }
+    }
+    .mk-pin.made-port { animation: madePort 1.5s cubic-bezier(.22,1,.36,1); }
+    @keyframes madePort {
+      0%   { box-shadow: 0 3px 5px rgba(56,41,26,0.4), inset 0 0 0 2px rgba(255,250,235,0.30), 0 0 0 0 rgba(166,124,51,0.6); }
+      28%  { box-shadow: 0 3px 7px rgba(56,41,26,0.5), inset 0 0 0 2px rgba(255,250,235,0.55), 0 0 0 7px rgba(166,124,51,0.4); }
+      100% { box-shadow: 0 3px 5px rgba(56,41,26,0.4), inset 0 0 0 2px rgba(255,250,235,0.30), 0 0 0 14px rgba(166,124,51,0); }
     }
     .mk-star {
       width: 17px; height: 17px; background: var(--c);
       clip-path: polygon(50% 0,61% 39%,100% 50%,61% 61%,50% 100%,39% 61%,0 50%,39% 39%);
       filter: drop-shadow(0 1px 2px rgba(56,41,26,0.5));
+    }
+    .mk-trail {
+      width: 12px; height: 12px;
+      border-radius: 50% 50% 50% 0;
+      transform: rotate(-45deg);
+      background:
+        radial-gradient(circle at 70% 28%,
+          color-mix(in srgb, var(--c) 72%, #fff 28%),
+          var(--c) 58%,
+          color-mix(in srgb, var(--c) 72%, #000 28%) 100%);
+      border: 1.2px solid rgba(56,41,26,0.45);
+      box-shadow: 0 1px 2px rgba(56,41,26,0.35);
+      opacity: var(--trail-op, 0.55);
     }
     .mk-cross {
       width: 26px; height: 26px; border-radius: 50%;
@@ -413,24 +490,27 @@
     .mk-cross span { color: #f7ecd2; font-size: 0.82rem; line-height: 1; }
     .mk-ship { color: var(--ink); animation: bob 2.6s ease-in-out infinite; filter: drop-shadow(0 2px 3px rgba(56,41,26,0.5)); }
     @keyframes bob { 0%,100% { transform: translateY(0) rotate(-2deg); } 50% { transform: translateY(-2px) rotate(2deg); } }
+    .mk-car { color: var(--ink); animation: drive 0.5s steps(2) infinite; filter: drop-shadow(0 2px 3px rgba(56,41,26,0.5)); }
+    @keyframes drive { 0%,100% { transform: translateY(0); } 50% { transform: translateY(0.6px); } }
+    .mk-carriage { color: var(--ink); animation: trot 0.6s ease-in-out infinite; filter: drop-shadow(0 2px 3px rgba(56,41,26,0.5)); }
+    @keyframes trot { 0%,100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-1.2px) rotate(0.8deg); } }
 
-    /* ── leaflet popup, themed as a paper label ───────────── */
+    /* ── leaflet popup ── */
     .leaflet-popup-content-wrapper {
       background: var(--vellum) !important;
-      border: 1px solid var(--edge) !important;
+      border: 2px solid var(--gilt) !important;
       border-radius: 2px !important;
-      box-shadow: 0 6px 26px rgba(56,41,26,0.34) !important;
+      box-shadow: 0 8px 30px rgba(42,28,12,0.4) !important;
       color: var(--ink) !important;
     }
     .leaflet-popup-content-wrapper::before {
-      content: ""; position: absolute; inset: 3px; border: 1px solid rgba(140,59,43,0.3);
+      content: ""; position: absolute; inset: 3px; border: 1px solid color-mix(in srgb, var(--gilt) 40%, transparent);
       pointer-events: none; border-radius: 1px;
     }
     .leaflet-popup-tip { background: var(--vellum) !important; border: 1px solid var(--edge) !important; }
     .leaflet-popup-content { margin: 15px 18px !important; min-width: 210px; max-width: 264px; line-height: 1.5 !important; }
     .leaflet-popup-close-button { color: var(--faded) !important; }
 
-    /* framed engraving plate at the head of a popup */
     .pop-plate {
       position: relative; width: 100%; aspect-ratio: 3 / 2;
       margin: -3px 0 11px; overflow: hidden;
@@ -440,7 +520,7 @@
     }
     .pop-plate::after {
       content: ""; position: absolute; inset: 0; pointer-events: none;
-      box-shadow: inset 0 0 0 3px rgba(233,220,190,0.92), inset 0 0 0 4px rgba(140,59,43,0.4);
+      box-shadow: inset 0 0 0 3px color-mix(in srgb, var(--vellum) 92%, transparent), inset 0 0 0 4.5px color-mix(in srgb, var(--gilt) 50%, transparent);
     }
     .pop-plate img {
       position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
@@ -453,7 +533,9 @@
       position: absolute; inset: 0; display: flex; flex-direction: column;
       align-items: center; justify-content: center; gap: 7px; color: var(--faded);
       transition: opacity 0.45s ease;
-      background: repeating-linear-gradient(45deg, rgba(138,113,72,0.08) 0 6px, transparent 6px 12px);
+      background:
+        repeating-linear-gradient(45deg, rgba(42,28,12,0.06) 0 4px, transparent 4px 8px),
+        repeating-linear-gradient(-45deg, rgba(42,28,12,0.04) 0 4px, transparent 4px 8px);
     }
     .pop-plate.loaded .pop-plate-ph { opacity: 0; }
     .pop-plate-ph svg { opacity: 0.65; }
@@ -466,33 +548,210 @@
     .pop-footer { border-top: 1px solid var(--edge); padding-top: 8px; font-size: 0.8rem; color: var(--faded); display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
     .pop-footer em { flex: 1; font-family: var(--font-caps); font-style: normal; font-size: 0.72rem; letter-spacing: 0.04em; color: var(--ink-2); }
     .pop-note { font-size: 0.78rem; color: var(--faded); font-style: italic; margin-top: 6px; font-family: var(--font-old); }
-    .pop-prompt-btn { display: block; width: 100%; margin-top: 8px; padding: 4px 8px; font-family: var(--font); font-size: 0.76rem; background: var(--paper-dk); border: 1px solid var(--edge); color: var(--ink-2); cursor: pointer; border-radius: 2px; transition: background 0.15s, color 0.15s; text-align: center; }
-    .pop-prompt-btn:hover { background: var(--paper); color: var(--ink); border-color: var(--ink-2); }
+    .pop-leg { font-size: 0.78rem; color: var(--faded); font-family: var(--font-old); margin-bottom: 8px; display: flex; align-items: baseline; gap: 6px; }
+    .pop-leg svg { flex-shrink: 0; transform: translateY(1px); }
+    .pop-prompt-btn { display: block; width: 100%; margin-top: 8px; padding: 4px 8px; font-family: var(--font-old); font-size: 0.76rem; background: var(--vellum-3); border: 1px solid var(--edge); color: var(--ink-2); cursor: pointer; border-radius: 2px; transition: background 0.15s, color 0.15s; text-align: center; }
+    .pop-prompt-btn:hover { background: var(--vellum); color: var(--ink); border-color: var(--ink-2); }
     .pop-books { font-family: var(--font-old); font-size: 0.9rem; color: var(--ink-2); line-height: 1.6; }
     .pop-books b { color: var(--ink); font-weight: 600; }
 
     .leaflet-control-scale-line {
-      background: rgba(233,220,190,0.85) !important; border: 1px solid var(--ink-2) !important;
+      background: rgba(232,220,196,0.88) !important; border: 1px solid var(--ink-2) !important;
       border-top: none !important; color: var(--ink) !important;
       font-family: var(--font-caps) !important; font-size: 0.6rem !important; letter-spacing: 0.06em;
     }
     .leaflet-control-attribution {
-      background: rgba(233,220,190,0.8) !important; color: var(--faded) !important;
+      background: rgba(232,220,196,0.82) !important; color: var(--faded) !important;
       font-family: var(--font-body) !important; font-size: 0.64rem !important;
     }
     .leaflet-control-attribution a { color: var(--ink-2) !important; }
     .leaflet-bar a { background: var(--vellum) !important; color: var(--ink) !important; border-bottom-color: var(--edge) !important; }
     .leaflet-bar a:hover { background: var(--vellum-2) !important; }
 
-    /* ── mobile ───────────────────────────────────────────── */
+    /* ═══ READING MODE (the folio) ═══ */
+    .map-stage.reading .compass,
+    .map-stage.reading .marginalia { opacity: 0.25; transition: opacity 0.5s; }
+    .reading-veil {
+      position: absolute; inset: 0; z-index: 690; pointer-events: none; opacity: 0;
+      background: radial-gradient(120% 90% at 50% 120%, rgba(42,28,12,0.48) 0%, rgba(42,28,12,0.18) 38%, transparent 64%);
+      transition: opacity 0.55s ease;
+    }
+    .map-stage.reading .reading-veil { opacity: 1; }
+
+    #story {
+      position: absolute; left: 50%; bottom: 26px; z-index: 700;
+      width: min(680px, calc(100% - 56px));
+      transform: translate(-50%, 24px); opacity: 0; pointer-events: none;
+      transition: transform 0.5s cubic-bezier(.22,1,.36,1), opacity 0.45s ease;
+    }
+    #story.open { transform: translate(-50%, 0); opacity: 1; pointer-events: auto; }
+
+    .story-folio {
+      display: flex; gap: 0; position: relative;
+      background:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='6' height='6'%3E%3Cpath d='M0 6L6 0' stroke='%23382810' stroke-width='0.3' opacity='0.04'/%3E%3C/svg%3E"),
+        linear-gradient(180deg, var(--vellum) 0%, var(--vellum-2) 100%);
+      border: 2px solid var(--gilt);
+      box-shadow:
+        0 18px 48px rgba(42,28,12,0.45),
+        0 2px 0 0 var(--edge-soft),
+        inset 0 0 0 4px var(--vellum), inset 0 0 0 5.5px color-mix(in srgb, var(--gilt) 60%, transparent);
+      border-radius: 3px;
+    }
+    .story-folio::after {
+      content: ""; position: absolute; left: 188px; top: 14px; bottom: 14px; width: 1px;
+      background: linear-gradient(180deg, transparent, var(--edge), transparent); opacity: 0.6;
+    }
+    .story-plate {
+      flex: 0 0 168px; width: 168px; margin: 11px 0 11px 11px;
+      border: 1.5px solid var(--gilt); overflow: hidden; position: relative;
+      background: radial-gradient(120% 90% at 30% 12%, #ede0c4, #d4c296);
+    }
+    .story-plate .pop-plate { width: 100%; height: 100%; margin: 0; border: none; border-radius: 0; }
+    .story-plate .pop-plate img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+    .story-text { flex: 1; min-width: 0; padding: 17px 22px 16px 26px; }
+    .story-text.flip { animation: folioTurn 0.5s ease; }
+    @keyframes folioTurn { 0% { opacity: 0; transform: translateX(9px); } 100% { opacity: 1; transform: translateX(0); } }
+    .story-book {
+      font-family: var(--font-caps); font-size: 0.6rem; letter-spacing: 0.2em;
+      text-transform: uppercase; color: var(--rubric); margin-bottom: 7px;
+    }
+    .story-name {
+      font-family: var(--font-caps); font-weight: 600; font-size: 1.28rem; color: var(--ink);
+      line-height: 1.15; display: flex; align-items: center; gap: 10px;
+    }
+    .story-num {
+      flex: 0 0 auto; width: 23px; height: 23px; border-radius: 50%; color: #fbf3e0;
+      font-size: 0.74rem; display: inline-flex; align-items: center; justify-content: center;
+      box-shadow: inset 0 0 0 1.5px rgba(255,250,235,0.32), 0 1px 3px rgba(56,41,26,0.4);
+    }
+    .story-place {
+      font-family: var(--font-caps); font-size: 0.66rem; letter-spacing: 0.13em;
+      text-transform: uppercase; color: var(--faded); margin: 6px 0 11px;
+    }
+    .story-inbook {
+      font-family: var(--font-old); font-style: italic; font-size: 1.04rem; line-height: 1.5;
+      color: var(--ink-2); text-wrap: pretty;
+    }
+    .story-ref {
+      font-family: var(--font-body); font-size: 0.82rem; color: var(--faded);
+      margin-top: 10px; padding-top: 9px; border-top: 1px solid rgba(183,154,104,0.45);
+    }
+    .story-note {
+      font-family: var(--font-old); font-style: italic; font-size: 0.84rem; color: var(--rubric);
+      margin-top: 7px;
+    }
+
+    .story-x {
+      position: absolute; top: -13px; right: -13px; z-index: 3; width: 28px; height: 28px;
+      border-radius: 50%; border: 1.5px solid var(--rubric-dk); background: linear-gradient(160deg, var(--rubric), var(--rubric-dk));
+      color: #f5e4c0; font-size: 1.1rem; line-height: 1; cursor: pointer;
+      box-shadow: 0 2px 6px rgba(42,28,12,0.5); transition: transform 0.14s;
+    }
+    .story-x:hover { transform: scale(1.1) rotate(90deg); }
+
+    .story-nav {
+      display: flex; align-items: center; gap: 14px;
+      margin: 12px auto 0; padding: 7px 16px; width: max-content; max-width: 100%;
+      background: linear-gradient(180deg, var(--vellum-2), var(--vellum-3));
+      border: 1.5px solid var(--gilt); border-radius: 22px;
+      box-shadow: 0 6px 18px rgba(42,28,12,0.32);
+    }
+    .story-prev, .story-next {
+      width: 30px; height: 30px; flex: 0 0 auto; border-radius: 50%;
+      border: 1.5px solid var(--rubric-dk); background: linear-gradient(160deg, var(--rubric), var(--rubric-dk)); color: #f5e4c0;
+      font-size: 1.05rem; line-height: 1; cursor: pointer; transition: transform 0.12s, opacity 0.2s;
+      box-shadow: 0 2px 4px rgba(75,34,16,0.4);
+    }
+    .story-prev:hover, .story-next:hover { transform: scale(1.09); }
+    .story-prev:disabled, .story-next:disabled { opacity: 0.32; cursor: default; transform: none; }
+    .story-auto {
+      font-family: var(--font-caps); font-size: 0.62rem; letter-spacing: 0.13em; text-transform: uppercase;
+      color: var(--ink); background: transparent; border: 1px solid var(--edge);
+      border-radius: 14px; padding: 6px 13px; cursor: pointer; white-space: nowrap; transition: background 0.16s;
+    }
+    .story-auto:hover { background: rgba(166,124,51,0.16); }
+    .story-track { display: flex; align-items: center; gap: 7px; }
+    .story-pip {
+      width: 9px; height: 9px; border-radius: 50%; padding: 0; cursor: pointer;
+      border: 1px solid var(--edge); background: var(--vellum);
+      box-shadow: inset 0 0 0 1px rgba(255,250,235,0.4); transition: background 0.2s, transform 0.15s;
+    }
+    .story-pip:hover { transform: scale(1.3); }
+    .story-pip.done { background: var(--rubric); border-color: var(--rubric-dk); }
+
+    .voy-read {
+      display: flex; align-items: center; justify-content: center; gap: 7px; width: 100%;
+      margin-top: 11px; padding: 8px 0; cursor: pointer;
+      font-family: var(--font-caps); font-size: 0.64rem; letter-spacing: 0.16em; text-transform: uppercase;
+      color: var(--rubric); background: transparent;
+      border: 1px solid var(--edge); border-radius: 3px; transition: background 0.16s, color 0.16s;
+    }
+    .voy-read:hover { background: var(--rubric); color: #f5e9cf; border-color: var(--rubric-dk); }
+    .voy-read svg { width: 13px; height: 13px; }
+
+    /* ── tweaks toggle button ──
+    #tweaks-toggle {
+      position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%);
+      z-index: 9500; padding: 7px 18px;
+      font-family: var(--font-caps); font-size: 0.62rem; letter-spacing: 0.14em; text-transform: uppercase;
+      background: linear-gradient(180deg, var(--vellum), var(--vellum-2)); color: var(--ink-2);
+      border: 1.5px solid var(--gilt); border-radius: 14px; cursor: pointer;
+      box-shadow: 0 2px 8px rgba(42,28,12,0.25);
+      transition: background 0.16s, color 0.16s;
+    }
+    #tweaks-toggle:hover { background: linear-gradient(160deg, var(--rubric), var(--rubric-dk)); color: #f5e4c0; border-color: var(--rubric-dk); } */
+
+    @media (max-width: 600px) {
+      .story-folio { flex-direction: column; }
+      .story-folio::after { display: none; }
+      .story-plate { flex-basis: 120px; height: 120px; width: auto; margin: 11px 11px 0; }
+      .story-text { padding: 13px 16px 14px; }
+      .story-inbook { font-size: 0.96rem; }
+      #story { bottom: 14px; left: 8px; right: 8px; max-width: none; }
+    }
+
     @media (max-width: 720px) {
       #app { flex-direction: column; }
-      #ledger { width: 100%; min-width: 0; max-height: 46vh; border-right: none; border-bottom: 2px solid var(--edge); }
-      #ledger::after { display: none; }
-      .map-stage { flex: 1; min-height: 0; }
-      .compass { width: 120px; height: 120px; right: 16px; bottom: 16px; }
+      .map-stage { flex: 1; min-height: 0; order: -1; }
+      .compass { width: 100px; height: 100px; right: 12px; bottom: 12px; }
       .marginalia { display: none; }
-      #empty-state { top: 50%; }
+      #empty-state { top: 30%; left: 50%; }
+
+      #ledger {
+        width: 100%; min-width: 0; border-right: none;
+        position: fixed; bottom: 0; left: 0; right: 0; z-index: 900;
+        max-height: 52vh; height: auto;
+        border-top: 2px solid var(--edge);
+        border-radius: 14px 14px 0 0;
+        box-shadow: 0 -4px 20px rgba(56,41,26,0.18);
+        transition: max-height 0.35s cubic-bezier(.4,0,.2,1), transform 0.35s cubic-bezier(.4,0,.2,1);
+        display: flex; flex-direction: column;
+      }
+      #ledger::after { display: none; }
+      #ledger.collapsed { max-height: 54px; overflow: hidden; }
+
+      #sheet-handle {
+        display: flex; justify-content: center; padding: 8px 0 4px; cursor: pointer;
+        flex-shrink: 0; -webkit-tap-highlight-color: transparent;
+      }
+      #sheet-handle .bar {
+        width: 36px; height: 4px; border-radius: 2px;
+        background: var(--edge); opacity: 0.7;
+      }
+
+      #masthead { padding-top: 4px; }
+      #masthead h1 { font-size: 1rem; }
+      #masthead .sub, #masthead .est, #masthead .flourish { display: none; }
+      #controls { padding: 6px 16px 8px; gap: 6px; }
+      .ctrl-btn { font-size: 0.58rem; padding: 4px 9px; }
+      #journey-list { overflow-y: auto; flex: 1; min-height: 0; -webkit-overflow-scrolling: touch; }
+      .journey-header { padding: 10px 16px; }
+      .journey-meta, .journey-badge { padding: 0 16px; }
+
+      #legend, #timeline { display: none; }
+      #tweaks-toggle { bottom: auto; top: 12px; left: auto; right: 12px; transform: none; z-index: 9500; }
     }
   </style>
 </head>
@@ -501,12 +760,16 @@
 <div id="grain"></div>
 
 <div id="frame">
-  <!-- corner flourishes -->
-  <svg class="corner tl" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.3">
-    <path d="M2 24 C2 12 12 2 24 2" />
-    <path d="M2 16 C2 8 8 2 16 2" opacity="0.6" />
-    <circle cx="9" cy="9" r="2.4" fill="currentColor" stroke="none" />
-    <path d="M24 2 q6 0 10 4 M2 24 q0 6 4 10" opacity="0.5" />
+  <svg class="corner tl" viewBox="0 0 56 56" fill="none" stroke="currentColor" stroke-width="1.2">
+    <path d="M2 28 C2 13 13 2 28 2" stroke-width="1.6"/>
+    <path d="M2 20 C2 9 9 2 20 2" opacity="0.7"/>
+    <path d="M6 28 C6 15 15 6 28 6" opacity="0.35" stroke-dasharray="2 2"/>
+    <circle cx="10" cy="10" r="3.2" fill="currentColor" stroke="none"/>
+    <circle cx="10" cy="10" r="5" opacity="0.5"/>
+    <path d="M28 2 q4 0 7 2 q-3 2 -7 2" opacity="0.6" fill="currentColor" fill-opacity="0.15"/>
+    <path d="M2 28 q0 4 2 7 q2 -3 2 -7" opacity="0.6" fill="currentColor" fill-opacity="0.15"/>
+    <path d="M15 2 q-2 5-1 8 q3-1 5-4" opacity="0.4" stroke-width="0.9"/>
+    <path d="M2 15 q5-2 8-1 q-1 3-4 5" opacity="0.4" stroke-width="0.9"/>
   </svg>
   <svg class="corner tr" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.3">
     <path d="M2 24 C2 12 12 2 24 2" />
@@ -531,15 +794,27 @@
 <div id="app">
   <aside id="ledger">
 
+    <div id="sheet-handle"><div class="bar"></div></div>
+
     <div id="masthead">
-      <svg class="flourish" width="150" height="16" viewBox="0 0 150 16" fill="none" stroke="currentColor" stroke-width="1.2">
-        <path d="M2 8 H58 M92 8 H148" />
-        <path d="M58 8 q8 -6 17 0 q9 6 17 0" />
-        <circle cx="75" cy="8" r="2.6" fill="currentColor" stroke="none" />
-        <path d="M58 8 l-5 -4 M58 8 l-5 4 M92 8 l5 -4 M92 8 l5 4" opacity="0.7" />
+      <svg class="flourish" width="180" height="20" viewBox="0 0 180 20" fill="none" stroke="currentColor" stroke-width="1.1">
+        <path d="M2 10 H52 M128 10 H178" opacity="0.6"/>
+        <path d="M52 10 q6 -8 14 -4 q4 3 8 0 q4 -3 8 0 q4 3 8 0 q8 -4 14 4" opacity="0.8"/>
+        <path d="M52 10 q6 8 14 4 q4 -3 8 0 q4 3 8 0 q4 -3 8 0 q8 4 14 -4" opacity="0.5"/>
+        <circle cx="90" cy="10" r="3" fill="currentColor" stroke="none"/>
+        <circle cx="90" cy="10" r="5" opacity="0.4"/>
+        <path d="M48 10 l-4 -4 M48 10 l-4 4" opacity="0.5" stroke-width="0.9"/>
+        <path d="M132 10 l4 -4 M132 10 l4 4" opacity="0.5" stroke-width="0.9"/>
+        <circle cx="56" cy="10" r="1.3" fill="currentColor" stroke="none" opacity="0.5"/>
+        <circle cx="124" cy="10" r="1.3" fill="currentColor" stroke="none" opacity="0.5"/>
       </svg>
       <h1>Literary Journeys</h1>
       <div class="sub">An Atlas of Imagined Voyages</div>
+      <svg class="flourish" width="120" height="10" viewBox="0 0 120 10" fill="none" stroke="currentColor" stroke-width="0.8" style="height:10px;margin:8px auto 0">
+        <path d="M10 5 H46 M74 5 H110" opacity="0.4"/>
+        <path d="M46 5 q7 -4 14 0 q7 4 14 0" opacity="0.6"/>
+        <circle cx="60" cy="5" r="1.5" fill="currentColor" stroke="none" opacity="0.6"/>
+      </svg>
       <div class="est">Charted &middot; Mappa Mundi Libraria</div>
     </div>
 
@@ -566,21 +841,30 @@
     <div id="legend">
       <div class="legend-title">The Map Key</div>
       <div class="legend-row">
-        <div class="legend-icon"><div class="mk-seal" style="--c:#8a7150;width:18px;height:18px;"><span style="font-size:0.5rem">3</span></div></div>
-        <span>Numbered port of call &mdash; a charted route</span>
+        <div class="legend-icon"><div class="mk-pin" style="--c:var(--faded);width:18px;height:18px;"><span style="font-size:0.5rem">3</span></div></div>
+        <span>A numbered port of call</span>
       </div>
       <div class="legend-row">
-        <div class="legend-icon"><div style="--c:#8a7150;" class="mk-star"></div></div>
-        <span>Scattered place &mdash; a constellation</span>
+        <div class="legend-icon"><div style="--c:var(--faded);" class="mk-star"></div></div>
+        <span>A place in a constellation</span>
       </div>
       <div class="legend-row">
-        <div class="legend-icon"><svg width="24" height="8"><line x1="1" y1="4" x2="23" y2="4" stroke="#8a7150" stroke-width="2" stroke-dasharray="5,4"/></svg></div>
+        <div class="legend-icon" style="display:flex;gap:3px;align-items:flex-end;"><div class="mk-trail" style="--c:var(--faded);--trail-op:0.7;width:8px;height:8px"></div><div class="mk-trail" style="--c:var(--faded);--trail-op:0.7;width:8px;height:8px"></div><div class="mk-trail" style="--c:var(--faded);--trail-op:0.7;width:8px;height:8px"></div></div>
         <span>The course of a voyage</span>
       </div>
       <div class="legend-row">
-        <div class="legend-icon"><div class="mk-cross" style="width:18px;height:18px;animation:none;"><span style="font-size:0.55rem">✶</span></div></div>
+        <div class="legend-icon"><div class="mk-cross" style="width:18px;height:18px;animation:none;"><span style="font-size:0.55rem">&#10038;</span></div></div>
         <span>Where two voyages cross</span>
       </div>
+    </div>
+
+    <div id="timeline">
+      <div class="tl-title">Timeline of Voyages</div>
+      <div class="tl-track">
+        <div class="tl-axis"></div>
+        <div id="tl-marks"></div>
+      </div>
+      <div class="tl-labels"><span id="tl-min"></span><span id="tl-max"></span></div>
     </div>
 
   </aside>
@@ -588,8 +872,8 @@
   <div class="map-stage">
     <div id="map"></div>
     <div class="map-vignette"></div>
+    <div class="reading-veil"></div>
 
-    <!-- sea-serpent marginalia -->
     <svg class="marginalia" viewBox="0 0 240 80" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
       <path d="M6 54 q12 -22 24 0 q12 22 24 0 q12 -22 24 0 q12 22 24 0 q10 -18 22 -8" />
       <path d="M150 46 q10 -7 22 -3 q9 3 8 13 q-1 8 -10 9 q-9 1 -12 -7" />
@@ -599,7 +883,6 @@
       <text x="14" y="20" class="legend-words" font-size="15" stroke="none">Heere be Dragons</text>
     </svg>
 
-    <!-- compass rose -->
     <svg class="compass" viewBox="0 0 200 200" fill="none">
       <defs>
         <g id="card">
@@ -611,8 +894,6 @@
           <polygon points="100,100 100,42 106,68" fill="currentColor" fill-opacity="0.32" />
         </g>
       </defs>
-
-      <!-- rhumb lines -->
       <g stroke="currentColor" stroke-width="0.5" opacity="0.28">
         <line x1="100" y1="100" x2="100" y2="6"/><line x1="100" y1="100" x2="194" y2="100"/>
         <line x1="100" y1="100" x2="100" y2="194"/><line x1="100" y1="100" x2="6" y2="100"/>
@@ -623,26 +904,20 @@
         <line x1="100" y1="100" x2="64" y2="188"/><line x1="100" y1="100" x2="12" y2="136"/>
         <line x1="100" y1="100" x2="12" y2="64"/><line x1="100" y1="100" x2="64" y2="12"/>
       </g>
-
       <circle cx="100" cy="100" r="84" stroke="currentColor" stroke-width="1" opacity="0.55"/>
       <circle cx="100" cy="100" r="78" stroke="currentColor" stroke-width="0.5" opacity="0.4"/>
-
-      <!-- ordinal points -->
       <use href="#ord" transform="rotate(45 100 100)"/>
       <use href="#ord" transform="rotate(135 100 100)"/>
       <use href="#ord" transform="rotate(225 100 100)"/>
       <use href="#ord" transform="rotate(315 100 100)"/>
-      <!-- cardinal points -->
       <use href="#card"/>
       <use href="#card" transform="rotate(90 100 100)"/>
       <use href="#card" transform="rotate(180 100 100)"/>
       <use href="#card" transform="rotate(270 100 100)"/>
-
       <circle cx="100" cy="100" r="6" fill="currentColor" fill-opacity="0.8"/>
-      <circle cx="100" cy="100" r="2.4" fill="#e9dcbe"/>
-
+      <circle cx="100" cy="100" r="2.4" fill="#e8dcc4"/>
       <g fill="currentColor" font-family="Cinzel, serif" font-weight="600" font-size="13" text-anchor="middle">
-        <text x="100" y="14" fill="#8c3b2b">N</text>
+        <text x="100" y="14" fill="#6b3018">N</text>
         <text x="192" y="105">E</text>
         <text x="100" y="200">S</text>
         <text x="8"  y="105">W</text>
@@ -661,27 +936,12 @@
   <p>Select from the volumes at left</p>
 </div>
 
+<button id="tweaks-toggle" onclick="window.__toggleTweaks && window.__toggleTweaks()">&#9881; Tweaks</button>
+
 <script>
-// ╔═══════════════════════════════════════════════════════════════╗
-// ║  JOURNEY DATA                                                ║
-// ║  To add a new book, copy any object below and fill in:       ║
-// ║    id        unique slug, e.g. "my-book"                     ║
-// ║    title     book title                                      ║
-// ║    author    author name                                     ║
-// ║    year      publication year / date                         ║
-// ║    type      "route"         ordered stops + connecting line  ║
-// ║              "constellation" unordered places, no line       ║
-// ║    color     hex colour for markers and line                 ║
-// ║    blurb     one-line description                            ║
-// ║    stops[]   array of stop objects, each with:               ║
-// ║      name        place name in the book                      ║
-// ║      realPlace   real-world location                         ║
-// ║      coords      [latitude, longitude]                       ║
-// ║      inBook      what happens here / role in narrative       ║
-// ║      reference   chapter / book / part reference             ║
-// ║      note        (optional) caveats about the location       ║
-// ║      image       (optional) URL of a picture for the popup   ║
-// ╚═══════════════════════════════════════════════════════════════╝
+// ═══════════════════════════════════════════════════════════════
+//  JOURNEY DATA
+// ═══════════════════════════════════════════════════════════════
 
 const JOURNEYS = [
   // ─── 1. The Odyssey ──────────────────────────────────────────────
@@ -1291,6 +1551,7 @@ const JOURNEYS = [
       },
       {
         name:        "Hong Kong",
+        vessel:      "ship",
         realPlace:   "Hong Kong",
         coords:      [22.3193, 114.1694],
         inBook:      "Steamship transfer point.",
@@ -1344,6 +1605,7 @@ const JOURNEYS = [
       },
       {
         name:        "The Company's Station",
+        vessel:      "ship",
         realPlace:   "Matadi / Boma region, DR Congo",
         coords:      [-5.82, 13.46],
         inBook:      "Marlow arrives at the Outer Station amid wasteful colonial decay.",
@@ -1353,6 +1615,7 @@ const JOURNEYS = [
       },
       {
         name:        "The Central Station",
+        vessel:      "ship",
         realPlace:   "Kinshasa (Léopoldville), DR Congo",
         coords:      [-4.32, 15.31],
         inBook:      "He waits for rivets and meets the scheming manager.",
@@ -1439,6 +1702,7 @@ const JOURNEYS = [
     stops: [
       {
         name:        "New Bedford",
+        vessel:      "ship",
         realPlace:   "New Bedford, Massachusetts",
         coords:      [41.64, -70.93],
         inBook:      "Ishmael lodges with Queequeg before shipping out.",
@@ -1447,6 +1711,7 @@ const JOURNEYS = [
       },
       {
         name:        "Nantucket",
+        vessel:      "ship",
         realPlace:   "Nantucket, Massachusetts",
         coords:      [41.28, -70.1],
         inBook:      "The Pequod sails on Christmas Day under Captain Ahab.",
@@ -1455,6 +1720,7 @@ const JOURNEYS = [
       },
       {
         name:        "Cape of Good Hope",
+        vessel:      "ship",
         realPlace:   "Cape of Good Hope, South Africa",
         coords:      [-34.36, 18.47],
         inBook:      "The ship rounds Africa into the Indian Ocean grounds.",
@@ -1463,6 +1729,7 @@ const JOURNEYS = [
       },
       {
         name:        "Indian Ocean grounds",
+        vessel:      "ship",
         realPlace:   "Indian Ocean, off the Sunda Strait",
         coords:      [-6, 105],
         inBook:      "Whale hunts and gam encounters on the way east.",
@@ -1540,6 +1807,7 @@ const JOURNEYS = [
     stops: [
       {
         name:        "Marseille",
+        vessel:      "ship",
         realPlace:   "Marseille, France",
         coords:      [43.296, 5.37],
         inBook:      "On the eve of his wedding, Dantès is denounced and arrested.",
@@ -1548,6 +1816,7 @@ const JOURNEYS = [
       },
       {
         name:        "Château d'If",
+        vessel:      "ship",
         realPlace:   "Château d'If, Marseille, France",
         coords:      [43.28, 5.325],
         inBook:      "Fourteen years of imprisonment; he meets the Abbé Faria and escapes.",
@@ -1556,6 +1825,7 @@ const JOURNEYS = [
       },
       {
         name:        "Island of Monte Cristo",
+        vessel:      "ship",
         realPlace:   "Isola di Montecristo, Italy",
         coords:      [42.349, 10.321],
         inBook:      "Dantès recovers Faria's hidden fortune and takes his new name.",
@@ -1653,49 +1923,29 @@ const JOURNEYS = [
 ]; // ── end JOURNEYS ─────────────────────────────────────────────────
 
 
-// ╔═══════════════════════════════════════════════════════════════╗
-// ║  STATE                                                       ║
-// ╚═══════════════════════════════════════════════════════════════╝
+// ═══════════════════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════════════════
 
 const state = {
   activeIds: new Set(),
-  layers:    {},          // id -> { markers: [], polyline: null }
+  layers:    {},
 };
 
-// the voyage console (one playing/scrubbed route at a time)
-const voyage = { id: null, step: 0, playing: false, timer: null, ship: null, poly: null };
-
-// the crossings overlay
+const voyage = { id: null, step: 0, head: 0, playing: false, timer: null, raf: null, ship: null, poly: null, path: null };
 const crossings = { on: false, markers: [], data: [] };
-
 let firstRender = true;
 
-const STEP_MS = 2000;   // ms between stops while playing
-const FLY     = 1.2;    // seconds for a flyTo
-
+const STEP_MS = 2000;
+const FLY     = 1.2;
 const byId = id => JOURNEYS.find(j => j.id === id);
 
-function stopZoomFor(id) {
-  const j = byId(id);
-  if (!j || j.stops.length < 2) return 14;
-  const lats = j.stops.map(s => s.coords[0]);
-  const lngs = j.stops.map(s => s.coords[1]);
-  const span = Math.max(Math.max(...lats) - Math.min(...lats), Math.max(...lngs) - Math.min(...lngs));
-  if (span < 0.3) return 14;
-  if (span < 1)   return 11;
-  if (span < 5)   return 8;
-  if (span < 20)  return 6;
-  return 4;
-}
 
+// ═══════════════════════════════════════════════════════════════
+//  GEOGRAPHY HELPERS
+// ═══════════════════════════════════════════════════════════════
 
-// ╔═══════════════════════════════════════════════════════════════╗
-// ║  GEOGRAPHY HELPERS                                           ║
-// ╚═══════════════════════════════════════════════════════════════╝
-
-const R_KM         = 6371;
-const KM_PER_NMI   = 1.852;
-const KM_PER_LEAGUE = 5.556;   // one nautical league ≈ 3 nmi
+const R_KM = 6371;
 
 function haversine(a, b) {
   const toRad = d => d * Math.PI / 180;
@@ -1707,45 +1957,61 @@ function haversine(a, b) {
   return 2 * R_KM * Math.asin(Math.sqrt(h));
 }
 
-function routeDistanceKm(j) {
-  let d = 0;
-  for (let i = 1; i < j.stops.length; i++) d += haversine(j.stops[i - 1].coords, j.stops[i].coords);
-  return d;
-}
 
-function spanKm(j) {
-  const b = L.latLngBounds(j.stops.map(s => s.coords));
-  return haversine([b.getSouth(), b.getWest()], [b.getNorth(), b.getEast()]);
-}
-
-const fmt = n => Math.round(n).toLocaleString('en-US');
-
-
-// ╔═══════════════════════════════════════════════════════════════╗
-// ║  MAP                                                         ║
-// ╚═══════════════════════════════════════════════════════════════╝
+// ═══════════════════════════════════════════════════════════════
+//  MAP
+// ═══════════════════════════════════════════════════════════════
 
 const map = L.map('map', { center: [42, 12], zoom: 3, zoomControl: true, worldCopyJump: true });
 
-L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+const BASEMAPS = {
+  parchment: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+  slate:     'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+  voyager:   'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+};
+const TILE_OPTS = {
   attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
   subdomains:  'abcd',
   maxZoom:     19
-}).addTo(map);
+};
+
+let baseTiles = L.tileLayer(BASEMAPS.parchment, TILE_OPTS).addTo(map);
+
+window.__atlasMap = map;
+window.__setBasemap = key => {
+  const url = BASEMAPS[key] || BASEMAPS.parchment;
+  const next = L.tileLayer(url, TILE_OPTS).addTo(map);
+  next.once('load', () => { if (baseTiles) map.removeLayer(baseTiles); baseTiles = next; });
+  setTimeout(() => { if (baseTiles && baseTiles !== next) { map.removeLayer(baseTiles); baseTiles = next; } }, 1200);
+};
 
 L.control.scale({ imperial: true, metric: true, position: 'bottomleft' }).addTo(map);
 
+function tuneTileContrast() {
+  const z = map.getZoom();
+  const t = Math.max(0, Math.min(1, (z - 9) / 5));
+  const contrast   = (1 + 0.40 * t).toFixed(3);
+  const brightness = (1 - 0.10 * t).toFixed(3);
+  const saturate   = (1 + 0.08 * t).toFixed(3);
+  document.documentElement.style.setProperty(
+    '--tile-zoom-filter',
+    `contrast(${contrast}) brightness(${brightness}) saturate(${saturate})`
+  );
+}
+map.on('zoomend', tuneTileContrast);
+tuneTileContrast();
 
-// ╔═══════════════════════════════════════════════════════════════╗
-// ║  ICONS                                                       ║
-// ╚═══════════════════════════════════════════════════════════════╝
+
+// ═══════════════════════════════════════════════════════════════
+//  ICONS
+// ═══════════════════════════════════════════════════════════════
 
 function sealIcon(color, num) {
   return L.divIcon({
     className:   'mk',
-    html:        `<div class="mk-seal" style="--c:${color}"><span>${num}</span></div>`,
-    iconSize:    [30, 30],
-    iconAnchor:  [15, 15],
+    html:        `<div class="mk-pin" style="--c:${color}"><span>${num}</span></div>`,
+    iconSize:    [28, 36],
+    iconAnchor:  [14, 32],
     popupAnchor: [0, -16],
   });
 }
@@ -1763,7 +2029,7 @@ function starIcon(color) {
 function crossIcon() {
   return L.divIcon({
     className:   'mk',
-    html:        `<div class="mk-cross"><span>✶</span></div>`,
+    html:        `<div class="mk-cross"><span>&#10038;</span></div>`,
     iconSize:    [26, 26],
     iconAnchor:  [13, 13],
     popupAnchor: [0, -14],
@@ -1787,20 +2053,91 @@ function shipIcon() {
   });
 }
 
+const CAR_SVG = `<svg width="28" height="20" viewBox="0 0 28 20" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round">
+  <path d="M2 14 L4 9 H11 L15 5 H19 L21 9 H25 Q26 9 26 11 V14 Z" fill="#e9dcbe"/>
+  <line x1="11" y1="9" x2="11" y2="5"/>
+  <line x1="15" y1="9" x2="15" y2="5"/>
+  <circle cx="8"  cy="15" r="2.6" fill="#f3e6c8"/>
+  <circle cx="20" cy="15" r="2.6" fill="#f3e6c8"/>
+  <line x1="3" y1="8" x2="6" y2="8" stroke="#8c3b2b"/>
+</svg>`;
 
-// ╔═══════════════════════════════════════════════════════════════╗
-// ║  POPUP CONTENT                                               ║
-// ╚═══════════════════════════════════════════════════════════════╝
+function carIcon() {
+  return L.divIcon({
+    className:  'mk',
+    html:       `<div class="mk-car">${CAR_SVG}</div>`,
+    iconSize:   [28, 20],
+    iconAnchor: [14, 16],
+  });
+}
 
-// engraved landscape glyph shown while a plate is empty or loading
+const CARRIAGE_SVG = `<svg width="30" height="22" viewBox="0 0 30 22" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" stroke-linecap="round">
+  <path d="M8 8 Q8 3 14 3 H20 Q24 3 24 8 V12 H8 Z" fill="#e9dcbe"/>
+  <path d="M10 5 Q10 3 14 3" fill="none"/>
+  <path d="M6 12 H26 L25 14 H7 Z" fill="#d9c89e"/>
+  <line x1="3" y1="14" x2="8" y2="14"/>
+  <circle cx="9"  cy="17" r="3" fill="#f3e6c8"/>
+  <circle cx="9"  cy="17" r="1.2" fill="none"/>
+  <circle cx="23" cy="17" r="3" fill="#f3e6c8"/>
+  <circle cx="23" cy="17" r="1.2" fill="none"/>
+</svg>`;
+
+function carriageIcon() {
+  return L.divIcon({
+    className:  'mk',
+    html:       `<div class="mk-carriage">${CARRIAGE_SVG}</div>`,
+    iconSize:   [30, 22],
+    iconAnchor: [15, 18],
+  });
+}
+
+function vesselIcon(type) {
+  if (type === 'car') return carIcon();
+  if (type === 'carriage') return carriageIcon();
+  return shipIcon();
+}
+
+function legTransport(a, b) {
+  const [lat1, lon1] = a, [lat2, lon2] = b;
+  if ((lon1 < -30) !== (lon2 < -30)) return 'ship';
+  if (lon1 < -30 && lon2 < -30) return 'car';
+  if ((lat1 < 35) !== (lat2 < 35) && lon1 > -20 && lon2 > -20 && lon1 < 45 && lon2 < 45) return 'ship';
+  const med = (la, lo) => la > 33 && la < 42 && lo > 8 && lo < 28;
+  if (med(lat1, lon1) && med(lat2, lon2)) return 'ship';
+  const zone = lo => lo < 45 ? 0 : lo < 100 ? 1 : 2;
+  if (lon1 > -30 && lon2 > -30 && zone(lon1) !== zone(lon2)) return 'ship';
+  return 'car';
+}
+
+function eraYear(yearStr) {
+  if (/bce|bc|ancient/i.test(yearStr)) return 0;
+  const c = yearStr.match(/(\d+)\w*\s*century/i);
+  if (c) return (+c[1] - 1) * 100;
+  const m = yearStr.match(/(\d{3,4})/);
+  return m ? +m[1] : 1900;
+}
+
+function legVessel(journey, stepIdx) {
+  const from = journey.stops[stepIdx];
+  const to = journey.stops[stepIdx + 1];
+  if (!from || !to) return 'ship';
+  if (from.vessel) return from.vessel;
+  const mode = legTransport(from.coords, to.coords);
+  if (mode === 'ship') return 'ship';
+  return eraYear(journey.year) < 1886 ? 'carriage' : 'car';
+}
+
+
+// ═══════════════════════════════════════════════════════════════
+//  POPUP CONTENT
+// ═══════════════════════════════════════════════════════════════
+
 const PLATE_GLYPH = `<svg width="30" height="30" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round">
   <circle cx="22.5" cy="9.5" r="3"/>
   <path d="M3 24 L11 14 L17 21 L21.5 16 L29 24 Z"/>
   <path d="M3 27 H29" opacity="0.55"/>
 </svg>`;
 
-// Reserve a framed image slot. Shows the picture if `stop.image` loads;
-// otherwise falls back to the engraved "awaiting plate" placeholder.
 function buildPlate(stop) {
   const ph = `<div class="pop-plate-ph">${PLATE_GLYPH}<span>Awaiting plate</span></div>`;
   if (stop.image) {
@@ -1812,61 +2149,151 @@ function buildPlate(stop) {
   return `<div class="pop-plate missing">${ph}</div>`;
 }
 
+function travelEstimate(km, vessel) {
+  const speeds = { ship: 265, carriage: 50, car: 640 };
+  const labels = { ship: 'by sail', carriage: 'by carriage', car: 'by road' };
+  const days = km / (speeds[vessel] || 265);
+  const time = days < 1 ? `${Math.max(1, Math.round(days * 24))} hr`
+    : days < 2 ? '1 day' : `${Math.round(days)} days`;
+  return `~${Math.round(km).toLocaleString()} km · ~${time} ${labels[vessel] || 'by sail'}`;
+}
+
+const LEG_ARROW = `<svg width="12" height="8" viewBox="0 0 12 8" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M0 4H10M7 1l3 3-3 3"/></svg>`;
+
 function buildPopup(stop, journey, idx) {
   const badge = journey.type === 'route'
     ? `<span class="pop-num" style="background:${journey.color}">${idx + 1}</span>` : '';
+  let legInfo = '';
+  if (journey.type === 'route' && idx > 0) {
+    const prev = journey.stops[idx - 1];
+    const km = haversine(prev.coords, stop.coords);
+    const vessel = legVessel(journey, idx - 1);
+    legInfo = `<div class="pop-leg">${LEG_ARROW} ${travelEstimate(km, vessel)}</div>`;
+  }
   return `
     ${buildPlate(stop)}
     <div class="pop-name">${badge}${stop.name}</div>
     <div class="pop-place">${stop.realPlace}</div>
+    ${legInfo}
     <div class="pop-inbook">${stop.inBook}</div>
     <div class="pop-footer">
       <em>${journey.title}</em>
       <span>${stop.reference}</span>
     </div>
-    ${stop.note ? `<div class="pop-note">⁎ ${stop.note}</div>` : ''}
+    ${stop.note ? `<div class="pop-note">&#8270; ${stop.note}</div>` : ''}
     ${stop.imagePrompt ? `<button class="pop-prompt-btn" onclick="navigator.clipboard.writeText(this.dataset.p).then(()=>{this.textContent='Copied!';setTimeout(()=>this.textContent='📋 Copy image prompt',1500)})" data-p="${stop.imagePrompt.replace(/"/g, '&quot;')}">📋 Copy image prompt</button>` : ''}
   `;
 }
 
 function crossingPopup(name, books) {
   return `
-    <div class="pop-name"><span class="pop-num" style="background:var(--rubric)">✶</span>${name}</div>
+    <div class="pop-name"><span class="pop-num" style="background:var(--rubric)">&#10038;</span>${name}</div>
     <div class="pop-place">A meeting of voyages</div>
     <div class="pop-books">${books.map(b => `<b>${b}</b>`).join('<br>')}</div>
   `;
 }
 
 
-// ╔═══════════════════════════════════════════════════════════════╗
-// ║  DRAW / REMOVE                                               ║
-// ╚═══════════════════════════════════════════════════════════════╝
+// ═══════════════════════════════════════════════════════════════
+//  DRAW / REMOVE
+// ═══════════════════════════════════════════════════════════════
 
-function drawJourney(journey) {
+function bowedPath(coords, bow = 0.12, samples = 22) {
+  const points  = [coords[0].slice()];
+  const anchors = [0];
+  for (let i = 1; i < coords.length; i++) {
+    const [y0, x0] = coords[i - 1], [y1, x1] = coords[i];
+    const mx = (x0 + x1) / 2, my = (y0 + y1) / 2;
+    const dx = x1 - x0, dy = y1 - y0;
+    const cx = mx - dy * bow, cy = my + dx * bow;
+    for (let s = 1; s <= samples; s++) {
+      const t = s / samples, it = 1 - t;
+      const x = it * it * x0 + 2 * it * t * cx + t * t * x1;
+      const y = it * it * y0 + 2 * it * t * cy + t * t * y1;
+      points.push([y, x]);
+    }
+    anchors.push(points.length - 1);
+  }
+  return { points, anchors };
+}
+
+const TRAIL_PIN_SPACING = 12;
+
+function trailPinIcon(color, opacity) {
+  return L.divIcon({
+    className: 'mk',
+    html: `<div class="mk-trail" style="--c:${color};--trail-op:${opacity}"></div>`,
+    iconSize: [12, 14],
+    iconAnchor: [6, 12],
+  });
+}
+
+function sampleTrailPins(points, color, opacity) {
+  const pins = [];
+  const icon = trailPinIcon(color, opacity);
+  for (let i = TRAIL_PIN_SPACING; i < points.length - 1; i += TRAIL_PIN_SPACING) {
+    pins.push(L.marker(points[i], { icon, interactive: false, zIndexOffset: -500 }));
+  }
+  return pins;
+}
+
+function drawJourney(journey, animate) {
+  const nStops = journey.stops.length;
+  const path = journey.type === 'route'
+    ? bowedPath(journey.stops.map(s => s.coords)) : null;
+  const trailPins = path
+    ? sampleTrailPins(path.points, journey.color, 0.55) : [];
+  const anchors = path ? path.anchors : [];
+
   const markers = journey.stops.map((stop, i) => {
     const icon = journey.type === 'route'
       ? sealIcon(journey.color, i + 1)
       : starIcon(journey.color);
     return L.marker(stop.coords, { icon })
-      .bindPopup(buildPopup(stop, journey, i), { maxWidth: 300 })
-      .addTo(map);
+      .bindPopup(buildPopup(stop, journey, i), { maxWidth: 300 });
   });
 
-  const polyline = journey.type === 'route'
-    ? L.polyline(journey.stops.map(s => s.coords), {
-        color: journey.color, weight: 2.4, opacity: 0.7, dashArray: '6,6', lineCap: 'round'
-      }).addTo(map)
-    : null;
+  if (!animate) {
+    markers.forEach(m => m.addTo(map));
+    trailPins.forEach(p => p.addTo(map));
+  } else {
+    const legDur = 120;
+    const pinDur = trailPins.length > 0
+      ? (nStops * legDur) / trailPins.length : 0;
 
-  state.layers[journey.id] = { markers, polyline };
+    markers.forEach((m, i) => {
+      setTimeout(() => {
+        m.addTo(map);
+        const el = m.getElement();
+        if (el) {
+          const inner = el.querySelector('.mk-pin') || el.querySelector('.mk-star');
+          if (inner) inner.classList.add('drop-in');
+        }
+      }, i * legDur);
+    });
+
+    trailPins.forEach((p, i) => {
+      setTimeout(() => {
+        p.addTo(map);
+        const el = p.getElement();
+        if (el) {
+          const inner = el.querySelector('.mk-trail');
+          if (inner) inner.classList.add('trail-draw');
+        }
+      }, i * pinDur);
+    });
+  }
+
+  state.layers[journey.id] = { markers, trailPins, path };
 }
 
 function removeJourney(journey) {
+  if (story.on && story.id === journey.id) storyClose();
   if (voyage.id === journey.id) voyageTeardown();
   const g = state.layers[journey.id];
   if (!g) return;
   g.markers.forEach(m => map.removeLayer(m));
-  if (g.polyline) map.removeLayer(g.polyline);
+  g.trailPins.forEach(p => map.removeLayer(p));
   delete state.layers[journey.id];
 }
 
@@ -1879,75 +2306,155 @@ function boundsOf(ids) {
   return pts.length ? L.latLngBounds(pts) : null;
 }
 
-function ensureCharted(id) {
+function ensureCharted(id, animate) {
   if (state.activeIds.has(id)) return false;
   state.activeIds.add(id);
-  drawJourney(byId(id));
+  drawJourney(byId(id), animate);
   return true;
 }
 
 
-// ╔═══════════════════════════════════════════════════════════════╗
-// ║  VOYAGE CONSOLE  (play / pause / scrub a route)             ║
-// ╚═══════════════════════════════════════════════════════════════╝
+// ═══════════════════════════════════════════════════════════════
+//  VOYAGE CONSOLE
+// ═══════════════════════════════════════════════════════════════
 
 function voyageTeardown() {
   if (voyage.timer) { clearTimeout(voyage.timer); voyage.timer = null; }
+  if (voyage.raf)   { cancelAnimationFrame(voyage.raf); voyage.raf = null; }
   if (voyage.ship)  { map.removeLayer(voyage.ship); voyage.ship = null; }
-  if (voyage.poly)  { map.removeLayer(voyage.poly); voyage.poly = null; }
-  voyage.id = null; voyage.step = 0; voyage.playing = false;
+  if (voyage.pins)  { voyage.pins.forEach(p => map.removeLayer(p)); voyage.pins = null; }
+  voyage.id = null; voyage.step = 0; voyage.head = 0; voyage.playing = false;
+  voyage.path = null; voyage.pinHead = 0; voyage.currentVessel = null;
 }
 
-// Attach the ship + a bright "progress" overline to a route, preserving step
 function voyageEnsure(id) {
   if (voyage.id === id) return;
   voyageTeardown();
   const j = byId(id);
-  voyage.id = id; voyage.step = 0; voyage.playing = false;
-  voyage.poly = L.polyline([j.stops[0].coords], {
-    color: j.color, weight: 3.8, opacity: 0.95, lineCap: 'round', lineJoin: 'round'
-  }).addTo(map);
-  voyage.ship = L.marker(j.stops[0].coords, { icon: shipIcon(), zIndexOffset: 1500 }).addTo(map);
+  voyage.id = id; voyage.step = 0; voyage.head = 0; voyage.playing = false;
+  voyage.path = bowedPath(j.stops.map(s => s.coords));
+  voyage.pins = [];
+  voyage.pinHead = 0;
+  voyage.pinColor = j.color;
+  voyage.currentVessel = legVessel(j, 0);
+  voyage.ship = L.marker(j.stops[0].coords, { icon: vesselIcon(voyage.currentVessel), zIndexOffset: 1500 }).addTo(map);
+}
+
+function voyageRender(head) {
+  const pts = voyage.path.points;
+  const anchors = voyage.path.anchors;
+  head = Math.max(0, Math.min(head, pts.length - 1));
+  voyage.head = head;
+  const whole = Math.floor(head);
+
+  if (whole < pts.length - 1) {
+    const f = head - whole;
+    const [y0, x0] = pts[whole], [y1, x1] = pts[whole + 1];
+    voyage.ship.setLatLng([y0 + (y1 - y0) * f, x0 + (x1 - x0) * f]);
+  } else {
+    voyage.ship.setLatLng(pts[whole]);
+  }
+
+  const j = byId(voyage.id);
+  let leg = 0;
+  for (let i = 0; i < anchors.length - 1; i++) {
+    if (whole >= anchors[i]) leg = i;
+  }
+  const needed = legVessel(j, leg);
+  if (needed !== voyage.currentVessel) {
+    voyage.currentVessel = needed;
+    voyage.ship.setIcon(vesselIcon(needed));
+  }
+
+  const targetPinCount = Math.max(0, Math.floor(whole / TRAIL_PIN_SPACING));
+  while (voyage.pins.length > targetPinCount) {
+    map.removeLayer(voyage.pins.pop());
+    voyage.pinHead--;
+  }
+  const icon = trailPinIcon(voyage.pinColor, 0.9);
+  while (voyage.pins.length < targetPinCount) {
+    const idx = (voyage.pins.length + 1) * TRAIL_PIN_SPACING;
+    if (idx >= pts.length) break;
+    const pin = L.marker(pts[idx], { icon, interactive: false, zIndexOffset: -500 }).addTo(map);
+    voyage.pins.push(pin);
+    voyage.pinHead = voyage.pins.length;
+  }
+}
+
+function pulseMarker(id, idx) {
+  const el = state.layers[id]?.markers[idx]?.getElement();
+  const seal = el && (el.querySelector('.mk-pin') || el.firstElementChild);
+  if (!seal) return;
+  seal.classList.remove('made-port');
+  void seal.offsetWidth;
+  seal.classList.add('made-port');
 }
 
 function voyageSeek(id, step, fly = true) {
   voyageEnsure(id);
+  if (voyage.raf) { cancelAnimationFrame(voyage.raf); voyage.raf = null; }
   const j = byId(id);
   step = Math.max(0, Math.min(step, j.stops.length - 1));
   voyage.step = step;
-  voyage.poly.setLatLngs(j.stops.slice(0, step + 1).map(s => s.coords));
-  voyage.ship.setLatLng(j.stops[step].coords);
-  if (fly) map.flyTo(j.stops[step].coords, stopZoomFor(id), { duration: FLY });
+  voyageRender(voyage.path.anchors[step]);
+  if (fly) map.flyTo(j.stops[step].coords, Math.max(map.getZoom(), 5), { duration: FLY });
   updateVoyageUI();
+}
+
+function voyageGlide(id, step, opts = {}) {
+  const { fly = true, onArrive } = opts;
+  voyageEnsure(id);
+  const j = byId(id);
+  step = Math.max(0, Math.min(step, j.stops.length - 1));
+  if (voyage.raf) cancelAnimationFrame(voyage.raf);
+  const from = voyage.head;
+  const to   = voyage.path.anchors[step];
+  const dist = Math.abs(to - from);
+  const dur  = Math.max(420, Math.min(2200, dist * 26));
+  if (fly) map.flyTo(j.stops[step].coords, Math.max(map.getZoom(), 5), { duration: Math.max(FLY, dur / 1000) });
+  const t0 = performance.now();
+  const ease = t => (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2);
+  voyage.step = step;
+  updateVoyageUI();
+  const tick = now => {
+    const t = dist === 0 ? 1 : Math.min(1, (now - t0) / dur);
+    voyageRender(from + (to - from) * ease(t));
+    if (t < 1) { voyage.raf = requestAnimationFrame(tick); }
+    else {
+      voyage.raf = null;
+      pulseMarker(id, step);
+      updateVoyageUI();
+      if (onArrive) onArrive();
+    }
+  };
+  voyage.raf = requestAnimationFrame(tick);
 }
 
 function voyagePlay(id) {
   voyageEnsure(id);
   const j = byId(id);
-  if (voyage.step >= j.stops.length - 1) voyage.step = 0;   // replay from the top
+  if (voyage.step >= j.stops.length - 1) { voyage.step = 0; voyageRender(0); }
   voyage.playing = true;
-  voyageSeek(id, voyage.step, true);
-  scheduleAdvance();
+  updateVoyageUI();
+  advanceVoyage();
 }
 
-function scheduleAdvance() {
-  if (voyage.timer) clearTimeout(voyage.timer);
-  voyage.timer = setTimeout(() => {
-    if (!voyage.playing || !voyage.id) return;
-    const j = byId(voyage.id);
-    if (voyage.step >= j.stops.length - 1) { voyage.playing = false; updateVoyageUI(); return; }
-    voyageSeek(voyage.id, voyage.step + 1, true);
-    if (voyage.playing) scheduleAdvance();
-  }, STEP_MS);
+function advanceVoyage() {
+  if (!voyage.playing || !voyage.id) return;
+  const j = byId(voyage.id);
+  if (voyage.step >= j.stops.length - 1) { voyage.playing = false; updateVoyageUI(); return; }
+  voyageGlide(voyage.id, voyage.step + 1, { fly: true, onArrive: () => {
+    if (voyage.playing) voyage.timer = setTimeout(advanceVoyage, STEP_MS);
+  }});
 }
 
 function voyagePause() {
   voyage.playing = false;
   if (voyage.timer) { clearTimeout(voyage.timer); voyage.timer = null; }
+  if (voyage.raf)   { cancelAnimationFrame(voyage.raf); voyage.raf = null; }
   updateVoyageUI();
 }
 
-// Reflect voyage state into whichever console DOM is currently mounted
 function updateVoyageUI() {
   if (!voyage.id) return;
   const j = byId(voyage.id);
@@ -1964,11 +2471,134 @@ function updateVoyageUI() {
 }
 
 
-// ╔═══════════════════════════════════════════════════════════════╗
-// ║  CROSSINGS  (where voyages meet)                            ║
-// ║  Greedy proximity clustering: any stops within ~70 km that  ║
-// ║  belong to two or more different books form a "crossing".   ║
-// ╚═══════════════════════════════════════════════════════════════╝
+// ═══════════════════════════════════════════════════════════════
+//  READING MODE
+// ═══════════════════════════════════════════════════════════════
+
+const story = { id: null, step: 0, on: false, auto: null };
+let storyEl = null;
+
+function buildStoryEl() {
+  if (storyEl) return storyEl;
+  storyEl = document.createElement('div');
+  storyEl.id = 'story';
+  storyEl.innerHTML = `
+    <div class="story-folio">
+      <button class="story-x" aria-label="Close reading mode">&times;</button>
+      <div class="story-plate"></div>
+      <div class="story-text">
+        <div class="story-book"></div>
+        <div class="story-name"></div>
+        <div class="story-place"></div>
+        <div class="story-inbook"></div>
+        <div class="story-ref"></div>
+        <div class="story-note"></div>
+      </div>
+    </div>
+    <div class="story-nav">
+      <button class="story-prev" aria-label="Previous port">&#8249;</button>
+      <div class="story-track"></div>
+      <button class="story-auto" aria-label="Sail through the voyage">&#9658; Sail</button>
+      <button class="story-next" aria-label="Next port">&#8250;</button>
+    </div>`;
+  document.querySelector('.map-stage').appendChild(storyEl);
+  storyEl.querySelector('.story-x').addEventListener('click', storyClose);
+  storyEl.querySelector('.story-prev').addEventListener('click', () => { storyStopAuto(); storyGo(story.step - 1); });
+  storyEl.querySelector('.story-next').addEventListener('click', () => { storyStopAuto(); storyGo(story.step + 1); });
+  storyEl.querySelector('.story-auto').addEventListener('click', storyToggleAuto);
+  return storyEl;
+}
+
+function storyOpen(id) {
+  ensureChartedAndRender(id, true);
+  voyageEnsure(id);
+  voyagePause();
+  story.id = id; story.on = true;
+  buildStoryEl();
+  document.querySelector('.map-stage').classList.add('reading');
+  requestAnimationFrame(() => storyEl.classList.add('open'));
+
+  const j = byId(id);
+  const track = storyEl.querySelector('.story-track');
+  track.innerHTML = j.stops.map((s, i) => `<button class="story-pip" data-i="${i}" title="${s.name}"></button>`).join('');
+  track.querySelectorAll('.story-pip').forEach(p =>
+    p.addEventListener('click', () => { storyStopAuto(); storyGo(+p.dataset.i); }));
+
+  storyGo(0, false);
+}
+
+function storyGo(step, glide = true) {
+  if (!story.on) return;
+  const j = byId(story.id);
+  step = Math.max(0, Math.min(step, j.stops.length - 1));
+  story.step = step;
+  const stop = j.stops[step];
+
+  if (glide) voyageGlide(story.id, step, { fly: true });
+  else       voyageSeek(story.id, step, true);
+
+  const t = storyEl;
+  t.querySelector('.story-plate').innerHTML = buildPlate(stop);
+  t.querySelector('.story-book').textContent = `${j.title} · ${j.author}`;
+  t.querySelector('.story-name').innerHTML = `<span class="story-num" style="background:${j.color}">${step + 1}</span>${stop.name}`;
+  t.querySelector('.story-place').textContent = stop.realPlace;
+  t.querySelector('.story-inbook').textContent = stop.inBook;
+  t.querySelector('.story-ref').textContent = stop.reference;
+  const note = t.querySelector('.story-note');
+  note.textContent = stop.note ? `⁎ ${stop.note}` : '';
+  note.style.display = stop.note ? '' : 'none';
+
+  t.querySelector('.story-prev').disabled = step === 0;
+  t.querySelector('.story-next').disabled = step === j.stops.length - 1;
+  t.querySelectorAll('.story-pip').forEach((p, i) => p.classList.toggle('done', i <= step));
+
+  const txt = t.querySelector('.story-text');
+  txt.classList.remove('flip'); void txt.offsetWidth; txt.classList.add('flip');
+}
+
+function storyToggleAuto() {
+  if (story.auto) { storyStopAuto(); return; }
+  const j = byId(story.id);
+  if (story.step >= j.stops.length - 1) storyGo(0);
+  storyEl.querySelector('.story-auto').innerHTML = '&#10073;&#10073; Pause';
+  const stepAuto = () => {
+    if (story.step >= j.stops.length - 1) { storyStopAuto(); return; }
+    storyGo(story.step + 1);
+    story.auto = setTimeout(stepAuto, 3800);
+  };
+  story.auto = setTimeout(stepAuto, 1300);
+}
+
+function storyStopAuto() {
+  if (story.auto) { clearTimeout(story.auto); story.auto = null; }
+  if (storyEl) {
+    const j = byId(story.id);
+    const atEnd = j && story.step >= j.stops.length - 1;
+    storyEl.querySelector('.story-auto').innerHTML = atEnd ? '&#8635; Again' : '&#9658; Sail';
+  }
+}
+
+function storyClose() {
+  storyStopAuto();
+  if (storyEl) {
+    storyEl.classList.remove('open');
+    storyEl.querySelector('.story-auto').innerHTML = '&#9658; Sail';
+  }
+  document.querySelector('.map-stage').classList.remove('reading');
+  story.on = false;
+}
+
+document.addEventListener('keydown', e => {
+  if (!story.on) return;
+  if (e.key === 'Escape')      { storyClose(); }
+  else if (e.key === 'ArrowRight') { storyStopAuto(); storyGo(story.step + 1); }
+  else if (e.key === 'ArrowLeft')  { storyStopAuto(); storyGo(story.step - 1); }
+});
+
+
+// ═══════════════════════════════════════════════════════════════
+//  CROSSINGS
+// ═══════════════════════════════════════════════════════════════
 
 function computeCrossings() {
   const pts = [];
@@ -2062,30 +2692,10 @@ function renderCrossingsPanel() {
 }
 
 
-// ╔═══════════════════════════════════════════════════════════════╗
-// ║  SHIP'S LOG  +  SIDEBAR                                      ║
-// ╚═══════════════════════════════════════════════════════════════╝
+// ═══════════════════════════════════════════════════════════════
+//  SHIP'S LOG + SIDEBAR
+// ═══════════════════════════════════════════════════════════════
 
-function renderLogbook(journey) {
-  let rows;
-  if (journey.type === 'route') {
-    const km = routeDistanceKm(journey);
-    rows = `
-      <div class="log-row"><span class="log-key">Ports of call</span><span class="log-val">${journey.stops.length}</span></div>
-      <div class="log-row"><span class="log-key">Course length</span><span class="log-val">${fmt(km)} km &middot; <em>${fmt(km / KM_PER_NMI)} nmi</em></span></div>
-      <div class="log-row"><span class="log-key">In old measure</span><span class="log-val">≈ ${fmt(km / KM_PER_LEAGUE)} leagues</span></div>
-      <div class="log-row"><span class="log-key">Landfall</span><span class="log-val">${journey.stops[0].name} → ${journey.stops[journey.stops.length - 1].name}</span></div>
-      <div class="log-row"><span class="log-key">Era</span><span class="log-val">${journey.year}</span></div>`;
-  } else {
-    const km = spanKm(journey);
-    rows = `
-      <div class="log-row"><span class="log-key">Places</span><span class="log-val">${journey.stops.length}</span></div>
-      <div class="log-row"><span class="log-key">Span of chart</span><span class="log-val">${fmt(km)} km across</span></div>
-      <div class="log-row"><span class="log-key">Form</span><span class="log-val"><em>Constellation</em></span></div>
-      <div class="log-row"><span class="log-key">Era</span><span class="log-val">${journey.year}</span></div>`;
-  }
-  return `<div class="logbook"><div class="logbook-title">Ship's Log</div>${rows}</div>`;
-}
 
 function renderVoyageConsole(journey) {
   const n = journey.stops.length;
@@ -2099,6 +2709,10 @@ function renderVoyageConsole(journey) {
         <div class="voy-label" data-voy-label="${journey.id}">Stop ${step + 1} of ${n} &mdash; <em>${journey.stops[step].name}</em></div>
       </div>
       <input class="voy-slider" type="range" min="0" max="${n - 1}" value="${step}" step="1" data-voy-slider="${journey.id}" aria-label="Voyage progress" />
+      <button class="voy-read" data-voy-read="${journey.id}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M3 5.5C6 4 9 4 12 5.5V20c-3-1.5-6-1.5-9 0V5.5Z"/><path d="M21 5.5C18 4 15 4 12 5.5V20c3-1.5 6-1.5 9 0V5.5Z"/></svg>
+        Read this voyage
+      </button>
     </div>`;
 }
 
@@ -2110,6 +2724,7 @@ function renderSidebar() {
     const active = state.activeIds.has(journey.id);
     const item = document.createElement('div');
     item.className = `journey-item${active ? ' active' : ''}${firstRender ? ' rise' : ''}`;
+    item.style.setProperty('--jc', journey.color);
     if (firstRender) item.style.animationDelay = (0.15 + ji * 0.08) + 's';
 
     const stopItems = journey.stops.map((stop, i) => {
@@ -2133,7 +2748,6 @@ function renderSidebar() {
       <div class="journey-badge">${journey.type === 'route' ? `Route &middot; ${journey.stops.length} ports` : `Constellation &middot; ${journey.stops.length} places`}</div>
       <div class="journey-body">
         <div class="journey-blurb">${journey.blurb}</div>
-        ${renderLogbook(journey)}
         ${journey.type === 'route' ? renderVoyageConsole(journey) : ''}
         <ul class="stop-list">${stopItems}</ul>
       </div>
@@ -2161,12 +2775,17 @@ function renderSidebar() {
       slider.addEventListener('click', e => e.stopPropagation());
     }
 
+    const readBtn = item.querySelector('.voy-read');
+    if (readBtn) {
+      readBtn.addEventListener('click', e => { e.stopPropagation(); storyOpen(journey.id); });
+    }
+
     item.querySelectorAll('.stop-item').forEach(el => {
       const idx = +el.dataset.idx, jid = el.dataset.jid;
       el.addEventListener('click', e => {
         e.stopPropagation();
         const stop = journey.stops[idx];
-        map.flyTo(stop.coords, stopZoomFor(journey.id), { duration: 1.2 });
+        map.flyTo(stop.coords, 7, { duration: 1.2 });
         const g = state.layers[jid];
         if (g?.markers[idx]) setTimeout(() => g.markers[idx].openPopup(), 1300);
       });
@@ -2192,9 +2811,9 @@ function litMarker(jid, idx, on) {
 }
 
 
-// ╔═══════════════════════════════════════════════════════════════╗
-// ║  GAZETTEER  (search)                                        ║
-// ╚═══════════════════════════════════════════════════════════════╝
+// ═══════════════════════════════════════════════════════════════
+//  GAZETTEER (search)
+// ═══════════════════════════════════════════════════════════════
 
 const gazInput   = document.getElementById('gaz-input');
 const gazResults = document.getElementById('gaz-results');
@@ -2245,13 +2864,13 @@ function runGazetteer(q) {
         if (!state.activeIds.has(id)) toggleJourney(id);
         else {
           const b = boundsOf([id]);
-          if (b) map.flyToBounds(b, { padding: [50, 50], duration: 1.2, maxZoom: 16 });
+          if (b) map.flyToBounds(b, { padding: [50, 50], duration: 1.2, maxZoom: 8 });
         }
       } else {
         const idx = +row.dataset.idx;
-        ensureChartedAndRender(id);
+        ensureChartedAndRender(id, true);
         const stop = byId(id).stops[idx];
-        map.flyTo(stop.coords, stopZoomFor(id), { duration: 1.3 });
+        map.flyTo(stop.coords, 7, { duration: 1.3 });
         const g = state.layers[id];
         if (g?.markers[idx]) setTimeout(() => g.markers[idx].openPopup(), 1400);
       }
@@ -2261,8 +2880,8 @@ function runGazetteer(q) {
   });
 }
 
-function ensureChartedAndRender(id) {
-  if (ensureCharted(id)) { updateEmptyState(); renderSidebar(); }
+function ensureChartedAndRender(id, animate) {
+  if (ensureCharted(id, animate)) { updateEmptyState(); renderSidebar(); }
 }
 
 gazInput.addEventListener('input', () => runGazetteer(gazInput.value));
@@ -2272,9 +2891,9 @@ document.addEventListener('click', e => {
 });
 
 
-// ╔═══════════════════════════════════════════════════════════════╗
-// ║  TOGGLE / CHART-ALL / CLEAR                                  ║
-// ╚═══════════════════════════════════════════════════════════════╝
+// ═══════════════════════════════════════════════════════════════
+//  TOGGLE / CHART-ALL / CLEAR
+// ═══════════════════════════════════════════════════════════════
 
 function toggleJourney(id) {
   const j = byId(id);
@@ -2285,12 +2904,13 @@ function toggleJourney(id) {
     removeJourney(j);
   } else {
     state.activeIds.add(id);
-    drawJourney(j);
+    drawJourney(j, true);
     const b = boundsOf([id]);
-    if (b) map.flyToBounds(b, { padding: [60, 60], duration: 1.2, maxZoom: 16 });
+    if (b) map.flyToBounds(b, { padding: [60, 60], duration: 1.2, maxZoom: 8 });
   }
   updateEmptyState();
   renderSidebar();
+  renderTimeline();
 }
 
 function chartAll() {
@@ -2299,6 +2919,7 @@ function chartAll() {
   if (b) map.flyToBounds(b, { padding: [60, 60], duration: 1.5 });
   updateEmptyState();
   renderSidebar();
+  renderTimeline();
 }
 
 function clearAll() {
@@ -2309,6 +2930,7 @@ function clearAll() {
   renderCrossingsPanel();
   updateEmptyState();
   renderSidebar();
+  renderTimeline();
 }
 
 function updateEmptyState() {
@@ -2316,16 +2938,90 @@ function updateEmptyState() {
 }
 
 
-// ╔═══════════════════════════════════════════════════════════════╗
-// ║  INIT                                                       ║
-// ╚═══════════════════════════════════════════════════════════════╝
+// ═══════════════════════════════════════════════════════════════
+//  TIMELINE
+// ═══════════════════════════════════════════════════════════════
+
+function renderTimeline() {
+  const years = JOURNEYS.map(j => eraYear(j.year));
+  const min = Math.min(...years);
+  const max = Math.max(...years);
+  const range = max - min || 1;
+  const pad = range * 0.06;
+
+  document.getElementById('tl-min').textContent = min <= 0 ? 'Antiquity' : min;
+  document.getElementById('tl-max').textContent = max;
+
+  const container = document.getElementById('tl-marks');
+  container.innerHTML = '';
+
+  JOURNEYS.forEach(j => {
+    const yr = eraYear(j.year);
+    const pct = ((yr - min + pad) / (range + pad * 2)) * 100;
+    const mark = document.createElement('div');
+    mark.className = 'tl-mark' + (state.activeIds.has(j.id) ? ' active' : '');
+    mark.style.left = pct + '%';
+    mark.style.background = j.color;
+    mark.innerHTML = `<span class="tl-tip">${j.title} (${j.year})</span>`;
+    mark.addEventListener('click', () => toggleJourney(j.id));
+    container.appendChild(mark);
+  });
+}
+
+
+// ═══════════════════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════════════════
 
 document.getElementById('btn-show-all').addEventListener('click', chartAll);
 document.getElementById('btn-clear').addEventListener('click', clearAll);
 document.getElementById('btn-crossings').addEventListener('click', toggleCrossings);
 
+function syncHash() {
+  const ids = [...state.activeIds];
+  window.history.replaceState(null, '', ids.length ? '#' + ids.join(',') : location.pathname);
+}
+
+function loadHash() {
+  const h = location.hash.replace('#', '');
+  if (!h) return;
+  const ids = h.split(',').filter(id => byId(id));
+  if (!ids.length) return;
+  ids.forEach(id => { state.activeIds.add(id); drawJourney(byId(id)); });
+  const b = boundsOf(ids);
+  if (b) setTimeout(() => map.flyToBounds(b, { padding: [60, 60], duration: 1.2, maxZoom: 6 }), 300);
+  updateEmptyState();
+  renderSidebar();
+}
+
+const _origToggle = toggleJourney;
+toggleJourney = function(id) { _origToggle(id); syncHash(); };
+const _origChartAll = chartAll;
+chartAll = function() { _origChartAll(); syncHash(); };
+const _origClearAll = clearAll;
+clearAll = function() { _origClearAll(); syncHash(); };
+
 renderSidebar();
+renderTimeline();
+loadHash();
 updateEmptyState();
+
+// Mobile bottom sheet toggle
+(function() {
+  const handle = document.getElementById('sheet-handle');
+  const ledger = document.getElementById('ledger');
+  if (!handle || !ledger) return;
+  if (window.innerWidth <= 720) ledger.classList.add('collapsed');
+  handle.addEventListener('click', () => ledger.classList.toggle('collapsed'));
+})();
 </script>
+
+<!-- Tweaks panel (palette / map / navbar theming) -->
+<div id="tweaks-root"></div>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js" crossorigin></script>
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+<script type="text/babel" src="tweaks-app.jsx"></script>
 </body>
 </html>
