@@ -460,10 +460,18 @@
       28%  { box-shadow: 0 3px 7px rgba(56,41,26,0.5), inset 0 0 0 2px rgba(255,250,235,0.55), 0 0 0 7px rgba(166,124,51,0.4); }
       100% { box-shadow: 0 3px 5px rgba(56,41,26,0.4), inset 0 0 0 2px rgba(255,250,235,0.30), 0 0 0 14px rgba(166,124,51,0); }
     }
+    /* constellation waypoint — a luminous compass-star */
     .mk-star {
-      width: 17px; height: 17px; background: var(--c);
-      clip-path: polygon(50% 0,61% 39%,100% 50%,61% 61%,50% 100%,39% 61%,0 50%,39% 39%);
-      filter: drop-shadow(0 1px 2px rgba(56,41,26,0.5));
+      width: 20px; height: 20px;
+      background:
+        radial-gradient(circle at 50% 42%,
+          color-mix(in srgb, var(--c) 45%, #fff 55%) 0%,
+          var(--c) 62%,
+          color-mix(in srgb, var(--c) 80%, #000 20%) 100%);
+      clip-path: polygon(50% 0, 58% 42%, 100% 50%, 58% 58%, 50% 100%, 42% 58%, 0 50%, 42% 42%);
+      filter:
+        drop-shadow(0 0 3px color-mix(in srgb, var(--c) 55%, transparent))
+        drop-shadow(0 1px 1.5px rgba(56,41,26,0.55));
     }
     .mk-trail {
       width: 12px; height: 12px;
@@ -1214,9 +1222,9 @@ function starIcon(color) {
   return L.divIcon({
     className:   'mk',
     html:        `<div class="mk-star" style="--c:${color}"></div>`,
-    iconSize:    [17, 17],
-    iconAnchor:  [8, 8],
-    popupAnchor: [0, -10],
+    iconSize:    [20, 20],
+    iconAnchor:  [10, 10],
+    popupAnchor: [0, -11],
   });
 }
 
