@@ -2005,10 +2005,8 @@ function toggleCrossings() {
   crossings.data = computeCrossings();
   if (!crossings.data.length) { renderCrossingsPanel(); return; }
 
-  const involved = new Set();
-  crossings.data.forEach(g => g.forEach(p => involved.add(p.jid)));
-  involved.forEach(ensureCharted);
-
+  // A focused overlay: show only the meeting-point stars, not the full
+  // routes of every book involved (which buries the map in numbered seals).
   crossings.markers = crossings.data.map(g => {
     const lat = g.reduce((s, p) => s + p.coords[0], 0) / g.length;
     const lng = g.reduce((s, p) => s + p.coords[1], 0) / g.length;
@@ -2021,8 +2019,8 @@ function toggleCrossings() {
   crossings.on = true;
   document.getElementById('btn-crossings').classList.add('active');
 
-  const b = boundsOf([...state.activeIds]);
-  if (b) map.flyToBounds(b, { padding: [60, 60], duration: 1.4 });
+  const b = L.latLngBounds(crossings.markers.map(m => m.getLatLng()));
+  if (b.isValid()) map.flyToBounds(b, { padding: [80, 80], duration: 1.4, maxZoom: 6 });
 
   renderCrossingsPanel();
   renderSidebar();
@@ -2312,7 +2310,7 @@ function clearAll() {
 }
 
 function updateEmptyState() {
-  document.getElementById('empty-state').classList.toggle('hidden', state.activeIds.size > 0);
+  document.getElementById('empty-state').classList.toggle('hidden', state.activeIds.size > 0 || crossings.on);
 }
 
 
