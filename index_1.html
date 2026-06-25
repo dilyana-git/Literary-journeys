@@ -330,9 +330,38 @@
     .cross-books { font-size: 0.78rem; color: var(--faded); margin-top: 1px; }
     .cross-row:hover .cross-place { color: var(--rubric); }
 
-    /* ── legend (cartographer's key) ── */
-    #legend { padding: 14px 22px 16px; border-top: 2px solid var(--edge); font-size: 0.82rem; color: var(--faded); background: color-mix(in srgb, var(--vellum-4) 48%, transparent); }
-    .legend-title { font-family: var(--font-caps); font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.22em; margin-bottom: 11px; color: var(--gilt); }
+    /* ── legend (cartographer's key, on-map) ── */
+    .map-legend {
+      position: absolute; left: 22px; bottom: 22px; z-index: 460;
+      width: 212px; max-width: 44vw;
+      background: linear-gradient(180deg, var(--vellum), var(--vellum-2));
+      border: 2px solid var(--gilt); border-radius: 2px;
+      box-shadow: 0 6px 22px rgba(42,28,12,0.32);
+      font-size: 0.82rem; color: var(--faded); overflow: hidden;
+      opacity: 0; transform: translateY(8px);
+      animation: legendIn 1s 0.6s cubic-bezier(.2,.7,.3,1) forwards;
+    }
+    @keyframes legendIn { to { opacity: 0.97; transform: translateY(0); } }
+    .map-legend::before {
+      content: ""; position: absolute; inset: 3px; pointer-events: none; border-radius: 1px;
+      border: 1px solid color-mix(in srgb, var(--gilt) 38%, transparent);
+    }
+    .map-legend-head {
+      display: flex; align-items: center; justify-content: space-between; gap: 10px;
+      padding: 9px 13px 8px; cursor: pointer; user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .map-legend-head .chev {
+      width: 11px; height: 11px; flex-shrink: 0; color: var(--gilt);
+      transition: transform 0.32s cubic-bezier(.4,0,.2,1);
+    }
+    .map-legend.collapsed .chev { transform: rotate(-90deg); }
+    .map-legend-body {
+      padding: 2px 13px 13px; max-height: 220px; overflow: hidden;
+      transition: max-height 0.32s cubic-bezier(.4,0,.2,1), opacity 0.24s ease, padding 0.32s;
+    }
+    .map-legend.collapsed .map-legend-body { max-height: 0; opacity: 0; padding-top: 0; padding-bottom: 0; }
+    .legend-title { font-family: var(--font-caps); font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.22em; color: var(--gilt); }
     .legend-row { display: flex; align-items: center; gap: 11px; margin-bottom: 9px; }
     .legend-row:last-child { margin-bottom: 0; }
     .legend-icon { width: 26px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: var(--faded); }
@@ -750,7 +779,7 @@
       .journey-header { padding: 10px 16px; }
       .journey-meta, .journey-badge { padding: 0 16px; }
 
-      #legend, #timeline { display: none; }
+      .map-legend, #timeline { display: none; }
       #tweaks-toggle { bottom: auto; top: 12px; left: auto; right: 12px; transform: none; z-index: 9500; }
     }
   </style>
@@ -838,26 +867,6 @@
 
     <div id="journey-list"></div>
 
-    <div id="legend">
-      <div class="legend-title">The Map Key</div>
-      <div class="legend-row">
-        <div class="legend-icon"><div class="mk-pin" style="--c:var(--faded);width:18px;height:18px;"><span style="font-size:0.5rem">3</span></div></div>
-        <span>A numbered port of call</span>
-      </div>
-      <div class="legend-row">
-        <div class="legend-icon"><div style="--c:var(--faded);" class="mk-star"></div></div>
-        <span>A place in a constellation</span>
-      </div>
-      <div class="legend-row">
-        <div class="legend-icon" style="display:flex;gap:3px;align-items:flex-end;"><div class="mk-trail" style="--c:var(--faded);--trail-op:0.7;width:8px;height:8px"></div><div class="mk-trail" style="--c:var(--faded);--trail-op:0.7;width:8px;height:8px"></div><div class="mk-trail" style="--c:var(--faded);--trail-op:0.7;width:8px;height:8px"></div></div>
-        <span>The course of a voyage</span>
-      </div>
-      <div class="legend-row">
-        <div class="legend-icon"><div class="mk-cross" style="width:18px;height:18px;animation:none;"><span style="font-size:0.55rem">&#10038;</span></div></div>
-        <span>Where two voyages cross</span>
-      </div>
-    </div>
-
     <div id="timeline">
       <div class="tl-title">Timeline of Voyages</div>
       <div class="tl-track">
@@ -873,6 +882,31 @@
     <div id="map"></div>
     <div class="map-vignette"></div>
     <div class="reading-veil"></div>
+
+    <div class="map-legend" id="map-legend">
+      <div class="map-legend-head" onclick="document.getElementById('map-legend').classList.toggle('collapsed')">
+        <div class="legend-title">The Map Key</div>
+        <svg class="chev" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4.5 L6 8.5 L10 4.5"/></svg>
+      </div>
+      <div class="map-legend-body">
+        <div class="legend-row">
+          <div class="legend-icon"><div class="mk-pin" style="--c:var(--faded);width:18px;height:18px;"><span style="font-size:0.5rem">3</span></div></div>
+          <span>A numbered port of call</span>
+        </div>
+        <div class="legend-row">
+          <div class="legend-icon"><div style="--c:var(--faded);" class="mk-star"></div></div>
+          <span>A place in a constellation</span>
+        </div>
+        <div class="legend-row">
+          <div class="legend-icon" style="display:flex;gap:3px;align-items:flex-end;"><div class="mk-trail" style="--c:var(--faded);--trail-op:0.7;width:8px;height:8px"></div><div class="mk-trail" style="--c:var(--faded);--trail-op:0.7;width:8px;height:8px"></div><div class="mk-trail" style="--c:var(--faded);--trail-op:0.7;width:8px;height:8px"></div></div>
+          <span>The course of a voyage</span>
+        </div>
+        <div class="legend-row">
+          <div class="legend-icon"><div class="mk-cross" style="width:18px;height:18px;animation:none;"><span style="font-size:0.55rem">&#10038;</span></div></div>
+          <span>Where two voyages cross</span>
+        </div>
+      </div>
+    </div>
 
     <svg class="marginalia" viewBox="0 0 240 80" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
       <path d="M6 54 q12 -22 24 0 q12 22 24 0 q12 -22 24 0 q12 22 24 0 q10 -18 22 -8" />
