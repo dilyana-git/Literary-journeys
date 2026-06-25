@@ -327,7 +327,10 @@
     .cross-row { padding: 6px 0 6px 4px; border-bottom: 1px dotted var(--edge); cursor: pointer; }
     .cross-row:last-child { border-bottom: none; }
     .cross-place { font-family: var(--font-old); font-size: 0.95rem; color: var(--ink); font-style: italic; }
-    .cross-books { font-size: 0.78rem; color: var(--faded); margin-top: 1px; }
+    .cross-meet { display: flex; align-items: center; gap: 7px; margin-top: 3px; }
+    .cross-dots { display: inline-flex; gap: 3px; flex-shrink: 0; }
+    .cross-dot { width: 8px; height: 8px; border-radius: 50%; box-shadow: 0 0 0 1px rgba(56,41,26,0.2); }
+    .cross-count { font-size: 0.72rem; color: var(--faded); font-style: italic; }
     .cross-row:hover .cross-place { color: var(--rubric); }
 
     /* ── legend (cartographer's key) ── */
@@ -1863,12 +1866,17 @@ function renderCrossingsPanel() {
   if (!crossings.on) { panel.classList.remove('open'); panel.innerHTML = ''; return; }
 
   const rows = crossings.data.map((g, i) => {
-    const books = [...new Set(g.map(p => p.title))];
+    const books = [...new Map(g.map(p => [p.jid, { title: p.title, color: p.color }])).values()];
     const lat = g.reduce((s, p) => s + p.coords[0], 0) / g.length;
     const lng = g.reduce((s, p) => s + p.coords[1], 0) / g.length;
-    return `<div class="cross-row" data-cross="${i}" data-lat="${lat}" data-lng="${lng}">
+    const dots = books.map(b => `<span class="cross-dot" style="background:${b.color}"></span>`).join('');
+    const names = books.map(b => b.title).join(' · ');
+    return `<div class="cross-row" data-cross="${i}" data-lat="${lat}" data-lng="${lng}" title="${names}">
       <div class="cross-place">${g[0].name}</div>
-      <div class="cross-books">${books.join(' &times; ')}</div>
+      <div class="cross-meet">
+        <span class="cross-dots">${dots}</span>
+        <span class="cross-count">${books.length} voyages meet</span>
+      </div>
     </div>`;
   }).join('');
 
