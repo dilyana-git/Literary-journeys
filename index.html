@@ -319,12 +319,38 @@
     .cross-books { font-size: 0.78rem; color: var(--faded); margin-top: 1px; }
     .cross-row:hover .cross-place { color: var(--rubric); }
 
-    /* ── legend (cartographer's key) ──────────────────────── */
-    #legend { padding: 13px 22px 16px; border-top: 1px solid var(--edge); font-size: 0.82rem; color: var(--faded); background: rgba(217,200,158,0.4); }
-    .legend-title { font-family: var(--font-caps); font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.18em; margin-bottom: 9px; color: var(--ink-2); }
-    .legend-row { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+    /* ── legend (cartographer's key) — floats over the map ── */
+    .map-legend {
+      position: absolute; left: 12px; top: 86px; z-index: 465;
+      width: 232px;
+      background: linear-gradient(180deg, var(--vellum-2), var(--vellum-3));
+      border: 1px solid var(--edge); border-radius: 2px;
+      box-shadow: 0 6px 20px rgba(56,41,26,0.28), inset 0 0 0 3px rgba(233,220,190,0.65);
+      font-size: 0.82rem; color: var(--faded);
+      overflow: hidden;
+    }
+    .map-legend-head {
+      display: flex; align-items: center; gap: 8px; cursor: pointer; user-select: none;
+      padding: 9px 12px;
+      font-family: var(--font-caps); font-size: 0.62rem; text-transform: uppercase;
+      letter-spacing: 0.18em; color: var(--ink-2);
+      background: rgba(140,59,43,0.06);
+      border-bottom: 1px solid var(--edge-soft);
+      transition: background 0.15s;
+    }
+    .map-legend-head:hover { background: rgba(140,59,43,0.11); }
+    .map-legend-head > svg:first-child { color: var(--rubric); flex-shrink: 0; }
+    .map-legend-head .ml-label { flex: 1; }
+    .map-legend-head .ml-caret { color: var(--faded); transition: transform 0.22s; }
+    .map-legend.collapsed { width: auto; }
+    .map-legend.collapsed .map-legend-head { border-bottom: none; }
+    .map-legend.collapsed .map-legend-body { display: none; }
+    .map-legend.collapsed .ml-caret { transform: rotate(-90deg); }
+    .map-legend-body { padding: 11px 12px 12px; }
+    .legend-row { display: flex; align-items: center; gap: 10px; margin-bottom: 7px; }
+    .legend-row:last-child { margin-bottom: 0; }
     .legend-icon { width: 26px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-    .legend-row span { font-family: var(--font-old); }
+    .legend-row span { font-family: var(--font-old); line-height: 1.25; }
 
     /* ════════════════ MAP STAGE ══════════════════════════════ */
     .map-stage { position: relative; flex: 1; min-width: 0; overflow: hidden; background: var(--vellum-3); }
@@ -493,6 +519,7 @@
       .compass { width: 120px; height: 120px; right: 16px; bottom: 16px; }
       .marginalia { display: none; }
       #empty-state { top: 50%; }
+      .map-legend { top: 10px; left: 50px; width: 210px; }
     }
   </style>
 </head>
@@ -563,31 +590,40 @@
 
     <div id="journey-list"></div>
 
-    <div id="legend">
-      <div class="legend-title">The Map Key</div>
-      <div class="legend-row">
-        <div class="legend-icon"><div class="mk-seal" style="--c:#8a7150;width:18px;height:18px;"><span style="font-size:0.5rem">3</span></div></div>
-        <span>Numbered port of call &mdash; a charted route</span>
-      </div>
-      <div class="legend-row">
-        <div class="legend-icon"><div style="--c:#8a7150;" class="mk-star"></div></div>
-        <span>Scattered place &mdash; a constellation</span>
-      </div>
-      <div class="legend-row">
-        <div class="legend-icon"><svg width="24" height="8"><line x1="1" y1="4" x2="23" y2="4" stroke="#8a7150" stroke-width="2" stroke-dasharray="5,4"/></svg></div>
-        <span>The course of a voyage</span>
-      </div>
-      <div class="legend-row">
-        <div class="legend-icon"><div class="mk-cross" style="width:18px;height:18px;animation:none;"><span style="font-size:0.55rem">✶</span></div></div>
-        <span>Where two voyages cross</span>
-      </div>
-    </div>
-
   </aside>
 
   <div class="map-stage">
     <div id="map"></div>
     <div class="map-vignette"></div>
+
+    <!-- cartographer's key — floats over the chart, collapsible -->
+    <div class="map-legend" id="map-legend">
+      <div class="map-legend-head" id="map-legend-toggle" role="button" tabindex="0" aria-expanded="true">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <circle cx="8" cy="8" r="4.5"/><path d="M11.2 11.2 21 21M17 17l3-1M15 19l3-1"/>
+        </svg>
+        <span class="ml-label">The Map Key</span>
+        <svg class="ml-caret" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+      </div>
+      <div class="map-legend-body">
+        <div class="legend-row">
+          <div class="legend-icon"><div class="mk-seal" style="--c:#8a7150;width:18px;height:18px;"><span style="font-size:0.5rem">3</span></div></div>
+          <span>Numbered port of call &mdash; a charted route</span>
+        </div>
+        <div class="legend-row">
+          <div class="legend-icon"><div style="--c:#8a7150;" class="mk-star"></div></div>
+          <span>Scattered place &mdash; a constellation</span>
+        </div>
+        <div class="legend-row">
+          <div class="legend-icon"><svg width="24" height="8"><line x1="1" y1="4" x2="23" y2="4" stroke="#8a7150" stroke-width="2" stroke-dasharray="5,4"/></svg></div>
+          <span>The course of a voyage</span>
+        </div>
+        <div class="legend-row">
+          <div class="legend-icon"><div class="mk-cross" style="width:18px;height:18px;animation:none;"><span style="font-size:0.55rem">✶</span></div></div>
+          <span>Where two voyages cross</span>
+        </div>
+      </div>
+    </div>
 
     <!-- sea-serpent marginalia -->
     <svg class="marginalia" viewBox="0 0 240 80" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
@@ -2323,6 +2359,22 @@ function updateEmptyState() {
 document.getElementById('btn-show-all').addEventListener('click', chartAll);
 document.getElementById('btn-clear').addEventListener('click', clearAll);
 document.getElementById('btn-crossings').addEventListener('click', toggleCrossings);
+
+// ── Map Key: collapsible, starts folded on small screens ──
+const mapLegend  = document.getElementById('map-legend');
+const legendHead = document.getElementById('map-legend-toggle');
+function toggleLegend() {
+  const collapsed = mapLegend.classList.toggle('collapsed');
+  legendHead.setAttribute('aria-expanded', String(!collapsed));
+}
+legendHead.addEventListener('click', toggleLegend);
+legendHead.addEventListener('keydown', e => {
+  if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleLegend(); }
+});
+if (window.matchMedia('(max-width: 720px)').matches) {
+  mapLegend.classList.add('collapsed');
+  legendHead.setAttribute('aria-expanded', 'false');
+}
 
 renderSidebar();
 updateEmptyState();
