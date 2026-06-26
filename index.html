@@ -93,46 +93,41 @@
 
     #sheet-handle { display: none; }
 
-    /* ── cartouche / masthead ── */
-    #masthead {
-      padding: 28px 22px 20px;
-      text-align: center;
-      border-bottom: 3px double var(--gilt);
-      position: relative;
+    /* ── title cartouche (now floats over the map, not the ledger) ── */
+    #map-title {
+      position: absolute; top: 18px; left: 50%; transform: translateX(-50%);
+      z-index: 460; pointer-events: none; text-align: center;
+      padding: 13px 38px 14px; border-radius: 3px;
+      max-width: min(72%, 540px);
       background:
-        radial-gradient(ellipse 100% 100% at 50% 100%, color-mix(in srgb, var(--gilt) 10%, transparent), transparent 70%);
+        radial-gradient(ellipse 120% 100% at 50% 0%, color-mix(in srgb, var(--gilt) 12%, transparent), transparent 72%),
+        linear-gradient(180deg, color-mix(in srgb, var(--vellum) 94%, #fff) 0%, color-mix(in srgb, var(--vellum-2) 94%, #fff) 100%);
+      border: 2px solid var(--gilt);
+      box-shadow:
+        0 6px 22px rgba(42,28,12,0.28),
+        inset 0 0 0 4px color-mix(in srgb, var(--vellum) 90%, #fff),
+        inset 0 0 0 5.5px color-mix(in srgb, var(--gilt) 55%, transparent);
+      transition: opacity 0.5s ease;
     }
-    #masthead .flourish {
-      color: var(--gilt); height: 16px; margin: 0 auto 10px; display: block;
+    #map-title .flourish { color: var(--gilt); height: 14px; margin: 0 auto 8px; display: block; }
+    #map-title h1 {
+      font-family: var(--font-title); font-weight: 700;
+      font-size: 1.78rem; line-height: 1.1; letter-spacing: 0.02em; color: var(--ink);
+      text-shadow: 0 1px 0 rgba(255,248,220,0.8), 0 2px 5px rgba(42,28,12,0.14);
     }
-    #masthead h1 {
-      font-family: var(--font-title);
-      font-weight: 700;
-      font-size: 1.72rem;
-      line-height: 1.1;
-      letter-spacing: 0.02em;
-      color: var(--ink);
-      text-shadow: 0 1px 0 rgba(255,248,220,0.7), 0 2px 4px rgba(42,28,12,0.12);
+    #map-title .sub {
+      font-family: var(--font-old); font-style: italic; font-size: 0.96rem;
+      color: var(--rubric); margin-top: 7px; letter-spacing: 0.03em;
     }
-    #masthead .sub {
-      font-family: var(--font-old);
-      font-style: italic;
-      font-size: 0.95rem;
-      color: var(--rubric);
-      margin-top: 8px;
-      letter-spacing: 0.03em;
+    #map-title .est {
+      font-family: var(--font-caps); font-size: 0.58rem; letter-spacing: 0.3em;
+      text-transform: uppercase; color: var(--gilt); margin-top: 9px;
     }
-    #masthead .est {
-      font-family: var(--font-caps);
-      font-size: 0.58rem;
-      letter-spacing: 0.3em;
-      text-transform: uppercase;
-      color: var(--gilt);
-      margin-top: 10px;
-    }
+    /* fade the title back a touch while reading, so the folio leads */
+    .map-stage.reading #map-title { opacity: 0.5; }
 
     /* ── gazetteer (search) ── */
-    #gazetteer { padding: 14px 22px 12px; border-bottom: 1px solid var(--edge); position: relative; }
+    #gazetteer { padding: 20px 22px 12px; border-bottom: 1px solid var(--edge); position: relative; }
     .gaz-field {
       display: flex; align-items: center; gap: 8px;
       background: color-mix(in srgb, var(--vellum) 85%, #fff);
@@ -680,9 +675,10 @@
         background: var(--edge); opacity: 0.7;
       }
 
-      #masthead { padding-top: 4px; }
-      #masthead h1 { font-size: 1rem; }
-      #masthead .sub, #masthead .est, #masthead .flourish { display: none; }
+      #map-title { top: 8px; padding: 6px 16px 7px; max-width: 86%; }
+      #map-title h1 { font-size: 1rem; }
+      #map-title .sub, #map-title .est, #map-title .flourish { display: none; }
+      #gazetteer { padding-top: 12px; }
       #controls { padding: 6px 16px 8px; gap: 6px; }
       .ctrl-btn { font-size: 0.58rem; padding: 4px 9px; }
       #journey-list { overflow-y: auto; flex: 1; min-height: 0; -webkit-overflow-scrolling: touch; }
@@ -702,28 +698,6 @@
   <aside id="ledger">
 
     <div id="sheet-handle"><div class="bar"></div></div>
-
-    <div id="masthead">
-      <svg class="flourish" width="180" height="20" viewBox="0 0 180 20" fill="none" stroke="currentColor" stroke-width="1.1">
-        <path d="M2 10 H52 M128 10 H178" opacity="0.6"/>
-        <path d="M52 10 q6 -8 14 -4 q4 3 8 0 q4 -3 8 0 q4 3 8 0 q8 -4 14 4" opacity="0.8"/>
-        <path d="M52 10 q6 8 14 4 q4 -3 8 0 q4 3 8 0 q4 -3 8 0 q8 4 14 -4" opacity="0.5"/>
-        <circle cx="90" cy="10" r="3" fill="currentColor" stroke="none"/>
-        <circle cx="90" cy="10" r="5" opacity="0.4"/>
-        <path d="M48 10 l-4 -4 M48 10 l-4 4" opacity="0.5" stroke-width="0.9"/>
-        <path d="M132 10 l4 -4 M132 10 l4 4" opacity="0.5" stroke-width="0.9"/>
-        <circle cx="56" cy="10" r="1.3" fill="currentColor" stroke="none" opacity="0.5"/>
-        <circle cx="124" cy="10" r="1.3" fill="currentColor" stroke="none" opacity="0.5"/>
-      </svg>
-      <h1>Literary Journeys</h1>
-      <div class="sub">An Atlas of Imagined Voyages</div>
-      <svg class="flourish" width="120" height="10" viewBox="0 0 120 10" fill="none" stroke="currentColor" stroke-width="0.8" style="height:10px;margin:8px auto 0">
-        <path d="M10 5 H46 M74 5 H110" opacity="0.4"/>
-        <path d="M46 5 q7 -4 14 0 q7 4 14 0" opacity="0.6"/>
-        <circle cx="60" cy="5" r="1.5" fill="currentColor" stroke="none" opacity="0.6"/>
-      </svg>
-      <div class="est">Charted &middot; Mappa Mundi Libraria</div>
-    </div>
 
     <div id="gazetteer">
       <div class="gaz-field">
@@ -767,6 +741,28 @@
     <div id="map"></div>
     <div class="map-vignette"></div>
     <div class="reading-veil"></div>
+
+    <div id="map-title">
+      <svg class="flourish" width="180" height="20" viewBox="0 0 180 20" fill="none" stroke="currentColor" stroke-width="1.1">
+        <path d="M2 10 H52 M128 10 H178" opacity="0.6"/>
+        <path d="M52 10 q6 -8 14 -4 q4 3 8 0 q4 -3 8 0 q4 3 8 0 q8 -4 14 4" opacity="0.8"/>
+        <path d="M52 10 q6 8 14 4 q4 -3 8 0 q4 3 8 0 q4 -3 8 0 q8 4 14 -4" opacity="0.5"/>
+        <circle cx="90" cy="10" r="3" fill="currentColor" stroke="none"/>
+        <circle cx="90" cy="10" r="5" opacity="0.4"/>
+        <path d="M48 10 l-4 -4 M48 10 l-4 4" opacity="0.5" stroke-width="0.9"/>
+        <path d="M132 10 l4 -4 M132 10 l4 4" opacity="0.5" stroke-width="0.9"/>
+        <circle cx="56" cy="10" r="1.3" fill="currentColor" stroke="none" opacity="0.5"/>
+        <circle cx="124" cy="10" r="1.3" fill="currentColor" stroke="none" opacity="0.5"/>
+      </svg>
+      <h1>Literary Journeys</h1>
+      <div class="sub">An Atlas of Imagined Voyages</div>
+      <svg class="flourish" width="120" height="10" viewBox="0 0 120 10" fill="none" stroke="currentColor" stroke-width="0.8" style="height:10px;margin:8px auto 0">
+        <path d="M10 5 H46 M74 5 H110" opacity="0.4"/>
+        <path d="M46 5 q7 -4 14 0 q7 4 14 0" opacity="0.6"/>
+        <circle cx="60" cy="5" r="1.5" fill="currentColor" stroke="none" opacity="0.6"/>
+      </svg>
+      <div class="est">Charted &middot; Mappa Mundi Libraria</div>
+    </div>
 
     <!-- sea-serpent marginalia -->
     <svg class="marginalia" viewBox="0 0 240 80" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
