@@ -1524,6 +1524,23 @@ function pulseMarker(id, idx) {
   seal.classList.add('made-port');
 }
 
+// The bottom presentation folio overlays the lower band of the map. When it is
+// open, shift the camera so the target stop lands in the *visible* area above
+// the folio instead of the geometric centre (where the folio would hide it).
+function folioInset() {
+  if (!story.on || !storyEl) return 0;
+  return Math.max(storyEl.offsetHeight, 180) + 50;   // folio band height + clearance
+}
+
+function flyToFocus(coords, zoom, duration) {
+  const inset = folioInset();
+  if (inset > 0) {
+    const pt = map.project(coords, zoom).add([0, inset / 2]);
+    coords = map.unproject(pt, zoom);
+  }
+  map.flyTo(coords, zoom, { duration });
+}
+
 function voyageSeek(id, step, fly = true) {
   voyageEnsure(id);
   if (voyage.raf) { cancelAnimationFrame(voyage.raf); voyage.raf = null; }
@@ -1531,7 +1548,7 @@ function voyageSeek(id, step, fly = true) {
   step = Math.max(0, Math.min(step, j.stops.length - 1));
   voyage.step = step;
   voyageRender(voyage.path.anchors[step]);
-  if (fly) map.flyTo(j.stops[step].coords, Math.max(map.getZoom(), 5), { duration: FLY });
+  if (fly) flyToFocus(j.stops[step].coords, Math.max(map.getZoom(), 5), FLY);
   updateVoyageUI();
 }
 
@@ -1545,7 +1562,7 @@ function voyageGlide(id, step, opts = {}) {
   const to   = voyage.path.anchors[step];
   const dist = Math.abs(to - from);
   const dur  = Math.max(420, Math.min(2200, dist * 26));
-  if (fly) map.flyTo(j.stops[step].coords, Math.max(map.getZoom(), 5), { duration: Math.max(FLY, dur / 1000) });
+  if (fly) flyToFocus(j.stops[step].coords, Math.max(map.getZoom(), 5), Math.max(FLY, dur / 1000));
   const t0 = performance.now();
   const ease = t => (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2);
   voyage.step = step;
