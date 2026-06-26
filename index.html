@@ -238,13 +238,13 @@
       box-shadow: 0 0 0 1.5px rgba(255,248,220,0.5);
     }
 
-    /* expand chevron — affordance that the row opens details (decoupled from the map) */
-    .row-chevron {
-      flex-shrink: 0; color: var(--faded); opacity: 0.7;
-      transition: transform 0.22s cubic-bezier(.2,.7,.3,1), color 0.16s;
+    /* "open" affordance — the row opens the presentation folio at the bottom */
+    .row-open {
+      flex-shrink: 0; color: var(--faded); opacity: 0; transform: translateX(-4px);
+      transition: opacity 0.18s, transform 0.18s, color 0.16s;
     }
-    .journey-item.expanded .row-chevron { transform: rotate(90deg); color: var(--rubric); opacity: 1; }
-    .journey-header:hover .row-chevron { color: var(--ink-2); }
+    .journey-header:hover .row-open { opacity: 0.85; transform: none; color: var(--rubric); }
+    .journey-item.selected .row-open { opacity: 1; transform: none; color: var(--rubric); }
     .journey-title {
       font-family: var(--font-caps); font-weight: 600; font-size: 1.02rem;
       flex: 1; line-height: 1.2; color: var(--ink);
@@ -252,7 +252,7 @@
     }
     .type-glyph { color: var(--faded); flex-shrink: 0; opacity: 0.45; transition: opacity 0.2s, color 0.2s; }
     .journey-item.active .type-glyph,
-    .journey-item.expanded .type-glyph { opacity: 1; color: var(--rubric); }
+    .journey-item.selected .type-glyph { opacity: 1; color: var(--rubric); }
 
     .journey-meta {
       padding: 0 22px 1px 50px; font-size: 0.86rem; color: var(--faded);
@@ -265,77 +265,9 @@
     }
     .journey-meta:hover, .journey-badge:hover { color: var(--ink-2); }
 
-    .journey-body { display: none; padding: 4px 0 14px; background: color-mix(in srgb, var(--rubric) 4%, transparent); border-top: 1px solid var(--edge-soft); }
-    .journey-item.expanded .journey-body { display: block; }
-
-    /* in-panel primary action: chart / un-chart this voyage on the map */
-    .chart-toggle {
-      display: flex; align-items: center; justify-content: center; gap: 8px;
-      margin: 4px 22px 4px 50px; padding: 8px 12px; width: calc(100% - 72px);
-      font-family: var(--font-caps); font-size: 0.64rem; letter-spacing: 0.13em; text-transform: uppercase;
-      cursor: pointer; border-radius: 2px; transition: background 0.16s, color 0.16s, border-color 0.16s;
-      border: 1.5px solid var(--edge); color: var(--rubric);
-      background: linear-gradient(180deg, var(--vellum), var(--vellum-2));
-    }
-    .chart-toggle:hover { border-color: var(--gilt); background: linear-gradient(180deg, var(--vellum-2), var(--vellum-3)); }
-    .chart-toggle .ct-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; box-shadow: inset 0 0 0 1px rgba(255,248,220,0.4); }
-    .journey-item.active .chart-toggle {
-      background: linear-gradient(180deg, var(--rubric), var(--rubric-dk)); color: #f5e4c0; border-color: var(--rubric-dk);
-      box-shadow: 0 2px 6px rgba(75,34,16,0.4), inset 0 1px 0 rgba(255,248,220,0.15);
-    }
-    .journey-item.active .chart-toggle:hover { background: linear-gradient(180deg, var(--rubric-dk), var(--rubric)); }
-
-    .journey-blurb {
-      padding: 10px 24px 10px 50px; font-size: 0.92rem; color: var(--ink-2);
-      font-style: italic; line-height: 1.5; font-family: var(--font-old);
-    }
-
-
-    /* ── voyage console (scrubber) ── */
-    .voyage { margin: 0 22px 12px 50px; }
-    .voyage-top { display: flex; align-items: center; gap: 10px; margin-bottom: 7px; }
-    .voy-play {
-      width: 30px; height: 30px; flex-shrink: 0; border-radius: 50%;
-      border: 1.5px solid var(--rubric-dk); background: linear-gradient(160deg, var(--rubric), var(--rubric-dk)); color: #f5e4c0;
-      cursor: pointer; font-size: 0.7rem; line-height: 1;
-      display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 2px 6px rgba(75,34,16,0.5), inset 0 1px 0 rgba(255,248,220,0.2); transition: transform 0.12s, background 0.16s;
-    }
-    .voy-play:hover { transform: scale(1.08); }
-    .voy-label { font-family: var(--font-old); font-size: 0.84rem; color: var(--ink-2); line-height: 1.2; }
-    .voy-label em { color: var(--ink); font-style: italic; }
-
-    .voy-slider { -webkit-appearance: none; appearance: none; width: 100%; height: 3px; background: var(--edge); border-radius: 2px; outline: none; cursor: pointer; }
-    .voy-slider::-webkit-slider-thumb {
-      -webkit-appearance: none; appearance: none; width: 15px; height: 15px; border-radius: 50%;
-      background: var(--vellum); border: 2px solid var(--rubric);
-      box-shadow: 0 1px 3px rgba(56,41,26,0.4); cursor: pointer; margin-top: -1px;
-    }
-    .voy-slider::-moz-range-thumb {
-      width: 15px; height: 15px; border-radius: 50%; background: var(--vellum);
-      border: 2px solid var(--rubric); box-shadow: 0 1px 3px rgba(56,41,26,0.4); cursor: pointer;
-    }
-
-    /* ── stop list ── */
-    .stop-list { list-style: none; padding-top: 2px; }
-    .stop-item {
-      display: flex; align-items: flex-start; gap: 9px;
-      padding: 5px 22px 5px 50px; font-size: 0.88rem; color: var(--ink-2);
-      cursor: pointer; line-height: 1.3; font-family: var(--font-old);
-      transition: background 0.1s, color 0.1s;
-    }
-    .stop-item:hover { color: var(--ink); background: color-mix(in srgb, var(--rubric) 7%, transparent); }
-    .stop-item.lit  { background: color-mix(in srgb, var(--rubric) 14%, transparent); color: var(--ink); }
-    .stop-num {
-      width: 18px; height: 18px; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 0.62rem; font-weight: 600; font-family: var(--font-caps);
-      color: #fbf3e0; flex-shrink: 0; margin-top: 1px;
-      border: 1px solid rgba(56,41,26,0.35);
-      box-shadow: inset 0 0 0 1px rgba(255,250,235,0.3);
-    }
-    .stop-star { width: 13px; height: 13px; flex-shrink: 0; margin-top: 3px;
-      clip-path: polygon(50% 0,61% 39%,100% 50%,61% 61%,50% 100%,39% 61%,0 50%,39% 39%); }
+    /* the book currently open in the bottom presentation folio */
+    .journey-item.selected { background: color-mix(in srgb, var(--rubric) 8%, transparent); box-shadow: inset 4px 0 0 0 var(--jc, var(--rubric)); }
+    .journey-item.selected > .journey-header { background: color-mix(in srgb, var(--rubric) 10%, transparent); }
 
     /* ── crossings panel ── */
     #crossings-panel { display: none; padding: 12px 22px 14px; border-top: 1px solid var(--edge); border-bottom: 1px solid var(--edge); background: color-mix(in srgb, var(--rubric) 7%, transparent); }
@@ -601,7 +533,7 @@
     .map-stage.reading .marginalia { opacity: 0.25; transition: opacity 0.5s; }
     .reading-veil {
       position: absolute; inset: 0; z-index: 690; pointer-events: none; opacity: 0;
-      background: radial-gradient(120% 90% at 50% 120%, rgba(42,28,12,0.48) 0%, rgba(42,28,12,0.18) 38%, transparent 64%);
+      background: radial-gradient(130% 95% at 50% 125%, rgba(42,28,12,0.30) 0%, rgba(42,28,12,0.10) 42%, transparent 66%);
       transition: opacity 0.55s ease;
     }
     .map-stage.reading .reading-veil { opacity: 1; }
@@ -631,7 +563,11 @@
     @keyframes folioTurn { 0% { opacity: 0; transform: translateX(9px); } 100% { opacity: 1; transform: translateX(0); } }
     .story-book {
       font-family: var(--font-caps); font-size: 0.6rem; letter-spacing: 0.2em;
-      text-transform: uppercase; color: var(--rubric); margin-bottom: 7px;
+      text-transform: uppercase; color: var(--rubric); margin-bottom: 5px;
+    }
+    .story-blurb {
+      font-family: var(--font-old); font-style: italic; font-size: 0.84rem;
+      line-height: 1.4; color: var(--faded); margin-bottom: 9px; text-wrap: pretty;
     }
     .story-name {
       font-family: var(--font-caps); font-weight: 600; font-size: 1.28rem; color: var(--ink);
@@ -696,16 +632,6 @@
     }
     .story-pip:hover { transform: scale(1.3); }
     .story-pip.done { background: var(--rubric); border-color: var(--rubric-dk); }
-
-    .voy-read {
-      display: flex; align-items: center; justify-content: center; gap: 7px; width: 100%;
-      margin-top: 11px; padding: 8px 0; cursor: pointer;
-      font-family: var(--font-caps); font-size: 0.64rem; letter-spacing: 0.16em; text-transform: uppercase;
-      color: var(--rubric); background: transparent;
-      border: 1px solid var(--edge); border-radius: 3px; transition: background 0.16s, color 0.16s;
-    }
-    .voy-read:hover { background: var(--rubric); color: #f5e9cf; border-color: var(--rubric-dk); }
-    .voy-read svg { width: 13px; height: 13px; }
 
     /* ── tweaks toggle button ──
     #tweaks-toggle {
@@ -1093,9 +1019,8 @@ const JOURNEYS = [
 // ═══════════════════════════════════════════════════════════════
 
 const state = {
-  activeIds:  new Set(),   // journeys drawn on the map (decoupled from panel expansion)
+  activeIds:  new Set(),   // journeys drawn on the map
   layers:     {},
-  expandedId: null,        // the single open detail panel in the index (accordion)
 };
 
 const voyage = { id: null, step: 0, head: 0, playing: false, timer: null, raf: null, ship: null, poly: null, path: null };
@@ -1664,20 +1589,10 @@ function voyagePause() {
   updateVoyageUI();
 }
 
-function updateVoyageUI() {
-  if (!voyage.id) return;
-  const j = byId(voyage.id);
-  const slider = document.querySelector(`[data-voy-slider="${voyage.id}"]`);
-  const label  = document.querySelector(`[data-voy-label="${voyage.id}"]`);
-  const play   = document.querySelector(`[data-voy-play="${voyage.id}"]`);
-  if (slider) slider.value = voyage.step;
-  if (label)  label.innerHTML = `Stop ${voyage.step + 1} of ${j.stops.length} &mdash; <em>${j.stops[voyage.step].name}</em>`;
-  if (play)   play.textContent = voyage.playing ? '❚❚' : (voyage.step >= j.stops.length - 1 ? '↻' : '▶');
-
-  document.querySelectorAll('.stop-item.lit').forEach(e => e.classList.remove('lit'));
-  const li = document.querySelector(`.stop-item[data-jid="${voyage.id}"][data-idx="${voyage.step}"]`);
-  if (li) li.classList.add('lit');
-}
+// The voyage engine (ship glide) used to drive an in-sidebar scrubber; that UI
+// now lives in the bottom folio, which updates itself in storyGo(). Kept as a
+// no-op hook so the engine's call sites stay intact.
+function updateVoyageUI() {}
 
 
 // ═══════════════════════════════════════════════════════════════
@@ -1696,6 +1611,7 @@ function buildStoryEl() {
       <button class="story-x" aria-label="Close reading mode">&times;</button>
       <div class="story-text">
         <div class="story-book"></div>
+        <div class="story-blurb"></div>
         <div class="story-name"></div>
         <div class="story-place"></div>
         <div class="story-inbook"></div>
@@ -1724,6 +1640,8 @@ function storyOpen(id) {
   story.id = id; story.on = true;
   buildStoryEl();
   document.querySelector('.map-stage').classList.add('reading');
+  // on mobile the ledger is a bottom sheet — fold it away so the folio is clear
+  if (window.innerWidth <= 720) document.getElementById('ledger')?.classList.add('collapsed');
   requestAnimationFrame(() => storyEl.classList.add('open'));
 
   const j = byId(id);
@@ -1733,6 +1651,7 @@ function storyOpen(id) {
     p.addEventListener('click', () => { storyStopAuto(); storyGo(+p.dataset.i); }));
 
   storyGo(0, false);
+  markSelected();
 }
 
 function storyGo(step, glide = true) {
@@ -1746,7 +1665,8 @@ function storyGo(step, glide = true) {
   else       voyageSeek(story.id, step, true);
 
   const t = storyEl;
-  t.querySelector('.story-book').textContent = `${j.title} · ${j.author}`;
+  t.querySelector('.story-book').textContent = `${j.title} · ${j.author} · ${j.year}`;
+  t.querySelector('.story-blurb').textContent = j.blurb;
   t.querySelector('.story-name').innerHTML = `<span class="story-num" style="background:${j.color}">${step + 1}</span>${stop.name}`;
   t.querySelector('.story-place').textContent = stop.realPlace;
   t.querySelector('.story-inbook').textContent = stop.inBook;
@@ -1793,6 +1713,7 @@ function storyClose() {
   }
   document.querySelector('.map-stage').classList.remove('reading');
   story.on = false;
+  markSelected();
 }
 
 document.addEventListener('keydown', e => {
@@ -1908,49 +1829,20 @@ function renderCrossingsPanel() {
 // ═══════════════════════════════════════════════════════════════
 
 
-function renderVoyageConsole(journey) {
-  const n = journey.stops.length;
-  const isThis = voyage.id === journey.id;
-  const step = isThis ? voyage.step : 0;
-  const playGlyph = isThis ? (voyage.playing ? '❚❚' : (step >= n - 1 ? '↻' : '▶')) : '▶';
-  return `
-    <div class="voyage">
-      <div class="voyage-top">
-        <button class="voy-play" data-voy-play="${journey.id}" aria-label="Play voyage">${playGlyph}</button>
-        <div class="voy-label" data-voy-label="${journey.id}">Stop ${step + 1} of ${n} &mdash; <em>${journey.stops[step].name}</em></div>
-      </div>
-      <input class="voy-slider" type="range" min="0" max="${n - 1}" value="${step}" step="1" data-voy-slider="${journey.id}" aria-label="Voyage progress" />
-      <button class="voy-read" data-voy-read="${journey.id}">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M3 5.5C6 4 9 4 12 5.5V20c-3-1.5-6-1.5-9 0V5.5Z"/><path d="M21 5.5C18 4 15 4 12 5.5V20c3-1.5 6-1.5 9 0V5.5Z"/></svg>
-        Read this voyage
-      </button>
-    </div>`;
+// Selecting a book in the index "presents" it: charts it on the map and opens
+// the bottom folio (the storyOpen flow handles both). The per-book detail that
+// used to crowd the sidebar — blurb, scrubber, stop-by-stop reading — now lives
+// entirely in that bottom panel. The seal-swatch remains the lightweight
+// "show on map without presenting" control.
+function presentJourney(id, step) {
+  storyOpen(id);
+  if (step) storyGo(step);
 }
 
-// Open one detail panel at a time (accordion). Purely a sidebar concern —
-// it never touches what is drawn on the map.
-function toggleExpand(id) {
-  state.expandedId = state.expandedId === id ? null : id;
-  renderSidebar();
-}
-
-// Chart a journey onto the map without a full sidebar re-render, and patch the
-// given row's controls in place — used by the voyage console / stop list so an
-// in-progress play or slider drag is never interrupted by a re-render.
-function silentChart(id, itemEl) {
-  if (state.activeIds.has(id)) return;
-  state.activeIds.add(id);
-  drawJourney(byId(id), false);
-  updateEmptyState();
-  renderTimeline();
-  syncHash();
-  if (itemEl) {
-    itemEl.classList.add('active');
-    const sw = itemEl.querySelector('.seal-swatch');
-    if (sw) { sw.title = 'Hide from map'; sw.setAttribute('aria-pressed', 'true'); }
-    const ct = itemEl.querySelector('.chart-toggle');
-    if (ct) ct.innerHTML = `<span class="ct-dot" style="background:${byId(id).color}"></span>Charted &middot; tap to hide`;
-  }
+// Highlight whichever row is currently open in the bottom folio.
+function markSelected() {
+  document.querySelectorAll('.journey-item').forEach(it =>
+    it.classList.toggle('selected', story.on && story.id === it.dataset.jid));
 }
 
 function renderSidebar() {
@@ -1959,120 +1851,50 @@ function renderSidebar() {
 
   JOURNEYS.forEach((journey, ji) => {
     const active   = state.activeIds.has(journey.id);
-    const expanded = state.expandedId === journey.id;
+    const selected = story.on && story.id === journey.id;
     const item = document.createElement('div');
-    item.className = `journey-item${active ? ' active' : ''}${expanded ? ' expanded' : ''}${firstRender ? ' rise' : ''}`;
+    item.className = `journey-item${active ? ' active' : ''}${selected ? ' selected' : ''}${firstRender ? ' rise' : ''}`;
+    item.dataset.jid = journey.id;
     item.style.setProperty('--jc', journey.color);
     if (firstRender) item.style.animationDelay = (0.15 + ji * 0.08) + 's';
-
-    const stopItems = journey.stops.map((stop, i) => {
-      const badge = journey.type === 'route'
-        ? `<span class="stop-num" style="background:${journey.color}">${i + 1}</span>`
-        : `<span class="stop-star" style="background:${journey.color}"></span>`;
-      return `<li class="stop-item" data-jid="${journey.id}" data-idx="${i}">${badge}${stop.name}</li>`;
-    }).join('');
 
     const typeGlyph = journey.type === 'route'
       ? `<svg class="type-glyph" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 18c4 0 4-12 8-12s4 12 8 12"/></svg>`
       : `<svg class="type-glyph" width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><circle cx="6" cy="7" r="1.6"/><circle cx="17" cy="5" r="1.6"/><circle cx="12" cy="13" r="1.6"/><circle cx="19" cy="16" r="1.6"/><circle cx="7" cy="18" r="1.6"/></svg>`;
 
-    const chevron = `<svg class="row-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 6l6 6-6 6"/></svg>`;
-    const chartToggle = `
-      <button class="chart-toggle" data-chart="${journey.id}">
-        <span class="ct-dot" style="background:${journey.color}"></span>
-        ${active ? 'Charted &middot; tap to hide' : (journey.type === 'route' ? 'Chart this voyage' : 'Chart this constellation')}
-      </button>`;
+    // a small "open" glyph that hints the row opens the presentation panel
+    const openGlyph = `<svg class="row-open" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M3 5.5C6 4 9 4 12 5.5V20c-3-1.5-6-1.5-9 0V5.5Z"/><path d="M21 5.5C18 4 15 4 12 5.5V20c3-1.5 6-1.5 9 0V5.5Z"/></svg>`;
 
     item.innerHTML = `
       <div class="journey-header">
         <div class="seal-swatch" style="background:${journey.color}" title="${active ? 'Hide from map' : 'Show on map'}" role="button" aria-pressed="${active}"></div>
         <div class="journey-title">${journey.title}</div>
         ${typeGlyph}
-        ${chevron}
+        ${openGlyph}
       </div>
       <div class="journey-meta">${journey.author} &middot; ${journey.year}</div>
       <div class="journey-badge">${journey.type === 'route' ? `Route &middot; ${journey.stops.length} ports` : `Constellation &middot; ${journey.stops.length} places`}</div>
-      <div class="journey-body">
-        <div class="journey-blurb">${journey.blurb}</div>
-        ${chartToggle}
-        ${journey.type === 'route' ? renderVoyageConsole(journey) : ''}
-        <ul class="stop-list">${stopItems}</ul>
-      </div>
     `;
 
-    // Row body (header / meta / badge) opens the detail panel — it no longer
-    // charts the map. The seal-swatch is the separate "show on map" control.
+    // Clicking the row presents the book in the bottom folio (and charts it).
+    // The seal-swatch alone just toggles map visibility, without the folio.
     item.querySelector('.journey-header').addEventListener('click', e => {
       if (e.target.closest('.seal-swatch')) return;
-      toggleExpand(journey.id);
+      presentJourney(journey.id);
     });
     ['journey-meta', 'journey-badge'].forEach(cls => {
-      item.querySelector('.' + cls).addEventListener('click', () => toggleExpand(journey.id));
+      item.querySelector('.' + cls).addEventListener('click', () => presentJourney(journey.id));
     });
 
     item.querySelector('.seal-swatch').addEventListener('click', e => {
       e.stopPropagation();
       toggleJourney(journey.id);
     });
-    item.querySelector('.chart-toggle').addEventListener('click', e => {
-      e.stopPropagation();
-      toggleJourney(journey.id);
-    });
-
-    const playBtn = item.querySelector('.voy-play');
-    if (playBtn) {
-      playBtn.addEventListener('click', e => {
-        e.stopPropagation();
-        silentChart(journey.id, item);   // playing a voyage implies charting it
-        if (voyage.id === journey.id && voyage.playing) voyagePause();
-        else voyagePlay(journey.id);
-      });
-    }
-    const slider = item.querySelector('.voy-slider');
-    if (slider) {
-      slider.addEventListener('input', e => {
-        e.stopPropagation();
-        silentChart(journey.id, item);   // scrubbing implies charting it
-        voyagePause();
-        voyageSeek(journey.id, +slider.value, true);
-      });
-      slider.addEventListener('click', e => e.stopPropagation());
-    }
-
-    const readBtn = item.querySelector('.voy-read');
-    if (readBtn) {
-      readBtn.addEventListener('click', e => { e.stopPropagation(); storyOpen(journey.id); });
-    }
-
-    item.querySelectorAll('.stop-item').forEach(el => {
-      const idx = +el.dataset.idx, jid = el.dataset.jid;
-      el.addEventListener('click', e => {
-        e.stopPropagation();
-        silentChart(jid, item);   // jumping to a stop charts the voyage so its marker exists
-        const stop = journey.stops[idx];
-        map.flyTo(stop.coords, 7, { duration: 1.2 });
-        const g = state.layers[jid];
-        if (g?.markers[idx]) setTimeout(() => g.markers[idx].openPopup(), 1300);
-      });
-      el.addEventListener('mouseenter', () => litMarker(jid, idx, true));
-      el.addEventListener('mouseleave', () => litMarker(jid, idx, false));
-    });
 
     list.appendChild(item);
   });
 
-  updateVoyageUI();
   firstRender = false;
-}
-
-function litMarker(jid, idx, on) {
-  document.querySelectorAll(`.stop-item[data-jid="${jid}"][data-idx="${idx}"]`)
-    .forEach(el => el.classList.toggle('lit', on));
-  const el = state.layers[jid]?.markers[idx]?.getElement();
-  if (el) {
-    el.style.filter = on ? 'drop-shadow(0 0 6px rgba(140,59,43,0.7)) brightness(1.12)' : '';
-    el.style.zIndex = on ? '9999' : '';
-  }
 }
 
 
@@ -2125,22 +1947,10 @@ function runGazetteer(q) {
   gazResults.querySelectorAll('.gaz-row').forEach(row => {
     row.addEventListener('click', () => {
       const id = row.dataset.id;
-      if (row.dataset.kind === 'book') {
-        state.expandedId = id;
-        if (!state.activeIds.has(id)) toggleJourney(id);
-        else {
-          renderSidebar();
-          const b = boundsOf([id]);
-          if (b) map.flyToBounds(b, { padding: [50, 50], duration: 1.2, maxZoom: 8 });
-        }
-      } else {
-        const idx = +row.dataset.idx;
-        ensureChartedAndRender(id, true);
-        const stop = byId(id).stops[idx];
-        map.flyTo(stop.coords, 7, { duration: 1.3 });
-        const g = state.layers[id];
-        if (g?.markers[idx]) setTimeout(() => g.markers[idx].openPopup(), 1400);
-      }
+      // Both a book hit and a place hit open the presentation folio — a place
+      // simply starts it on that stop.
+      if (row.dataset.kind === 'book') presentJourney(id);
+      else                             presentJourney(id, +row.dataset.idx);
       gazResults.classList.remove('open');
       gazInput.value = '';
     });
