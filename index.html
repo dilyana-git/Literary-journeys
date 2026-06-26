@@ -220,16 +220,39 @@
 
     .seal-swatch {
       width: 19px; height: 19px; border-radius: 50%; flex-shrink: 0;
-      border: 2px solid rgba(42,28,12,0.5);
+      border: 2px solid rgba(42,28,12,0.5); cursor: pointer;
       box-shadow: inset 0 0 0 2px rgba(255,248,220,0.4), 0 1px 3px rgba(0,0,0,0.3);
+      transition: background 0.16s, box-shadow 0.16s, transform 0.12s;
+      position: relative;
     }
+    .seal-swatch:hover { transform: scale(1.12); }
+    /* hollow seal = not yet charted; the click "lights the lantern" onto the map */
+    .journey-item:not(.active) .seal-swatch {
+      background: transparent !important;
+      border-color: color-mix(in srgb, var(--jc, var(--edge)) 55%, var(--edge));
+      box-shadow: inset 0 0 0 2px var(--vellum), inset 0 0 0 3.5px color-mix(in srgb, var(--jc, var(--edge)) 50%, transparent);
+    }
+    /* a small tick on the charted seal */
+    .journey-item.active .seal-swatch::after {
+      content: ""; position: absolute; inset: 0; border-radius: 50%;
+      box-shadow: 0 0 0 1.5px rgba(255,248,220,0.5);
+    }
+
+    /* expand chevron — affordance that the row opens details (decoupled from the map) */
+    .row-chevron {
+      flex-shrink: 0; color: var(--faded); opacity: 0.7;
+      transition: transform 0.22s cubic-bezier(.2,.7,.3,1), color 0.16s;
+    }
+    .journey-item.expanded .row-chevron { transform: rotate(90deg); color: var(--rubric); opacity: 1; }
+    .journey-header:hover .row-chevron { color: var(--ink-2); }
     .journey-title {
       font-family: var(--font-caps); font-weight: 600; font-size: 1.02rem;
       flex: 1; line-height: 1.2; color: var(--ink);
       text-shadow: 0 1px 0 rgba(255,248,220,0.5);
     }
-    .type-glyph { color: var(--faded); flex-shrink: 0; opacity: 0; transition: opacity 0.2s; }
-    .journey-item.active .type-glyph { opacity: 1; color: var(--rubric); }
+    .type-glyph { color: var(--faded); flex-shrink: 0; opacity: 0.45; transition: opacity 0.2s, color 0.2s; }
+    .journey-item.active .type-glyph,
+    .journey-item.expanded .type-glyph { opacity: 1; color: var(--rubric); }
 
     .journey-meta {
       padding: 0 22px 1px 50px; font-size: 0.86rem; color: var(--faded);
@@ -243,7 +266,24 @@
     .journey-meta:hover, .journey-badge:hover { color: var(--ink-2); }
 
     .journey-body { display: none; padding: 4px 0 14px; background: color-mix(in srgb, var(--rubric) 4%, transparent); border-top: 1px solid var(--edge-soft); }
-    .journey-item.active .journey-body { display: block; }
+    .journey-item.expanded .journey-body { display: block; }
+
+    /* in-panel primary action: chart / un-chart this voyage on the map */
+    .chart-toggle {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      margin: 4px 22px 4px 50px; padding: 8px 12px; width: calc(100% - 72px);
+      font-family: var(--font-caps); font-size: 0.64rem; letter-spacing: 0.13em; text-transform: uppercase;
+      cursor: pointer; border-radius: 2px; transition: background 0.16s, color 0.16s, border-color 0.16s;
+      border: 1.5px solid var(--edge); color: var(--rubric);
+      background: linear-gradient(180deg, var(--vellum), var(--vellum-2));
+    }
+    .chart-toggle:hover { border-color: var(--gilt); background: linear-gradient(180deg, var(--vellum-2), var(--vellum-3)); }
+    .chart-toggle .ct-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; box-shadow: inset 0 0 0 1px rgba(255,248,220,0.4); }
+    .journey-item.active .chart-toggle {
+      background: linear-gradient(180deg, var(--rubric), var(--rubric-dk)); color: #f5e4c0; border-color: var(--rubric-dk);
+      box-shadow: 0 2px 6px rgba(75,34,16,0.4), inset 0 1px 0 rgba(255,248,220,0.15);
+    }
+    .journey-item.active .chart-toggle:hover { background: linear-gradient(180deg, var(--rubric-dk), var(--rubric)); }
 
     .journey-blurb {
       padding: 10px 24px 10px 50px; font-size: 0.92rem; color: var(--ink-2);
@@ -310,8 +350,35 @@
     .cross-count { font-size: 0.72rem; color: var(--faded); font-style: italic; }
     .cross-row:hover .cross-place { color: var(--rubric); }
 
+    /* ── atlas tools drawer (secondary discovery tools, collapsed by default) ── */
+    #atlas-tools { flex-shrink: 0; border-top: 2px solid var(--edge); background: color-mix(in srgb, var(--vellum-4) 22%, transparent); }
+    #tools-toggle {
+      width: 100%; display: flex; align-items: center; justify-content: space-between;
+      padding: 11px 22px; cursor: pointer; background: transparent; border: none;
+      font-family: var(--font-caps); font-size: 0.62rem; letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--gilt); transition: color 0.16s, background 0.16s;
+    }
+    #tools-toggle:hover { color: var(--rubric); background: color-mix(in srgb, var(--gilt) 8%, transparent); }
+    #tools-toggle .tt-chevron { transition: transform 0.24s cubic-bezier(.2,.7,.3,1); color: var(--faded); }
+    #tools-toggle.open .tt-chevron { transform: rotate(180deg); color: var(--rubric); }
+    #tools-body { display: none; padding: 0 0 4px; }
+    #tools-body.open { display: block; }
+    #tools-body #btn-crossings {
+      display: block; width: calc(100% - 44px); margin: 0 22px 10px;
+      padding: 8px 6px; font-family: var(--font-caps); font-size: 0.66rem; letter-spacing: 0.1em; text-transform: uppercase;
+      background: linear-gradient(180deg, var(--vellum), var(--vellum-2));
+      border: 1.5px solid var(--edge); color: var(--ink-2); cursor: pointer; border-radius: 2px;
+      box-shadow: 0 1px 2px rgba(42,28,12,0.1), inset 0 1px 0 rgba(255,248,220,0.4);
+      transition: background 0.16s, color 0.16s, border-color 0.16s;
+    }
+    #tools-body #btn-crossings:hover { border-color: var(--gilt); color: var(--ink); background: linear-gradient(180deg, var(--vellum-2), var(--vellum-3)); }
+    #tools-body #btn-crossings.active {
+      background: linear-gradient(180deg, var(--rubric), var(--rubric-dk)); color: #f5e4c0; border-color: var(--rubric-dk);
+      box-shadow: 0 2px 6px rgba(75,34,16,0.5), inset 0 1px 0 rgba(255,248,220,0.15);
+    }
+
     /* ── timeline ── */
-    #timeline { padding: 14px 22px 16px; border-top: 2px solid var(--edge); background: color-mix(in srgb, var(--vellum-4) 36%, transparent); }
+    #timeline { padding: 14px 22px 16px; border-top: 1px solid var(--edge); background: color-mix(in srgb, var(--vellum-4) 36%, transparent); }
     .tl-title { font-family: var(--font-caps); font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.22em; margin-bottom: 10px; color: var(--gilt); }
     .tl-track { position: relative; height: 28px; margin: 0 4px; }
     .tl-axis { position: absolute; top: 13px; left: 0; right: 0; height: 1px; background: var(--edge); }
@@ -744,21 +811,28 @@
 
     <div id="controls">
       <button class="ctrl-btn" id="btn-show-all">Chart all</button>
-      <button class="ctrl-btn" id="btn-crossings">Crossings</button>
       <button class="ctrl-btn" id="btn-clear">Clear</button>
     </div>
 
-    <div id="crossings-panel"></div>
-
     <div id="journey-list"></div>
 
-    <div id="timeline">
-      <div class="tl-title">Timeline of Voyages</div>
-      <div class="tl-track">
-        <div class="tl-axis"></div>
-        <div id="tl-marks"></div>
+    <div id="atlas-tools">
+      <button id="tools-toggle" aria-expanded="false" aria-controls="tools-body">
+        <span>Atlas Tools</span>
+        <svg class="tt-chevron" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div id="tools-body">
+        <button id="btn-crossings">&#10038;&ensp;Where Voyages Meet</button>
+        <div id="crossings-panel"></div>
+        <div id="timeline">
+          <div class="tl-title">Timeline of Voyages</div>
+          <div class="tl-track">
+            <div class="tl-axis"></div>
+            <div id="tl-marks"></div>
+          </div>
+          <div class="tl-labels"><span id="tl-min"></span><span id="tl-max"></span></div>
+        </div>
       </div>
-      <div class="tl-labels"><span id="tl-min"></span><span id="tl-max"></span></div>
     </div>
 
   </aside>
@@ -1019,8 +1093,9 @@ const JOURNEYS = [
 // ═══════════════════════════════════════════════════════════════
 
 const state = {
-  activeIds: new Set(),
-  layers:    {},
+  activeIds:  new Set(),   // journeys drawn on the map (decoupled from panel expansion)
+  layers:     {},
+  expandedId: null,        // the single open detail panel in the index (accordion)
 };
 
 const voyage = { id: null, step: 0, head: 0, playing: false, timer: null, raf: null, ship: null, poly: null, path: null };
@@ -1780,6 +1855,7 @@ function toggleCrossings() {
 
   crossings.on = true;
   document.getElementById('btn-crossings').classList.add('active');
+  if (typeof setToolsOpen === 'function') setToolsOpen(true);
 
   const b = L.latLngBounds(crossings.markers.map(m => m.getLatLng()));
   if (b.isValid()) map.flyToBounds(b, { padding: [80, 80], duration: 1.4, maxZoom: 6 });
@@ -1851,14 +1927,41 @@ function renderVoyageConsole(journey) {
     </div>`;
 }
 
+// Open one detail panel at a time (accordion). Purely a sidebar concern —
+// it never touches what is drawn on the map.
+function toggleExpand(id) {
+  state.expandedId = state.expandedId === id ? null : id;
+  renderSidebar();
+}
+
+// Chart a journey onto the map without a full sidebar re-render, and patch the
+// given row's controls in place — used by the voyage console / stop list so an
+// in-progress play or slider drag is never interrupted by a re-render.
+function silentChart(id, itemEl) {
+  if (state.activeIds.has(id)) return;
+  state.activeIds.add(id);
+  drawJourney(byId(id), false);
+  updateEmptyState();
+  renderTimeline();
+  syncHash();
+  if (itemEl) {
+    itemEl.classList.add('active');
+    const sw = itemEl.querySelector('.seal-swatch');
+    if (sw) { sw.title = 'Hide from map'; sw.setAttribute('aria-pressed', 'true'); }
+    const ct = itemEl.querySelector('.chart-toggle');
+    if (ct) ct.innerHTML = `<span class="ct-dot" style="background:${byId(id).color}"></span>Charted &middot; tap to hide`;
+  }
+}
+
 function renderSidebar() {
   const list = document.getElementById('journey-list');
   list.innerHTML = '';
 
   JOURNEYS.forEach((journey, ji) => {
-    const active = state.activeIds.has(journey.id);
+    const active   = state.activeIds.has(journey.id);
+    const expanded = state.expandedId === journey.id;
     const item = document.createElement('div');
-    item.className = `journey-item${active ? ' active' : ''}${firstRender ? ' rise' : ''}`;
+    item.className = `journey-item${active ? ' active' : ''}${expanded ? ' expanded' : ''}${firstRender ? ' rise' : ''}`;
     item.style.setProperty('--jc', journey.color);
     if (firstRender) item.style.animationDelay = (0.15 + ji * 0.08) + 's';
 
@@ -1873,29 +1976,54 @@ function renderSidebar() {
       ? `<svg class="type-glyph" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 18c4 0 4-12 8-12s4 12 8 12"/></svg>`
       : `<svg class="type-glyph" width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><circle cx="6" cy="7" r="1.6"/><circle cx="17" cy="5" r="1.6"/><circle cx="12" cy="13" r="1.6"/><circle cx="19" cy="16" r="1.6"/><circle cx="7" cy="18" r="1.6"/></svg>`;
 
+    const chevron = `<svg class="row-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 6l6 6-6 6"/></svg>`;
+    const chartToggle = `
+      <button class="chart-toggle" data-chart="${journey.id}">
+        <span class="ct-dot" style="background:${journey.color}"></span>
+        ${active ? 'Charted &middot; tap to hide' : (journey.type === 'route' ? 'Chart this voyage' : 'Chart this constellation')}
+      </button>`;
+
     item.innerHTML = `
       <div class="journey-header">
-        <div class="seal-swatch" style="background:${journey.color}"></div>
+        <div class="seal-swatch" style="background:${journey.color}" title="${active ? 'Hide from map' : 'Show on map'}" role="button" aria-pressed="${active}"></div>
         <div class="journey-title">${journey.title}</div>
         ${typeGlyph}
+        ${chevron}
       </div>
       <div class="journey-meta">${journey.author} &middot; ${journey.year}</div>
       <div class="journey-badge">${journey.type === 'route' ? `Route &middot; ${journey.stops.length} ports` : `Constellation &middot; ${journey.stops.length} places`}</div>
       <div class="journey-body">
         <div class="journey-blurb">${journey.blurb}</div>
+        ${chartToggle}
         ${journey.type === 'route' ? renderVoyageConsole(journey) : ''}
         <ul class="stop-list">${stopItems}</ul>
       </div>
     `;
 
-    ['journey-header', 'journey-meta', 'journey-badge'].forEach(cls => {
-      item.querySelector('.' + cls).addEventListener('click', () => toggleJourney(journey.id));
+    // Row body (header / meta / badge) opens the detail panel — it no longer
+    // charts the map. The seal-swatch is the separate "show on map" control.
+    item.querySelector('.journey-header').addEventListener('click', e => {
+      if (e.target.closest('.seal-swatch')) return;
+      toggleExpand(journey.id);
+    });
+    ['journey-meta', 'journey-badge'].forEach(cls => {
+      item.querySelector('.' + cls).addEventListener('click', () => toggleExpand(journey.id));
+    });
+
+    item.querySelector('.seal-swatch').addEventListener('click', e => {
+      e.stopPropagation();
+      toggleJourney(journey.id);
+    });
+    item.querySelector('.chart-toggle').addEventListener('click', e => {
+      e.stopPropagation();
+      toggleJourney(journey.id);
     });
 
     const playBtn = item.querySelector('.voy-play');
     if (playBtn) {
       playBtn.addEventListener('click', e => {
         e.stopPropagation();
+        silentChart(journey.id, item);   // playing a voyage implies charting it
         if (voyage.id === journey.id && voyage.playing) voyagePause();
         else voyagePlay(journey.id);
       });
@@ -1904,6 +2032,7 @@ function renderSidebar() {
     if (slider) {
       slider.addEventListener('input', e => {
         e.stopPropagation();
+        silentChart(journey.id, item);   // scrubbing implies charting it
         voyagePause();
         voyageSeek(journey.id, +slider.value, true);
       });
@@ -1919,6 +2048,7 @@ function renderSidebar() {
       const idx = +el.dataset.idx, jid = el.dataset.jid;
       el.addEventListener('click', e => {
         e.stopPropagation();
+        silentChart(jid, item);   // jumping to a stop charts the voyage so its marker exists
         const stop = journey.stops[idx];
         map.flyTo(stop.coords, 7, { duration: 1.2 });
         const g = state.layers[jid];
@@ -1996,8 +2126,10 @@ function runGazetteer(q) {
     row.addEventListener('click', () => {
       const id = row.dataset.id;
       if (row.dataset.kind === 'book') {
+        state.expandedId = id;
         if (!state.activeIds.has(id)) toggleJourney(id);
         else {
+          renderSidebar();
           const b = boundsOf([id]);
           if (b) map.flyToBounds(b, { padding: [50, 50], duration: 1.2, maxZoom: 8 });
         }
@@ -2112,6 +2244,16 @@ function renderTimeline() {
 document.getElementById('btn-show-all').addEventListener('click', chartAll);
 document.getElementById('btn-clear').addEventListener('click', clearAll);
 document.getElementById('btn-crossings').addEventListener('click', toggleCrossings);
+
+// ── Atlas Tools drawer (collapsible secondary tools) ──
+const toolsToggle = document.getElementById('tools-toggle');
+const toolsBody   = document.getElementById('tools-body');
+function setToolsOpen(open) {
+  toolsBody.classList.toggle('open', open);
+  toolsToggle.classList.toggle('open', open);
+  toolsToggle.setAttribute('aria-expanded', String(open));
+}
+toolsToggle.addEventListener('click', () => setToolsOpen(!toolsBody.classList.contains('open')));
 
 function syncHash() {
   const ids = [...state.activeIds];
