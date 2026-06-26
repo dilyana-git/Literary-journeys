@@ -65,29 +65,6 @@
         url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='6' height='6'%3E%3Cpath d='M0 0L6 6' stroke='%23382810' stroke-width='0.4' opacity='0.12'/%3E%3C/svg%3E");
     }
 
-    #frame {
-      position: fixed; inset: 0; z-index: 8000; pointer-events: none;
-      padding: 9px;
-    }
-    #frame::before {
-      content: ""; position: absolute; inset: 9px;
-      border: 2px solid var(--rubric);
-      box-shadow:
-        inset 0 0 0 4px var(--vellum),
-        inset 0 0 0 5.5px var(--gilt),
-        inset 0 0 0 7px var(--vellum),
-        inset 0 0 0 8px color-mix(in srgb, var(--rubric) 45%, transparent),
-        0 0 0 1px rgba(56,41,26,0.2);
-    }
-    .corner {
-      position: absolute; width: 54px; height: 54px;
-      color: var(--gilt); opacity: 0.95;
-    }
-    .corner.tl { top: 9px;    left: 9px; }
-    .corner.tr { top: 9px;    right: 9px;  transform: scaleX(-1); }
-    .corner.bl { bottom: 9px; left: 9px;   transform: scaleY(-1); }
-    .corner.br { bottom: 9px; right: 9px;  transform: scale(-1,-1); }
-
     #app { display: flex; height: 100vh; }
 
     /* ═══ LEDGER (sidebar) ═══ */
@@ -333,39 +310,6 @@
     .cross-count { font-size: 0.72rem; color: var(--faded); font-style: italic; }
     .cross-row:hover .cross-place { color: var(--rubric); }
 
-    /* ── legend (cartographer's key) — floats over the map ── */
-    .map-legend {
-      position: absolute; left: 12px; top: 86px; z-index: 465;
-      width: 232px;
-      background: linear-gradient(180deg, var(--vellum-2), var(--vellum-3));
-      border: 1px solid var(--edge); border-radius: 2px;
-      box-shadow: 0 6px 20px rgba(56,41,26,0.28), inset 0 0 0 3px rgba(233,220,190,0.65);
-      font-size: 0.82rem; color: var(--faded);
-      overflow: hidden;
-    }
-    .map-legend-head {
-      display: flex; align-items: center; gap: 8px; cursor: pointer; user-select: none;
-      padding: 9px 12px;
-      font-family: var(--font-caps); font-size: 0.62rem; text-transform: uppercase;
-      letter-spacing: 0.18em; color: var(--ink-2);
-      background: rgba(140,59,43,0.06);
-      border-bottom: 1px solid var(--edge-soft);
-      transition: background 0.15s;
-    }
-    .map-legend-head:hover { background: rgba(140,59,43,0.11); }
-    .map-legend-head > svg:first-child { color: var(--rubric); flex-shrink: 0; }
-    .map-legend-head .ml-label { flex: 1; }
-    .map-legend-head .ml-caret { color: var(--faded); transition: transform 0.22s; }
-    .map-legend.collapsed { width: auto; }
-    .map-legend.collapsed .map-legend-head { border-bottom: none; }
-    .map-legend.collapsed .map-legend-body { display: none; }
-    .map-legend.collapsed .ml-caret { transform: rotate(-90deg); }
-    .map-legend-body { padding: 11px 12px 12px; }
-    .legend-row { display: flex; align-items: center; gap: 10px; margin-bottom: 7px; }
-    .legend-row:last-child { margin-bottom: 0; }
-    .legend-icon { width: 26px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: var(--faded); }
-    .legend-row span { font-family: var(--font-old); line-height: 1.25; color: var(--ink-2); }
-
     /* ── timeline ── */
     #timeline { padding: 14px 22px 16px; border-top: 2px solid var(--edge); background: color-mix(in srgb, var(--vellum-4) 36%, transparent); }
     .tl-title { font-family: var(--font-caps); font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.22em; margin-bottom: 10px; color: var(--gilt); }
@@ -406,6 +350,19 @@
       background: radial-gradient(110% 85% at 50% 45%, rgba(232,220,196,0) 50%, rgba(180,150,90,0.32) 100%);
       mix-blend-mode: multiply;
     }
+
+    /* ── hand-set antique map labels (Cinzel): water italic, land upright caps ── */
+    .atlas-label { width: 0; height: 0; }
+    .atlas-label > span {
+      position: absolute; transform: translate(-50%, -50%); white-space: nowrap;
+      font-family: var(--font-caps); text-transform: uppercase; line-height: 1;
+      color: var(--ink-2); pointer-events: none; user-select: none;
+      text-shadow: 0 0 6px var(--vellum), 0 1px 0 rgba(247,240,220,0.65);
+    }
+    .atlas-label.lbl-ocean  > span { font-size: 0.95rem; letter-spacing: 0.42em; font-style: italic; opacity: 0.40; color: var(--faded); }
+    .atlas-label.lbl-sea    > span { font-size: 0.70rem; letter-spacing: 0.26em; font-style: italic; opacity: 0.52; color: var(--faded); }
+    .atlas-label.lbl-region > span { font-size: 0.84rem; letter-spacing: 0.34em; opacity: 0.50; }
+    .atlas-label.lbl-city   > span { font-size: 0.60rem; letter-spacing: 0.14em; opacity: 0.72; }
 
     .compass {
       position: absolute; right: 26px; bottom: 26px; width: 184px; height: 184px;
@@ -547,36 +504,6 @@
     .leaflet-popup-content { margin: 15px 18px !important; min-width: 210px; max-width: 264px; line-height: 1.5 !important; }
     .leaflet-popup-close-button { color: var(--faded) !important; }
 
-    .pop-plate {
-      position: relative; width: 100%; aspect-ratio: 3 / 2;
-      margin: -3px 0 11px; overflow: hidden;
-      border: 1px solid var(--edge);
-      background: var(--vellum-2);
-      box-shadow: 0 1px 4px rgba(56,41,26,0.25);
-    }
-    .pop-plate::after {
-      content: ""; position: absolute; inset: 0; pointer-events: none;
-      box-shadow: inset 0 0 0 3px color-mix(in srgb, var(--vellum) 92%, transparent), inset 0 0 0 4.5px color-mix(in srgb, var(--gilt) 50%, transparent);
-    }
-    .pop-plate img {
-      position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
-      opacity: 0; transition: opacity 0.45s ease;
-      filter: sepia(0.4) saturate(0.85) contrast(0.95) brightness(0.98);
-    }
-    .pop-plate.loaded img { opacity: 1; }
-    .pop-plate.missing img { display: none; }
-    .pop-plate-ph {
-      position: absolute; inset: 0; display: flex; flex-direction: column;
-      align-items: center; justify-content: center; gap: 7px; color: var(--faded);
-      transition: opacity 0.45s ease;
-      background:
-        repeating-linear-gradient(45deg, rgba(42,28,12,0.06) 0 4px, transparent 4px 8px),
-        repeating-linear-gradient(-45deg, rgba(42,28,12,0.04) 0 4px, transparent 4px 8px);
-    }
-    .pop-plate.loaded .pop-plate-ph { opacity: 0; }
-    .pop-plate-ph svg { opacity: 0.65; }
-    .pop-plate-ph span { font-family: var(--font-caps); font-size: 0.54rem; letter-spacing: 0.2em; text-transform: uppercase; }
-
     .pop-name { font-family: var(--font-caps); font-size: 1.06rem; font-weight: 600; display: flex; align-items: center; gap: 8px; margin-bottom: 4px; color: var(--ink); }
     .pop-num { display: inline-flex; align-items: center; justify-content: center; width: 21px; height: 21px; border-radius: 50%; font-size: 0.7rem; font-weight: 600; font-family: var(--font-caps); color: #fbf3e0; flex-shrink: 0; border: 1px solid rgba(56,41,26,0.4); }
     .pop-place { font-family: var(--font-old); font-size: 0.86rem; color: var(--faded); font-style: italic; margin-bottom: 9px; }
@@ -632,18 +559,6 @@
         inset 0 0 0 4px var(--vellum), inset 0 0 0 5.5px color-mix(in srgb, var(--gilt) 60%, transparent);
       border-radius: 3px;
     }
-    .story-folio::after {
-      content: ""; position: absolute; left: 188px; top: 14px; bottom: 14px; width: 1px;
-      background: linear-gradient(180deg, transparent, var(--edge), transparent); opacity: 0.6;
-    }
-    .story-plate {
-      flex: 0 0 168px; width: 168px; margin: 11px 0 11px 11px;
-      border: 1.5px solid var(--gilt); overflow: hidden; position: relative;
-      background: radial-gradient(120% 90% at 30% 12%, #ede0c4, #d4c296);
-    }
-    .story-plate .pop-plate { width: 100%; height: 100%; margin: 0; border: none; border-radius: 0; }
-    .story-plate .pop-plate img { width: 100%; height: 100%; object-fit: cover; display: block; }
-
     .story-text { flex: 1; min-width: 0; padding: 17px 22px 16px 26px; }
     .story-text.flip { animation: folioTurn 0.5s ease; }
     @keyframes folioTurn { 0% { opacity: 0; transform: translateX(9px); } 100% { opacity: 1; transform: translateX(0); } }
@@ -738,9 +653,6 @@
     #tweaks-toggle:hover { background: linear-gradient(160deg, var(--rubric), var(--rubric-dk)); color: #f5e4c0; border-color: var(--rubric-dk); } */
 
     @media (max-width: 600px) {
-      .story-folio { flex-direction: column; }
-      .story-folio::after { display: none; }
-      .story-plate { flex-basis: 120px; height: 120px; width: auto; margin: 11px 11px 0; }
       .story-text { padding: 13px 16px 14px; }
       .story-inbook { font-size: 0.96rem; }
       #story { bottom: 14px; left: 8px; right: 8px; max-width: none; }
@@ -785,7 +697,6 @@
       .journey-meta, .journey-badge { padding: 0 16px; }
 
       #timeline { display: none; }
-      .map-legend { top: 10px; left: 50px; width: 210px; }
       #tweaks-toggle { bottom: auto; top: 12px; left: auto; right: 12px; transform: none; z-index: 9500; }
     }
   </style>
@@ -793,38 +704,6 @@
 <body>
 
 <div id="grain"></div>
-
-<div id="frame">
-  <svg class="corner tl" viewBox="0 0 56 56" fill="none" stroke="currentColor" stroke-width="1.2">
-    <path d="M2 28 C2 13 13 2 28 2" stroke-width="1.6"/>
-    <path d="M2 20 C2 9 9 2 20 2" opacity="0.7"/>
-    <path d="M6 28 C6 15 15 6 28 6" opacity="0.35" stroke-dasharray="2 2"/>
-    <circle cx="10" cy="10" r="3.2" fill="currentColor" stroke="none"/>
-    <circle cx="10" cy="10" r="5" opacity="0.5"/>
-    <path d="M28 2 q4 0 7 2 q-3 2 -7 2" opacity="0.6" fill="currentColor" fill-opacity="0.15"/>
-    <path d="M2 28 q0 4 2 7 q2 -3 2 -7" opacity="0.6" fill="currentColor" fill-opacity="0.15"/>
-    <path d="M15 2 q-2 5-1 8 q3-1 5-4" opacity="0.4" stroke-width="0.9"/>
-    <path d="M2 15 q5-2 8-1 q-1 3-4 5" opacity="0.4" stroke-width="0.9"/>
-  </svg>
-  <svg class="corner tr" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.3">
-    <path d="M2 24 C2 12 12 2 24 2" />
-    <path d="M2 16 C2 8 8 2 16 2" opacity="0.6" />
-    <circle cx="9" cy="9" r="2.4" fill="currentColor" stroke="none" />
-    <path d="M24 2 q6 0 10 4 M2 24 q0 6 4 10" opacity="0.5" />
-  </svg>
-  <svg class="corner bl" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.3">
-    <path d="M2 24 C2 12 12 2 24 2" />
-    <path d="M2 16 C2 8 8 2 16 2" opacity="0.6" />
-    <circle cx="9" cy="9" r="2.4" fill="currentColor" stroke="none" />
-    <path d="M24 2 q6 0 10 4 M2 24 q0 6 4 10" opacity="0.5" />
-  </svg>
-  <svg class="corner br" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.3">
-    <path d="M2 24 C2 12 12 2 24 2" />
-    <path d="M2 16 C2 8 8 2 16 2" opacity="0.6" />
-    <circle cx="9" cy="9" r="2.4" fill="currentColor" stroke="none" />
-    <path d="M24 2 q6 0 10 4 M2 24 q0 6 4 10" opacity="0.5" />
-  </svg>
-</div>
 
 <div id="app">
   <aside id="ledger">
@@ -888,35 +767,6 @@
     <div id="map"></div>
     <div class="map-vignette"></div>
     <div class="reading-veil"></div>
-
-    <!-- cartographer's key — floats over the chart, collapsible -->
-    <div class="map-legend" id="map-legend">
-      <div class="map-legend-head" id="map-legend-toggle" role="button" tabindex="0" aria-expanded="true">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-          <circle cx="8" cy="8" r="4.5"/><path d="M11.2 11.2 21 21M17 17l3-1M15 19l3-1"/>
-        </svg>
-        <span class="ml-label">The Map Key</span>
-        <svg class="ml-caret" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
-      </div>
-      <div class="map-legend-body">
-        <div class="legend-row">
-          <div class="legend-icon"><div class="mk-pin" style="--c:var(--faded);width:18px;height:18px;"><span style="font-size:0.5rem">3</span></div></div>
-          <span>A numbered port of call</span>
-        </div>
-        <div class="legend-row">
-          <div class="legend-icon"><div style="--c:var(--faded);" class="mk-star"></div></div>
-          <span>A place in a constellation</span>
-        </div>
-        <div class="legend-row">
-          <div class="legend-icon" style="display:flex;gap:3px;align-items:flex-end;"><div class="mk-trail" style="--c:var(--faded);--trail-op:0.7;width:8px;height:8px"></div><div class="mk-trail" style="--c:var(--faded);--trail-op:0.7;width:8px;height:8px"></div><div class="mk-trail" style="--c:var(--faded);--trail-op:0.7;width:8px;height:8px"></div></div>
-          <span>The course of a voyage</span>
-        </div>
-        <div class="legend-row">
-          <div class="legend-icon"><div class="mk-cross" style="width:18px;height:18px;animation:none;"><span style="font-size:0.55rem">&#10038;</span></div></div>
-          <span>Where two voyages cross</span>
-        </div>
-      </div>
-    </div>
 
     <!-- sea-serpent marginalia -->
     <svg class="marginalia" viewBox="0 0 240 80" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
@@ -1206,9 +1056,9 @@ function haversine(a, b) {
 const map = L.map('map', { center: [42, 12], zoom: 3, zoomControl: true, worldCopyJump: true });
 
 const BASEMAPS = {
-  parchment: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
-  slate:     'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
-  voyager:   'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+  parchment: 'https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png',
+  slate:     'https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png',
+  voyager:   'https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png',
 };
 const TILE_OPTS = {
   attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
@@ -1241,6 +1091,68 @@ function tuneTileContrast() {
 }
 map.on('zoomend', tuneTileContrast);
 tuneTileContrast();
+
+// ── hand-set antique labels (Cinzel), tiered by zoom ──────────────────
+// The basemap is label-less; these are the only place-names on the map.
+// k: 'ocean' | 'sea' | 'region' | 'city';  z: [minZoom, maxZoom] inclusive.
+map.createPane('atlasLabels');
+map.getPane('atlasLabels').style.zIndex = '360';        // above tiles, below routes & markers
+map.getPane('atlasLabels').style.pointerEvents = 'none';
+
+const MAP_LABELS = [
+  { t:'Atlantic Ocean',    k:'ocean',  c:[36, -42],     z:[2, 5] },
+  { t:'Pacific Ocean',     k:'ocean',  c:[8, -150],     z:[1, 5] },
+  { t:'Indian Ocean',      k:'ocean',  c:[-12, 72],     z:[2, 5] },
+  { t:'Mediterranean Sea', k:'sea',    c:[35.2, 17.5],  z:[3, 7] },
+  { t:'Caribbean Sea',     k:'sea',    c:[14.5, -75],   z:[3, 7] },
+  { t:'Black Sea',         k:'sea',    c:[43.3, 34.0],  z:[4, 8] },
+  { t:'Red Sea',           k:'sea',    c:[20.5, 38.2],  z:[4, 8] },
+  { t:'North Sea',         k:'sea',    c:[56.2, 3.2],   z:[4, 8] },
+  { t:'Bay of Biscay',     k:'sea',    c:[45.3, -5.5],  z:[5, 8] },
+  { t:'Aegean Sea',        k:'sea',    c:[38.2, 25.0],  z:[5, 9] },
+  { t:'Ionian Sea',        k:'sea',    c:[38.0, 18.6],  z:[6, 9] },
+  { t:'Adriatic Sea',      k:'sea',    c:[43.0, 15.4],  z:[6, 9] },
+  { t:'Tyrrhenian Sea',    k:'sea',    c:[39.9, 12.2],  z:[6, 9] },
+  { t:'Europe',   k:'region', c:[50, 18],     z:[3, 5] },
+  { t:'Africa',   k:'region', c:[8, 18],      z:[2, 5] },
+  { t:'Asia',     k:'region', c:[48, 78],     z:[2, 5] },
+  { t:'Arabia',   k:'region', c:[23, 45],     z:[4, 7] },
+  { t:'Iberia',   k:'region', c:[40.0, -4.2], z:[5, 8] },
+  { t:'Italy',    k:'region', c:[42.6, 12.8], z:[5, 8] },
+  { t:'Greece',   k:'region', c:[39.3, 22.2], z:[5, 8] },
+  { t:'Anatolia', k:'region', c:[39.0, 33.0], z:[5, 8] },
+  { t:'The Levant', k:'region', c:[33.5, 37.5], z:[5, 8] },
+  { t:'Egypt',    k:'region', c:[26.5, 29.5], z:[5, 8] },
+  { t:'Barbary Coast', k:'region', c:[33.5, 3.0], z:[5, 8] },
+  { t:'Constantinople', k:'city', c:[41.02, 28.98], z:[6, 11] },
+  { t:'Alexandria',     k:'city', c:[31.20, 29.92], z:[6, 11] },
+  { t:'Gibraltar',      k:'city', c:[36.13, -5.35], z:[7, 11] },
+  { t:'Tangier',        k:'city', c:[35.78, -5.80], z:[7, 11] },
+  { t:'Marseilles',     k:'city', c:[43.30, 5.37],  z:[7, 11] },
+  { t:'Venice',         k:'city', c:[45.44, 12.34], z:[8, 12] },
+];
+
+const _labelMarkers = new Array(MAP_LABELS.length).fill(null);
+
+function refreshAtlasLabels() {
+  const z = map.getZoom();
+  const showLabels = state.activeIds.size > 0 || crossings.on;   // labels join the map once a voyage is charted
+  for (let i = 0; i < MAP_LABELS.length; i++) {
+    const lab = MAP_LABELS[i];
+    const show = showLabels && z >= lab.z[0] && z <= lab.z[1];
+    if (show && !_labelMarkers[i]) {
+      _labelMarkers[i] = L.marker(lab.c, {
+        icon: L.divIcon({ className: 'atlas-label lbl-' + lab.k, html: '<span>' + lab.t + '</span>', iconSize: [0, 0] }),
+        pane: 'atlasLabels', interactive: false, keyboard: false
+      }).addTo(map);
+    } else if (!show && _labelMarkers[i]) {
+      map.removeLayer(_labelMarkers[i]);
+      _labelMarkers[i] = null;
+    }
+  }
+}
+map.on('zoomend', refreshAtlasLabels);
+refreshAtlasLabels();
 
 
 // ═══════════════════════════════════════════════════════════════
@@ -1373,23 +1285,6 @@ function legVessel(journey, stepIdx) {
 //  POPUP CONTENT
 // ═══════════════════════════════════════════════════════════════
 
-const PLATE_GLYPH = `<svg width="30" height="30" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round">
-  <circle cx="22.5" cy="9.5" r="3"/>
-  <path d="M3 24 L11 14 L17 21 L21.5 16 L29 24 Z"/>
-  <path d="M3 27 H29" opacity="0.55"/>
-</svg>`;
-
-function buildPlate(stop) {
-  const ph = `<div class="pop-plate-ph">${PLATE_GLYPH}<span>Awaiting plate</span></div>`;
-  if (stop.image) {
-    return `<div class="pop-plate">
-      <img src="${stop.image}" alt="${stop.name}" loading="lazy"
-        onload="this.parentElement.classList.add('loaded')"
-        onerror="this.parentElement.classList.add('missing')">${ph}</div>`;
-  }
-  return `<div class="pop-plate missing">${ph}</div>`;
-}
-
 function travelEstimate(km, vessel) {
   const speeds = { ship: 265, carriage: 50, car: 640 };
   const labels = { ship: 'by sail', carriage: 'by carriage', car: 'by road' };
@@ -1412,7 +1307,6 @@ function buildPopup(stop, journey, idx) {
     legInfo = `<div class="pop-leg">${LEG_ARROW} ${travelEstimate(km, vessel)}</div>`;
   }
   return `
-    ${buildPlate(stop)}
     <div class="pop-name">${badge}${stop.name}</div>
     <div class="pop-place">${stop.realPlace}</div>
     ${legInfo}
@@ -1725,7 +1619,6 @@ function buildStoryEl() {
   storyEl.innerHTML = `
     <div class="story-folio">
       <button class="story-x" aria-label="Close reading mode">&times;</button>
-      <div class="story-plate"></div>
       <div class="story-text">
         <div class="story-book"></div>
         <div class="story-name"></div>
@@ -1778,7 +1671,6 @@ function storyGo(step, glide = true) {
   else       voyageSeek(story.id, step, true);
 
   const t = storyEl;
-  t.querySelector('.story-plate').innerHTML = buildPlate(stop);
   t.querySelector('.story-book').textContent = `${j.title} · ${j.author}`;
   t.querySelector('.story-name').innerHTML = `<span class="story-num" style="background:${j.color}">${step + 1}</span>${stop.name}`;
   t.querySelector('.story-place').textContent = stop.realPlace;
@@ -2178,6 +2070,7 @@ function clearAll() {
 
 function updateEmptyState() {
   document.getElementById('empty-state').classList.toggle('hidden', state.activeIds.size > 0 || crossings.on);
+  refreshAtlasLabels();   // labels appear/disappear in step with the empty-state invitation
 }
 
 
@@ -2243,22 +2136,6 @@ const _origChartAll = chartAll;
 chartAll = function() { _origChartAll(); syncHash(); };
 const _origClearAll = clearAll;
 clearAll = function() { _origClearAll(); syncHash(); };
-
-// ── Map Key: collapsible, starts folded on small screens ──
-const mapLegend  = document.getElementById('map-legend');
-const legendHead = document.getElementById('map-legend-toggle');
-function toggleLegend() {
-  const collapsed = mapLegend.classList.toggle('collapsed');
-  legendHead.setAttribute('aria-expanded', String(!collapsed));
-}
-legendHead.addEventListener('click', toggleLegend);
-legendHead.addEventListener('keydown', e => {
-  if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleLegend(); }
-});
-if (window.matchMedia('(max-width: 720px)').matches) {
-  mapLegend.classList.add('collapsed');
-  legendHead.setAttribute('aria-expanded', 'false');
-}
 
 renderSidebar();
 renderTimeline();
