@@ -16,27 +16,27 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      /* Victorian Broadsheet / Steampunk Atlas */
-      --vellum:     #e8dcc4;
-      --vellum-2:   #ddd0b4;
-      --vellum-3:   #cfc09e;
-      --vellum-4:   #bfac84;
-      --edge:       #9e8a62;
-      --edge-soft:  #b8a47a;
-      --ink:        #2a1f10;
-      --ink-2:      #4a3620;
-      --faded:      #8a7450;
-      --rubric:     #6b3018;
-      --rubric-dk:  #4e2210;
-      --gilt:       #b8962e;
+      /* ── Indigo & Madder palette (active default) ───────── */
+      --vellum:     #e8dfca;
+      --vellum-2:   #dbd1b6;
+      --vellum-3:   #c9bd9b;
+      --vellum-4:   #b8aa84;
+      --edge:       #988a64;
+      --edge-soft:  #b3a884;
+      --ink:        #1f2440;   /* deep indigo ink           */
+      --ink-2:      #363c64;   /* mid indigo                */
+      --faded:      #7a7488;   /* faded ink / annotation    */
+      --rubric:     #a62f33;   /* madder red rubrication    */
+      --rubric-dk:  #7e2427;
+      --gilt:       #b8962e;   /* gold leaf                 */
       --ledger-w:   368px;
 
-      --bg-top:     #ece3cc;
+      --bg-top:     #efe7d4;
       --map-bg:     var(--vellum-3);
-      --ledger-top: var(--vellum);
+      --ledger-top: var(--vellum-2);
       --ledger-bot: var(--vellum-3);
-      --wash:       rgba(42,28,12,0.38);
-      --tile-base-filter: sepia(0.65) saturate(0.9) hue-rotate(10deg) brightness(0.95) contrast(0.92);
+      --wash:       rgba(31,36,64,0.34);
+      --tile-base-filter: sepia(0.48) saturate(1.2) brightness(0.99) contrast(0.9) hue-rotate(-6deg);
       --tile-zoom-filter: contrast(1) brightness(1) saturate(1);
 
       --font-title: 'Cinzel Decorative', serif;
@@ -806,9 +806,9 @@
       <use href="#card" transform="rotate(180 100 100)"/>
       <use href="#card" transform="rotate(270 100 100)"/>
       <circle cx="100" cy="100" r="6" fill="currentColor" fill-opacity="0.8"/>
-      <circle cx="100" cy="100" r="2.4" fill="#e8dcc4"/>
+      <circle cx="100" cy="100" r="2.4" fill="#e9dcbe"/>
       <g fill="currentColor" font-family="Cinzel, serif" font-weight="600" font-size="13" text-anchor="middle">
-        <text x="100" y="14" fill="#6b3018">N</text>
+        <text x="100" y="14" fill="#8c3b2b">N</text>
         <text x="192" y="105">E</text>
         <text x="100" y="200">S</text>
         <text x="8"  y="105">W</text>
