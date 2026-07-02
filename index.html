@@ -113,7 +113,37 @@
     #map-title h1 {
       font-family: var(--font-title); font-weight: 700;
       font-size: 1.78rem; line-height: 1.1; letter-spacing: 0.02em; color: var(--ink);
-      text-shadow: 0 1px 0 rgba(255,248,220,0.8), 0 2px 5px rgba(42,28,12,0.14);
+    }
+    /* the h1 is rendered as SVG text so the ink-bloom filters can act on it;
+       the script sets its height in em so it tracks h1's responsive font-size */
+    #map-title h1 svg {
+      display: block; margin: 0 auto;
+      height: 1.75em; max-width: 100%; overflow: visible;
+    }
+    #map-title .ink-text {
+      font-family: var(--font-title); font-weight: 700;
+      font-size: 44px; letter-spacing: 0.02em; text-anchor: middle;
+    }
+
+    /* ── ink-reveal choreography (.inked is added by the script once the
+          title font has arrived, so nothing animates against a fallback face) ── */
+    #map-title { visibility: hidden; }
+    #map-title.inked { visibility: visible; animation: cartouche-in 1s cubic-bezier(.23,.7,.32,1) backwards; }
+    #map-title.inked .flourish path {
+      stroke-dasharray: 1; stroke-dashoffset: 0; /* paths carry pathLength="1" */
+      animation: flourish-draw 1.5s ease-in-out 0.25s backwards;
+    }
+    #map-title.inked .flourish circle { animation: ink-wash 0.9s ease-out 1.35s backwards; }
+    #map-title.inked h1 ~ .flourish path { animation-delay: 3.05s; }
+    #map-title.inked h1 ~ .flourish circle { animation-delay: 3.9s; }
+    #map-title.inked .sub { animation: ink-wash 1.15s ease-out 2.7s backwards; }
+    #map-title.inked .est { animation: est-in 1.4s ease-out 3.6s backwards; }
+    @keyframes cartouche-in { from { opacity: 0; transform: translateX(-50%) translateY(-9px); } }
+    @keyframes flourish-draw { from { stroke-dashoffset: 1; opacity: 0.2; } }
+    @keyframes ink-wash { from { opacity: 0; filter: blur(3.5px); } }
+    @keyframes est-in { from { opacity: 0; letter-spacing: 0.44em; filter: blur(2.5px); } }
+    @media (prefers-reduced-motion: reduce) {
+      #map-title.inked, #map-title.inked * { animation: none !important; }
     }
     #map-title .sub {
       font-family: var(--font-old); font-style: italic; font-size: 0.96rem;
@@ -744,21 +774,72 @@
 
     <div id="map-title">
       <svg class="flourish" width="180" height="20" viewBox="0 0 180 20" fill="none" stroke="currentColor" stroke-width="1.1">
-        <path d="M2 10 H52 M128 10 H178" opacity="0.6"/>
-        <path d="M52 10 q6 -8 14 -4 q4 3 8 0 q4 -3 8 0 q4 3 8 0 q8 -4 14 4" opacity="0.8"/>
-        <path d="M52 10 q6 8 14 4 q4 -3 8 0 q4 3 8 0 q4 -3 8 0 q8 4 14 -4" opacity="0.5"/>
+        <path pathLength="1" d="M2 10 H52 M128 10 H178" opacity="0.6"/>
+        <path pathLength="1" d="M52 10 q6 -8 14 -4 q4 3 8 0 q4 -3 8 0 q4 3 8 0 q8 -4 14 4" opacity="0.8"/>
+        <path pathLength="1" d="M52 10 q6 8 14 4 q4 -3 8 0 q4 3 8 0 q4 -3 8 0 q8 4 14 -4" opacity="0.5"/>
         <circle cx="90" cy="10" r="3" fill="currentColor" stroke="none"/>
         <circle cx="90" cy="10" r="5" opacity="0.4"/>
-        <path d="M48 10 l-4 -4 M48 10 l-4 4" opacity="0.5" stroke-width="0.9"/>
-        <path d="M132 10 l4 -4 M132 10 l4 4" opacity="0.5" stroke-width="0.9"/>
+        <path pathLength="1" d="M48 10 l-4 -4 M48 10 l-4 4" opacity="0.5" stroke-width="0.9"/>
+        <path pathLength="1" d="M132 10 l4 -4 M132 10 l4 4" opacity="0.5" stroke-width="0.9"/>
         <circle cx="56" cy="10" r="1.3" fill="currentColor" stroke="none" opacity="0.5"/>
         <circle cx="124" cy="10" r="1.3" fill="currentColor" stroke="none" opacity="0.5"/>
       </svg>
-      <h1>Literary Journeys</h1>
+      <h1 aria-label="Literary Journeys">
+        <svg id="ink-title" viewBox="0 0 560 76" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">
+          <defs>
+            <!-- the "wet front": a soft white→black ramp swept across the title by the
+                 script; each mask rect below roughens it into fingers of creeping ink -->
+            <linearGradient id="ink-sweep-grad" gradientUnits="userSpaceOnUse" x1="-110" y1="0" x2="0" y2="0">
+              <stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#000"/>
+            </linearGradient>
+            <linearGradient id="ink-sweep-grad-halo" gradientUnits="userSpaceOnUse" x1="-110" y1="0" x2="0" y2="0">
+              <stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#000"/>
+            </linearGradient>
+            <filter id="ink-f-front" x="-15%" y="-30%" width="130%" height="160%">
+              <feTurbulence type="fractalNoise" baseFrequency="0.045 0.11" numOctaves="4" seed="8" result="n"/>
+              <feDisplacementMap in="SourceGraphic" in2="n" scale="38" xChannelSelector="R" yChannelSelector="G"/>
+              <feGaussianBlur stdDeviation="0.7"/>
+            </filter>
+            <filter id="ink-f-front-halo" x="-20%" y="-40%" width="140%" height="180%">
+              <feTurbulence type="fractalNoise" baseFrequency="0.03 0.07" numOctaves="3" seed="3" result="n"/>
+              <feDisplacementMap in="SourceGraphic" in2="n" scale="62" xChannelSelector="R" yChannelSelector="G"/>
+              <feGaussianBlur stdDeviation="2.4"/>
+            </filter>
+            <!-- the glyphs themselves: fibrous displaced edge, wet blur that dries to
+                 crisp, then an emboss highlight + soft lift shadow fade in -->
+            <filter id="ink-f-body" x="-12%" y="-45%" width="124%" height="190%">
+              <feTurbulence type="fractalNoise" baseFrequency="0.13 0.16" numOctaves="3" seed="7" result="grain"/>
+              <feDisplacementMap id="ink-f-disp" in="SourceGraphic" in2="grain" scale="10" xChannelSelector="R" yChannelSelector="G"/>
+              <feGaussianBlur id="ink-f-blur" stdDeviation="1.5"/>
+              <feDropShadow id="ink-f-emboss" dx="0" dy="0.9" stdDeviation="0" flood-color="#fff3d4" flood-opacity="0"/>
+              <feDropShadow id="ink-f-shadow" dx="0" dy="1.4" stdDeviation="2" flood-color="#2a1c0c" flood-opacity="0"/>
+            </filter>
+            <!-- the soak: a blurred copy behind the glyphs, ink wicking into the fibres -->
+            <filter id="ink-f-halo" x="-25%" y="-80%" width="150%" height="260%">
+              <feTurbulence type="fractalNoise" baseFrequency="0.06 0.08" numOctaves="3" seed="4" result="n"/>
+              <feDisplacementMap in="SourceGraphic" in2="n" scale="10" xChannelSelector="R" yChannelSelector="G"/>
+              <feGaussianBlur id="ink-f-halo-blur" stdDeviation="4.6"/>
+            </filter>
+            <mask id="ink-mask-halo" maskUnits="userSpaceOnUse" x="-400" y="-200" width="1400" height="600">
+              <rect class="ink-mask-rect" x="-400" y="-200" width="1400" height="600" fill="url(#ink-sweep-grad-halo)" filter="url(#ink-f-front-halo)"/>
+            </mask>
+            <mask id="ink-mask-body" maskUnits="userSpaceOnUse" x="-400" y="-200" width="1400" height="600">
+              <rect class="ink-mask-rect" x="-400" y="-200" width="1400" height="600" fill="url(#ink-sweep-grad)" filter="url(#ink-f-front)"/>
+            </mask>
+          </defs>
+          <g id="ink-halo" fill="#1f2440" filter="url(#ink-f-halo)" mask="url(#ink-mask-halo)" opacity="0">
+            <text class="ink-text" x="280" y="55">Literary Journeys</text>
+          </g>
+          <g id="ink-body" fill="#1f2440" filter="url(#ink-f-body)" mask="url(#ink-mask-body)">
+            <text id="ink-body-text" class="ink-text" x="280" y="55">Literary Journeys</text>
+            <g id="ink-specks"></g>
+          </g>
+        </svg>
+      </h1>
       <div class="sub">An Atlas of Imagined Voyages</div>
       <svg class="flourish" width="120" height="10" viewBox="0 0 120 10" fill="none" stroke="currentColor" stroke-width="0.8" style="height:10px;margin:8px auto 0">
-        <path d="M10 5 H46 M74 5 H110" opacity="0.4"/>
-        <path d="M46 5 q7 -4 14 0 q7 4 14 0" opacity="0.6"/>
+        <path pathLength="1" d="M10 5 H46 M74 5 H110" opacity="0.4"/>
+        <path pathLength="1" d="M46 5 q7 -4 14 0 q7 4 14 0" opacity="0.6"/>
         <circle cx="60" cy="5" r="1.5" fill="currentColor" stroke="none" opacity="0.6"/>
       </svg>
       <div class="est">Charted &middot; Mappa Mundi Libraria</div>
@@ -2114,6 +2195,119 @@ updateEmptyState();
   if (!handle || !ledger) return;
   if (window.innerWidth <= 720) ledger.classList.add('collapsed');
   handle.addEventListener('click', () => ledger.classList.toggle('collapsed'));
+})();
+
+
+// ═══════════════════════════════════════════════════════════════
+//  INK TITLE — the masthead rises out of wet ink on first load
+// ═══════════════════════════════════════════════════════════════
+//  A turbulence-ragged front sweeps across the SVG title like ink
+//  wicking through vellum. The glyphs are laid down wet — dark,
+//  swollen, blurred, with a soak-halo bleeding around each stroke
+//  and flecks of spatter — then the whole inscription "dries":
+//  edges sharpen to a fibrous crispness, the colour lifts from
+//  wet black to the palette ink, an emboss and shadow settle in,
+//  and the halo recedes to a faint permanent stain.
+
+(function inkTitle() {
+  const svg = document.getElementById('ink-title');
+  const cartouche = document.getElementById('map-title');
+  if (!svg || !cartouche) return;
+
+  const el = id => document.getElementById(id);
+  const bodyG = el('ink-body'), haloG = el('ink-halo');
+  const bodyTxt = el('ink-body-text'), specksG = el('ink-specks');
+  const grads = [el('ink-sweep-grad'), el('ink-sweep-grad-halo')];
+  const fDisp = el('ink-f-disp'), fBlur = el('ink-f-blur');
+  const fEmboss = el('ink-f-emboss'), fShadow = el('ink-f-shadow');
+  const fHaloBlur = el('ink-f-halo-blur');
+
+  const FS = 44;    // .ink-text font-size in viewBox units
+  const BAND = 110; // soft width of the wet front (matches the sweep gradients)
+
+  const inkVar = getComputedStyle(document.documentElement).getPropertyValue('--ink').trim();
+  const hex = (inkVar.match(/^#([0-9a-f]{6})$/i) || [, '1f2440'])[1];
+  const dry = { r: parseInt(hex.slice(0, 2), 16), g: parseInt(hex.slice(2, 4), 16), b: parseInt(hex.slice(4, 6), 16) };
+  const wet = { r: dry.r * 0.34 | 0, g: dry.g * 0.34 | 0, b: dry.b * 0.55 | 0 }; // near-black with a blue gloss
+  const mix = (a, b, t) => 'rgb(' + (a.r + (b.r - a.r) * t | 0) + ',' + (a.g + (b.g - a.g) * t | 0) + ',' + (a.b + (b.b - a.b) * t | 0) + ')';
+
+  let vb;
+  function layout() {
+    const bb = bodyTxt.getBBox();
+    vb = { x: bb.x - 26, y: bb.y - 14, w: bb.width + 52, h: bb.height + 32 };
+    svg.setAttribute('viewBox', vb.x + ' ' + vb.y + ' ' + vb.w + ' ' + vb.h);
+    svg.style.height = (vb.h / FS).toFixed(3) + 'em'; // glyphs render at exactly h1's font-size
+    grads.forEach(g => { g.setAttribute('x1', vb.x - BAND); g.setAttribute('x2', vb.x); });
+    svg.querySelectorAll('mask, .ink-mask-rect').forEach(n => {
+      n.setAttribute('x', vb.x - 70); n.setAttribute('y', vb.y - 70);
+      n.setAttribute('width', vb.w + 140); n.setAttribute('height', vb.h + 140);
+    });
+
+    // spatter: tiny flecks around the baseline, uncovered as the front passes
+    specksG.textContent = '';
+    let s = 88;
+    const rnd = () => ((s = (s * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff);
+    for (let i = 0; i < 14; i++) {
+      const fleck = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      const stray = rnd() < 0.3; // most flecks hug the strokes, a few land wide
+      fleck.setAttribute('cx', (bb.x + rnd() * bb.width).toFixed(1));
+      fleck.setAttribute('cy', (bb.y + bb.height * (0.3 + rnd() * 0.6) + (stray ? rnd() * 36 - 18 : rnd() * 10 - 5)).toFixed(1));
+      fleck.setAttribute('r', (0.5 + rnd() * rnd() * 1.6).toFixed(2));
+      fleck.setAttribute('opacity', (0.1 + rnd() * 0.35).toFixed(2));
+      specksG.appendChild(fleck);
+    }
+  }
+
+  const SWEEP = 2600, DRY0 = 1700, DRY1 = 4400; // ms: front crossing; drying overlaps its tail
+  const smooth = t => t <= 0 ? 0 : t >= 1 ? 1 : t * t * (3 - 2 * t);
+  const easeOut = t => t <= 0 ? 0 : t >= 1 ? 1 : 1 - Math.pow(1 - t, 3);
+
+  function apply(ms) {
+    const travel = vb.w + BAND + 100;
+    const tx = smooth(ms / SWEEP) * travel;
+    grads[0].setAttribute('gradientTransform', 'translate(' + tx.toFixed(1) + ' 0)');
+    // the soak-front runs a touch ahead of the glyph-front, so ink bleeds in first
+    grads[1].setAttribute('gradientTransform', 'translate(' + Math.min(travel, tx * 1.04 + 14).toFixed(1) + ' 0)');
+
+    const d = smooth((ms - DRY0) / (DRY1 - DRY0)); // 0 = wet, 1 = dry
+    fDisp.setAttribute('scale', (10 - 7.8 * d).toFixed(2));
+    fBlur.setAttribute('stdDeviation', (1.5 * (1 - d)).toFixed(2));
+    fEmboss.setAttribute('flood-opacity', (0.32 * d).toFixed(2));
+    fShadow.setAttribute('flood-opacity', (0.12 * d).toFixed(2));
+    fHaloBlur.setAttribute('stdDeviation', (4.6 - 1.5 * d).toFixed(2));
+    haloG.setAttribute('opacity', (easeOut(ms / 450) * (0.5 - 0.41 * d)).toFixed(3));
+    bodyG.setAttribute('fill', mix(wet, dry, d));
+  }
+
+  function finish() {
+    apply(DRY1);
+    bodyG.removeAttribute('mask'); // dried: drop the reveal masks, keep only
+    haloG.removeAttribute('mask'); // the resting fibrous-edge / stain filters
+    bodyG.style.fill = 'var(--ink)'; // track live palette changes from here on
+    haloG.style.fill = 'var(--ink)';
+  }
+
+  let started = false;
+  function start() {
+    if (started) return;
+    started = true;
+    layout();
+    cartouche.classList.add('inked'); // kicks off the CSS choreography around the title
+    if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) { finish(); return; }
+    const t0 = performance.now() + 380; // let the cartouche settle before the ink moves
+    (function tick(now) {
+      const ms = now - t0;
+      apply(Math.max(0, ms));
+      if (ms < DRY1) requestAnimationFrame(tick); else finish();
+    })(t0 - 380);
+  }
+
+  if (document.fonts && document.fonts.load) {
+    document.fonts.load("700 44px 'Cinzel Decorative'").then(start, start);
+    setTimeout(start, 1900); // never hold the title hostage to a slow font CDN
+  } else {
+    start();
+  }
 })();
 </script>
 
